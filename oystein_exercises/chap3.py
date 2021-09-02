@@ -57,28 +57,10 @@ def polynomial_fit_n_order(x: np.ndarray, y: np.ndarray, n: int = 2):
     # Step 4: (source: calculate bias and variance)
     Y_predicted = the_model.predict(X_transformed)
 
-    beta = matrix_multiplication(
-        matrix_multiplication(
-            matrix_inverse(
-                matrix_multiplication(
-                    matrix_transpose(X_transformed),
-                    X_transformed
-                )
-            ),
-            matrix_transpose(X_transformed)
-        ),
-        Y_predicted
-    )
-
-    print(beta)
-
     rmse = np.sqrt(mean_squared_error(Y, Y_predicted))
     r2 = r2_score(Y, Y_predicted)
-    mse_sum = 0
-    for i in range(n):
-        mse_sum += (Y[i]-Y_predicted[i])**2
+    mse = 1/n * np.sum((Y-Y_predicted)**2)
 
-    mse = float(1/n * mse_sum)
     print(f'MSE: {mse}')
     print(f'RMSE: {rmse}')
     print(f'R2: {r2}')
@@ -96,17 +78,17 @@ def polynomial_fit_n_order(x: np.ndarray, y: np.ndarray, n: int = 2):
     title_for_plot = f"""Polynomial Linear Regression using scikit-learn
             Degree = {n}; RMSE = {rmse: .2}; R2 = {r2: .2}"""
 
-    plt.plot(x_axis_span, Y_final_predict,
-             label=f"Prediction line", linewidth=2)
-    plt.grid()
-    plt.xlim(x_min, x_max)
-    plt.ylim(0, 10)
-    plt.title(title_for_plot, fontsize=10)
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.savefig("polynomial_linear_regression.png", bbox_inches='tight')
-    plt.legend()
-    plt.show()
+    # plt.plot(x_axis_span, Y_final_predict,
+    #          label=f"Prediction line", linewidth=2)
+    # plt.grid()
+    # plt.xlim(x_min, x_max)
+    # plt.ylim(0, 10)
+    # plt.title(title_for_plot, fontsize=10)
+    # plt.xlabel('x')
+    # plt.ylabel('y')
+    # plt.savefig("polynomial_linear_regression.png", bbox_inches='tight')
+    # plt.legend()
+    # plt.show()
 
 
 def polynomial_fit_n_order_without_packages(x: np.ndarray, y: np.ndarray, n: int = 2):
@@ -121,6 +103,12 @@ def polynomial_fit_n_order_without_packages(x: np.ndarray, y: np.ndarray, n: int
     # TODO: create this without the LinearRegression()-function
     the_model = LinearRegression().fit(X_transformed, Y)
 
+    # TODO: Check if the_model and Beta are the same
+    Beta = matrix_inverse(
+        X_transformed.T @ X_transformed) @ X_transformed.T @ Y
+
+    print(Beta)
+
     x_axis_span = np.linspace(-1, 1.2, 100)[:, np.newaxis]
     X_axis_span = np.zeros([len(x_axis_span), n+1])
 
@@ -128,13 +116,13 @@ def polynomial_fit_n_order_without_packages(x: np.ndarray, y: np.ndarray, n: int
         for j in range(n+1):
             X_axis_span[i, j] = x_axis_span[i]**j
 
-    Y_predicted = the_model.predict(X_axis_span)
+    Y_predicted = X_axis_span @ Beta
 
-    plt.scatter(X, Y, label="datapoints")   # Plotting the datapoints
-    plt.plot(x_axis_span, Y_predicted, label="predicted line")
-    plt.grid()
-    plt.legend()
-    plt.show()
+    # plt.scatter(X, Y, label="datapoints")   # Plotting the datapoints
+    # plt.plot(x_axis_span, Y_predicted, label="predicted line")
+    # plt.grid()
+    # plt.legend()
+    # plt.show()
 
 
 def matrix_multiplication(matrix1: np.ndarray, matrix2: np.ndarray):
@@ -153,15 +141,17 @@ if __name__ == '__main__':
     observations = 200
     x = np.random.rand(observations)  # rows = 100, columns = 1
     y = 2 + 5*x**2 + 0.1 * np.random.randn(observations)
-    x_perfect = np.linspace(-100, 100, 100000)
-    plt.plot(x_perfect, 2 + 5*x_perfect**2,
-             linestyle="dotted", label="Exact")
+    # x_perfect = np.linspace(-100, 100, 100000)
+    # plt.plot(x_perfect, 2 + 5*x_perfect**2,
+    #          linestyle="dotted", label="Exact")
 
-    if len(sys.argv) > 1:
-        try:
-            polynomial_fit_n_order(x, y, int(sys.argv[1]))
-        except Exception:
-            polynomial_fit_n_order(x, y)
+    # if len(sys.argv) > 1:
+    #     try:
+    #         polynomial_fit_n_order(x, y, int(sys.argv[1]))
+    #     except Exception:
+    #         polynomial_fit_n_order(x, y)
 
-    else:
-        polynomial_fit_n_order(x, y)
+    # else:
+    # polynomial_fit_n_order(x, y)
+
+    polynomial_fit_n_order_without_packages(x, y)

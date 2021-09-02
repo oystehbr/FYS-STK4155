@@ -1,0 +1,11 @@
+  # plt.plot(x_axis_span, Y_final_predict,
+    #          label=f"Prediction line", linewidth=2)
+    # plt.grid()
+    # plt.xlim(x_min, x_max)
+    # plt.ylim(0, 10)
+    # plt.title(title_for_plot, fontsize=10)
+    # plt.xlabel('x')
+    # plt.ylabel('y')
+    # plt.savefig("polynomial_linear_regression.png", bbox_inches='tight')
+    # plt.legend()
+    # plt.show()
