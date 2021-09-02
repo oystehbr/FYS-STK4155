@@ -25,50 +25,79 @@ def polynomial_fit_n_order(x: np.ndarray, y: np.ndarray, n: int = 2):
 
     :return:
         None
-
-    Source: https://moonbooks.org/Articles/How-to-implement-a-polynomial-linear-regression-using-scikit-learn-and-python-3-/
-
+    source: https://moonbooks.org/Articles/How-to-implement-a-polynomial-linear-regression-using-scikit-learn-and-python-3-/
     """
 
-    # Step 1: training data x, y - input
-    X = x[:, np.newaxis]
-    Y = y[:, np.newaxis]
+    # Step 1: (source: training data)
+    X = x[:, np.newaxis]  # Convert from vector to a matrix, n*1 matrix
+    Y = y[:, np.newaxis]  # Convert from vector to a matrix, n*1 matrix
+    plt.scatter(X, Y, label="datapoints")   # Plotting the datapoints
 
-    plt.scatter(X, Y)
-
-    # Step 2: data preparation
+    # Step 2: (source: data preparation)
     polynomial_features = PolynomialFeatures(degree=n)
-    X_transformed = polynomial_features.fit_transform(x[:, np.newaxis])
 
-    # Step 3: define and train a model
-    the_model = LinearRegression()
-    the_model.fit(X_transformed, Y)
+    """
+    X_transformed's form for n-th order polynomial (MATRIX), x => m*1-matrix:
+    1 x_11 x_11**2 ... x_11**n
+    1 x_21 x_21**2 ... x_21**n
+    .                   .
+    .                   .
+    .                   .
+    1 x_m1 x_m1**2 ... x_m1**n
 
-    # Step 4: calculate bias and variance
+    X_transformed's form for 2-th order polynomial (MATRIX), x => m*2-matrix:
+    1 x_11 x_12 x_11**2 x_11*x_12 x_22**2
+    ...
+    """
+    X_transformed = polynomial_features.fit_transform(X)
+
+    # Step 3: (source: define and train a model)
+    the_model = LinearRegression().fit(X_transformed, Y)
+
+    # Step 4: (source: calculate bias and variance)
     Y_predicted = the_model.predict(X_transformed)
+
+    beta = matrix_multiplication(
+        matrix_multiplication(
+            matrix_inverse(
+                matrix_multiplication(
+                    matrix_transpose(X_transformed),
+                    X_transformed
+                )
+            ),
+            matrix_transpose(X_transformed)
+        ),
+        Y_predicted
+    )
+
+    print(beta)
 
     rmse = np.sqrt(mean_squared_error(Y, Y_predicted))
     r2 = r2_score(Y, Y_predicted)
+    mse_sum = 0
+    for i in range(n):
+        mse_sum += (Y[i]-Y_predicted[i])**2
 
+    mse = float(1/n * mse_sum)
+    print(f'MSE: {mse}')
     print(f'RMSE: {rmse}')
     print(f'R2: {r2}')
 
-    # Step 5: prediction
+    # Step 5: (source: prediction)
     x_min = -1
     x_max = 1.2
     x_axis_span = np.linspace(x_min, x_max, 100)
 
-    # Increasing the dimension of the existing array
-    x_axis_span = x_axis_span[:, np.newaxis]
+    x_axis_span = x_axis_span[:, np.newaxis]    # Vector to matrix
 
-    X_final_transform = polynomial_features.fit_transform(x_axis_span)
-    Y_final_predict = the_model.predict(X_final_transform)
+    X_transformed_correct_span = polynomial_features.fit_transform(x_axis_span)
+    Y_final_predict = the_model.predict(X_transformed_correct_span)
 
     title_for_plot = f"""Polynomial Linear Regression using scikit-learn
             Degree = {n}; RMSE = {rmse: .2}; R2 = {r2: .2}"""
 
-    plt.plot(x_axis_span, Y_final_predict, color='coral',
-             label="Prediction line", linewidth=3)
+    plt.plot(x_axis_span, Y_final_predict,
+             label=f"Prediction line", linewidth=2)
     plt.grid()
     plt.xlim(x_min, x_max)
     plt.ylim(0, 10)
@@ -80,16 +109,59 @@ def polynomial_fit_n_order(x: np.ndarray, y: np.ndarray, n: int = 2):
     plt.show()
 
 
+def polynomial_fit_n_order_without_packages(x: np.ndarray, y: np.ndarray, n: int = 2):
+    X = x[:, np.newaxis]  # Convert from vector to a matrix, n*1 matrix
+    Y = y[:, np.newaxis]  # Convert from vector to a matrix, n*1 matrix
+
+    X_transformed = np.zeros([len(X), n+1])
+    for i in range(len(X)):
+        for j in range(n+1):
+            X_transformed[i, j] = X[i]**j
+
+    # TODO: create this without the LinearRegression()-function
+    the_model = LinearRegression().fit(X_transformed, Y)
+
+    x_axis_span = np.linspace(-1, 1.2, 100)[:, np.newaxis]
+    X_axis_span = np.zeros([len(x_axis_span), n+1])
+
+    for i in range(len(x_axis_span)):
+        for j in range(n+1):
+            X_axis_span[i, j] = x_axis_span[i]**j
+
+    Y_predicted = the_model.predict(X_axis_span)
+
+    plt.scatter(X, Y, label="datapoints")   # Plotting the datapoints
+    plt.plot(x_axis_span, Y_predicted, label="predicted line")
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+
+def matrix_multiplication(matrix1: np.ndarray, matrix2: np.ndarray):
+    return np.matmul(matrix1, matrix2)
+
+
+def matrix_inverse(matrix):
+    return np.linalg.inv(matrix)
+
+
+def matrix_transpose(matrix: np.ndarray):
+    return matrix.transpose()
+
+
 if __name__ == '__main__':
-    observations = 100
+    observations = 200
     x = np.random.rand(observations)  # rows = 100, columns = 1
     y = 2 + 5*x**2 + 0.1 * np.random.randn(observations)
+    x_perfect = np.linspace(-100, 100, 100000)
+    plt.plot(x_perfect, 2 + 5*x_perfect**2,
+             linestyle="dotted", label="Exact")
 
     if len(sys.argv) > 1:
         try:
             polynomial_fit_n_order(x, y, int(sys.argv[1]))
         except Exception:
-            polynomial_fit_n_order(x, y, 2)
+            polynomial_fit_n_order(x, y)
 
     else:
-        polynomial_fit_n_order(x, y, 2)
+        polynomial_fit_n_order(x, y)
