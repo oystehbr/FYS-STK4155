@@ -137,6 +137,22 @@ def matrix_transpose(matrix: np.ndarray):
     return matrix.transpose()
 
 
+# Direct copy from lecture notes
+def train_test_split_numpy(inputs, labels, train_size, test_size):
+    n_inputs = len(inputs)
+    inputs_shuffled = inputs.copy()
+    labels_shuffled = labels.copy()
+
+    np.random.shuffle(inputs_shuffled)
+    np.random.shuffle(labels_shuffled)
+
+    train_end = int(n_inputs*train_size)
+    X_train, X_test = inputs_shuffled[:train_end], inputs_shuffled[train_end:]
+    Y_train, Y_test = labels_shuffled[:train_end], labels_shuffled[train_end:]
+
+    return X_train, X_test, Y_train, Y_test
+
+
 if __name__ == '__main__':
     observations = 200
     x = np.random.rand(observations)  # rows = 100, columns = 1
