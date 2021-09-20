@@ -9,13 +9,17 @@ import numpy as np
 
 
 def create_design_matrix(x, y, n):
+    """
+    # TODO: create docstring
+    """
+
     if len(x.shape) > 1:
-        x = np.ravel(x)
+        x = np.ravel(x)  # TODO: hva gjør den
         y = np.ravel(y)
 
-    N = len(x)
-    l = int((n+1)*(n+2)/2)		# Number of elements in beta
-    X = np.ones((N, l))
+    col_no = len(x)
+    row_no = int((n+1)*(n+2)/2)		# Number of elements in beta
+    X = np.ones((col_no, row_no))
 
     for i in range(1, n+1):
         q = int((i)*(i+1)/2)
@@ -23,5 +27,22 @@ def create_design_matrix(x, y, n):
             X[:, q+k] = (x**(i-k))*(y**k)
 
     return X
+
+
+def MSE(z_test, value_approx):
+    """
+    # TODO: docstring
+    """
+
+    return mean_squared_error()
+
+
+def R2(value_test, value_approx):
+    """
+    # TODO: docstring
+
+    """
+
+    return
 
 # TODO: train_test_split in SciKit-Learn
