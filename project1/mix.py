@@ -1,3 +1,20 @@
+import helper
+import matplotlib.pyplot as plt
+import numpy as np
+import sys
+from sklearn.base import ClassifierMixin
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error, r2_score
+import random
+import numpy as np
+from sklearn.model_selection import train_test_split
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib import cm
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+
 # TODO: slett denne
 # TODO: excercise 1
 def plot_polynomial(x_true, y_true, z_true, beta):
