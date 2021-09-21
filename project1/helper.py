@@ -28,21 +28,4 @@ def create_design_matrix(x, y, n):
 
     return X
 
-
-def MSE(z_test, value_approx):
-    """
-    # TODO: docstring
-    """
-
-    return mean_squared_error()
-
-
-def R2(value_test, value_approx):
-    """
-    # TODO: docstring
-
-    """
-
-    return
-
 # TODO: train_test_split in SciKit-Learn
