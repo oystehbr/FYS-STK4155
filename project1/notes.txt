@@ -1,0 +1,3 @@
+22.sep
+
+Bootstrap -> plotte bias and variance insted of the other

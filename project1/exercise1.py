@@ -162,18 +162,19 @@ def main():
         x_values, y_values, z_values, test_size=test_size)
 
     # Train the model with the training data
-    betas, X = get_betas_and_design_matrix(x_train, y_train, z_train, degree)
+    betas, X_train = get_betas_and_design_matrix(
+        x_train, y_train, z_train, degree)
 
     # Find the confidence intervals of the betas
     CI_list = get_confidence_interval_ND(
-        betas, X, z_train)
+        betas, X_train, z_train)
 
     # print_betas_CI(betas, CI_list)
 
     # TODO: create function for getting MSE and R2_score at same time
     # Evaluating the Mean Squared error (MSE)
-    X_pred = helper.create_design_matrix(x_test, y_test, degree)
-    z_pred = z_predicted(X_pred, betas)
+    X_test = helper.create_design_matrix(x_test, y_test, degree)
+    z_pred = z_predicted(X_test, betas)
 
     MSE = mean_squared_error(z_test, z_pred)
     R2_score = r2_score(z_test, z_pred)
