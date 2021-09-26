@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from sklearn.utils import resample
+# TODO scalar every column in design matrix ?? week 38
 
 
 def plot_MSE_vs_complexity(max_degree=19, n=1000, test_size=0.2, boot_resampling=False):
@@ -65,6 +66,7 @@ def plot_MSE_vs_complexity(max_degree=19, n=1000, test_size=0.2, boot_resampling
         # Finding the mean of predicted z-values of the test
         # z_pred_test_mean = np.mean(z_pred_test)
 
+        # TODO: fix this
         # Calculating the MSE, Bias, Variance
         # MSE_test = mean_squared_error(z_test, z_pred_test)
         # BIAS_test = np.mean((z_test - z_pred_test_mean) ** 2, keepdims=True)

@@ -152,6 +152,8 @@ def main():
     degree = 10
     test_size = 0.2
 
+    # TODO: test with scikit learn -> week 38 lectures
+
     x_values, y_values, z_values = generate_data(n, 0.1)
     # Scale data before further use
     x_values, y_values, z_values = scaling_the_data(
