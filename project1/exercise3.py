@@ -1,5 +1,32 @@
+import exercise2
 import numpy as np
 import exercise1
+import helper
+import matplotlib.pyplot as plt
+import sys
+from sklearn.base import ClassifierMixin
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error, r2_score
+import random
+import numpy as np
+from sklearn.model_selection import train_test_split
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib import cm
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+from sklearn.utils import resample
+import exercise1
+from sklearn.model_selection import cross_val_score
+from sklearn import linear_model
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import KFold
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import Pipeline
 
 
 def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bool = False):
@@ -33,23 +60,26 @@ def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bo
     return train, test
 
 
-def cross_validation(x_values, y_values, z_values, k_folds=5):
+def cross_validation(x_values, y_values, z_values, k_folds=5, degree=5):
     """
     # TODO: docs
 
     """
     # TODO: x_values and y_values together? INTO X, and better normalizing data
-
-    test_no = len(x_values) // k_folds
+    if len(x_values) % k_folds > 2:
+        test_no = len(x_values) // k_folds + 1
+    else:
+        test_no = len(x_values) // k_folds
 
     last = False
+    MSE_list = np.zeros(k_folds)
     for i in range(k_folds):
         if i == (k_folds - 1):
             last = True
 
         x_train, x_test = _get_test_and_train_block(x_values, i, test_no, last)
-        y_train, y_test = _get_test_and_train_block(x_values, i, test_no, last)
-        z_train, z_test = _get_test_and_train_block(x_values, i, test_no, last)
+        y_train, y_test = _get_test_and_train_block(y_values, i, test_no, last)
+        z_train, z_test = _get_test_and_train_block(z_values, i, test_no, last)
 
         if False:
             # Test for checking that it gives the correct output
@@ -60,36 +90,43 @@ def cross_validation(x_values, y_values, z_values, k_folds=5):
             print('------------------------')
 
         # TODO: what do we want with this
+        # Train the model with the training data
+        X_train = helper.create_design_matrix(x_train, y_train, degree)
+        X_train_scaled = exercise1.scale_design_matrix(X_train)
 
-    return
-    # z_pred_test_matrix = np.empty((z_test.shape[0], n_bootstrap))
+        z_train_scaled = exercise1.scale_design_matrix(z_train)
 
-    # Running bootstrap-method on training data -> collect the different betas
-    for i in range(n_bootstrap):
-        _x, _y, _z = resample(x_train, y_train, z_train)
+        X_test = helper.create_design_matrix(x_test, y_test, degree)
+        X_test_scaled = exercise1.scale_design_matrix(X_test)
 
         # Evaluate the new model on the same test data each time.
-        betas, _ = exercise1.get_betas_and_design_matrix(
-            _x, _y, _z, degree)
-        z_pred_test_matrix[:, i] = exercise1.z_predicted(X_test, betas)
+        betas_OLS = exercise1.get_betas_OLS(
+            X_train_scaled, z_train_scaled)
 
-    # Take the mean of the betas from the bootstrap
-    z_pred_test = np.mean(z_pred_test_matrix, axis=1, keepdims=True)
+        # Finding the predicted z values with the current model
+        z_pred = exercise1.z_predicted(
+            X_test_scaled, betas_OLS) + np.mean(z_train)
 
-    pass
+        MSE_list[i] = exercise1.mean_squared_error(z_test, z_pred)
+
+    estimated_MSE_cross_validation = np.mean(MSE_list)
+    estimated_MSE_bootstrap = exercise2.bias_variance_boots(
+        x_values, y_values, z_values, degree)[-1]
+
+    X = helper.create_design_matrix(x_values, y_values, degree)
+    # estimated_mse_sckit_list_neg = cross_val_score(
+    #     linear_model.LinearRegression(), X[:, np.newaxis], z_values[:, np.newaxis], scoring='neg_mean_squared_error', cv=5)
+    # estimated_mse_sckit = np.mean(-estimated_mse_sckit_list_neg)
+
+    print(f'MSE_cross: {estimated_MSE_cross_validation}')
+    # print(f'MSE_cross_sckikit: {estimated_mse_sckit}')
+    print(f'MSE_boot: {estimated_MSE_bootstrap}')
 
 
 def main():
-    n = 10
+    n = 100
     x_values, y_values, z_values = exercise1.generate_data(n, 0)
-    cross_validation(x_values, y_values, z_values)
-
-    # # Scale data before further use
-    # TODO: do we scale correct??
-    # x_values, y_values, z_values = exercise1.scaling_the_data(
-    #     x_values, y_values, z_values)
-
-    pass
+    cross_validation(x_values, y_values, z_values, k_folds=5, degree=10)
 
 
 if __name__ == "__main__":

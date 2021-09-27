@@ -20,7 +20,7 @@ import exercise1
 # TODO scalar every column in design matrix ?? week 38
 
 
-def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0.2):
+def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0.2, show_plot=False):
     """
     # TODO: better name
 
@@ -44,25 +44,25 @@ def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0
         X_test_scaled = exercise1.scale_design_matrix(X_test)
         # Running bootstrap-method on training data -> collect the different betas
         for i in range(n_bootstrap):
+
             _x, _y, _z = resample(x_train, y_train, z_train)
 
             # Train the model with the training data
-            X_train = helper.create_design_matrix(x_train, y_train, degree)
-
             X_train = helper.create_design_matrix(_x, _y, degree)
             X_train_scaled = exercise1.scale_design_matrix(X_train)
 
-            z_train_scaled = exercise1.scale_design_matrix(z_train)
+            z_train_scaled = exercise1.scale_design_matrix(_z)
 
             # Evaluate the new model on the same test data each time.
             betas_OLS = exercise1.get_betas_OLS(
                 X_train_scaled, z_train_scaled)
 
             # Finding the predicted z values with the current model
-            z_pred_test_matrix[:, i] = exercise1.z_predicted(
-                X_test_scaled, betas_OLS) + np.mean(z_train)
+            z_pred = exercise1.z_predicted(
+                X_test_scaled, betas_OLS) + np.mean(_z)
 
-        # Finding # TODO
+            z_pred_test_matrix[:, i] = z_pred.ravel()
+
         MSE_test = np.mean(
             np.mean((z_test - z_pred_test_matrix)**2, axis=1, keepdims=True))
 
@@ -76,6 +76,9 @@ def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0
         list_of_MSE_testing.append(MSE_test)
         list_of_BIAS_testing.append(BIAS_test)
         list_of_variance_testing.append(variance_test)
+
+    if not show_plot:
+        return list_of_MSE_testing
 
     # TODO: nicer plots
     plt.plot(range(1, max_degree + 1),
@@ -155,19 +158,15 @@ def plot_MSE_vs_complexity(x_values, y_values, z_values, max_degree=10, test_siz
     plt.close()
 
 
-def main(n=800, noise=0.1):
+def main(n=20, noise=0.1):
 
     x_values, y_values, z_values = exercise1.generate_data(n, noise)
 
-    # bias_variance_boots(x_values, y_values, z_values,
-    #                     max_degree=17, test_size=0.2)
-    plot_MSE_vs_complexity(x_values, y_values, z_values,
-                           max_degree=20, test_size=0.2)
+    bias_variance_boots(x_values, y_values, z_values,
+                        max_degree=5, test_size=0.2)
 
-    # plot_MSE_vs_complexity(max_degree=14, n=500, boot_resampling=True)
-    # plot_MSE_vs_complexity(max_degree=10, n=100, boot_resampling=True)
-    # plot_MSE_vs_complexity(max_degree=14, n=1000, boot_resampling=False)
-    # plot_MSE_vs_complexity(max_degree=14, n=1000, boot_resampling=True)
+    # plot_MSE_vs_complexity(x_values, y_values, z_values,
+    #                        max_degree=20, test_size=0.2)
 
 
 if __name__ == '__main__':

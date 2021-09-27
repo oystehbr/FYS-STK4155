@@ -57,6 +57,14 @@ def generate_data(n, noise_multiplier=0.1):
         x_array[i] = x
         y_array[i] = y
         data_array[i] = z
+
+    # data_array = np.zeros(n)
+    # x = np.linspace(-3, 3, n).reshape(-1, 1)
+    # y = np.zeros(n)
+    # z = np.exp(-x**2) + 1.5 * np.exp(-(x-2)**2) + \
+    #     np.random.normal(0, 1, x.shape)
+    # return x, y, z
+
     return x_array, y_array, data_array
 
 
