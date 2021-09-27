@@ -42,21 +42,14 @@ def cross_validation(x_values, y_values, z_values, k_folds=5):
 
     test_no = len(x_values) // k_folds
 
-    # test = x[i*a, (i+1)*a]
-    # train = x[:, i*a] union x[(i+1)*a), :]
-
+    last = False
     for i in range(k_folds):
-        if i != (k_folds - 1):
-            x_train, x_test = _get_test_and_train_block(x_values, i, test_no)
-            y_train, y_test = _get_test_and_train_block(x_values, i, test_no)
-            z_train, z_test = _get_test_and_train_block(x_values, i, test_no)
-        else:
-            x_train, x_test = _get_test_and_train_block(
-                x_values, i, test_no, True)
-            y_train, y_test = _get_test_and_train_block(
-                x_values, i, test_no, True)
-            z_train, z_test = _get_test_and_train_block(
-                x_values, i, test_no, True)
+        if i == (k_folds - 1):
+            last = True
+
+        x_train, x_test = _get_test_and_train_block(x_values, i, test_no, last)
+        y_train, y_test = _get_test_and_train_block(x_values, i, test_no, last)
+        z_train, z_test = _get_test_and_train_block(x_values, i, test_no, last)
 
         if False:
             # Test for checking that it gives the correct output

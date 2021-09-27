@@ -60,21 +60,35 @@ def generate_data(n, noise_multiplier=0.1):
     return x_array, y_array, data_array
 
 
-def get_betas_and_design_matrix(x_values, y_values, z_values, degree=2):
+def get_betas_OLS(X_train, z_values, degree=2):
     """
     TODO: docstrings
 
 
     """
 
-    # Creating the design matrix for our x- and y-values
-    X = helper.create_design_matrix(x_values, y_values, degree)
-
-    X_T = np.matrix.transpose(X)
-    betas = np.linalg.inv(X_T @ X) @ X_T @ z_values
+    X_train_T = np.matrix.transpose(X_train)
+    betas = np.linalg.pinv(X_train_T @ X_train) @ X_train_T @ z_values
     # LÆRER SA DENNE VAR BEST:
+    # TODO: sjekk denne metoden for å regne betas
     # beta = np.linalg.pinv(X_T @ X) @ X_T @ z_values -> SVD
-    return betas, X
+    return betas
+
+
+def scale_design_matrix(X):
+    """
+    Scaling the desingmatrix by subtracting the mean of each column
+
+    :param X (np.ndarray): # TODO: check type
+        the matrix we wanna scale 
+
+    :return:
+        the scaled matrix
+    """
+
+    X_mean = np.mean(X, axis=0)
+    X_scaled = X - X_mean
+    return X_scaled
 
 
 def find_variance(z_true, z_pred):
@@ -110,6 +124,7 @@ def get_confidence_interval_ND(betas, X, z_true, CI_num=0.95):
 
     n = len(z_true)
     list_of_confidence_intervals = []
+    # TODO: explain what happens here
     for i, mean_beta in enumerate(betas):
         sigma_beta = np.sqrt(sigma_squared * cov_matrix[i][i])
         CI = [mean_beta - z*sigma_beta,
@@ -124,7 +139,6 @@ def print_betas_CI(betas, CI_list):
     print(f'Beta (No)  Beta-value  CI')
     for i, (beta, CI) in enumerate(zip(betas, CI_list)):
         print(f'{i} | {beta} | {CI}')
-        return
 
 
 def z_predicted(X, betas):
@@ -137,49 +151,43 @@ def z_predicted(X, betas):
     return X @ betas
 
 
-def scaling_the_data(x, y, z):
-    """
-    # TODO: docs, better scaling, option
-
-    """
-
-    return x - np.mean(x), y - np.mean(y), z - np.mean(z)
-
-
-def main():
-    # TODO: variables in main() -> constant over main()
-    n = 1000
-    degree = 10
-    test_size = 0.2
+def main(n=1000, degree=5, test_size=0.2, noise=0):
 
     # TODO: test with scikit learn -> week 38 lectures
 
-    x_values, y_values, z_values = generate_data(n, 0.1)
+    x_values, y_values, z_values = generate_data(n, noise)
     # Scale data before further use
-    x_values, y_values, z_values = scaling_the_data(
-        x_values, y_values, z_values)
 
     # We split the data in test and training data
     x_train, x_test, y_train, y_test, z_train, z_test = train_test_split(
         x_values, y_values, z_values, test_size=test_size)
 
     # Train the model with the training data
-    betas, X_train = get_betas_and_design_matrix(
-        x_train, y_train, z_train, degree)
-
-    # Find the confidence intervals of the betas
-    CI_list = get_confidence_interval_ND(
-        betas, X_train, z_train)
-
-    # print_betas_CI(betas, CI_list)
-
-    # TODO: create function for getting MSE and R2_score at same time
-    # Evaluating the Mean Squared error (MSE)
+    X_train = helper.create_design_matrix(x_train, y_train, degree)
     X_test = helper.create_design_matrix(x_test, y_test, degree)
-    z_pred = z_predicted(X_test, betas)
 
-    MSE = mean_squared_error(z_test, z_pred)
-    R2_score = r2_score(z_test, z_pred)
+    # Scale data before further use
+    X_train_scaled = scale_design_matrix(X_train)
+    X_test_scaled = scale_design_matrix(X_test)
+    z_test_scaled = scale_design_matrix(z_test)
+    z_train_scaled = scale_design_matrix(z_train)
+
+    # Get the betas from OLS.
+    betas_OLS = get_betas_OLS(X_train_scaled, z_train_scaled)
+
+    # Find the confidence intervals of the betas # TODO: confidence interval scaled
+    CI_list = get_confidence_interval_ND(
+        betas_OLS, X_train, z_train)
+
+    # print_betas_CI(betas_OLS, CI_list)
+
+    # Scale the data back to its original form
+    z_pred_test = z_predicted(X_test_scaled, betas_OLS) + np.mean(z_train)
+
+    # Evaluating the Mean Squared error (MSE)
+    # TODO: create function for getting MSE and R2_score at same time
+    MSE = mean_squared_error(z_test, z_pred_test)
+    R2_score = r2_score(z_test, z_pred_test)
 
     print(f'MSE: {MSE}')
     print(f'R2_score: {R2_score}')

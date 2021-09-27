@@ -8,7 +8,7 @@ import numpy as np
 # TODO: comments, dogstring, and  make code to our own
 
 
-def create_design_matrix(x, y, n):
+def create_design_matrix(x, y, degree):
     """
     # TODO: create docstring
     """
@@ -18,10 +18,10 @@ def create_design_matrix(x, y, n):
         y = np.ravel(y)
 
     col_no = len(x)
-    row_no = int((n+1)*(n+2)/2)		# Number of elements in beta
+    row_no = int((degree+1)*(degree+2)/2)		# Number of elements in beta
     X = np.ones((col_no, row_no))
 
-    for i in range(1, n+1):
+    for i in range(1, degree+1):
         q = int((i)*(i+1)/2)
         for k in range(i+1):
             X[:, q+k] = (x**(i-k))*(y**k)
