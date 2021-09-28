@@ -30,6 +30,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import Pipeline
 
+# TODO: Make this even better
+
 
 def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bool = False):
     """

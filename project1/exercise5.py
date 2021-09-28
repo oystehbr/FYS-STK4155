@@ -77,12 +77,12 @@ def main(n=100, noise=0.2):
 
     # bias-variance vs complexity
     lasso_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
-                                           max_degree=18, test_size=0.2, lmbda=0.1)
+                                           max_degree=8, test_size=0.2, lmbda=0.001)
 
     # # Cross-validation with lasso
     number_of_lambdas = 100
     # TODO: start_value -2 because of convergenceWarning
-    lmbdas = np.logspace(-2, 4, number_of_lambdas)
+    lmbdas = np.logspace(-2, 2, number_of_lambdas)
     cross_MSE_estimates = []
     for lmbda in lmbdas:
         cross_MSE_estimate, _ = lasso_cross_validation(x_values, y_values, z_values,
