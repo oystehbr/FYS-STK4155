@@ -1,5 +1,7 @@
 import helper
 import exercise1
+import exercise4
+import exercise5
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -20,7 +22,7 @@ import exercise1
 # TODO scalar every column in design matrix ?? week 38
 
 
-def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0.2, show_plot=False):
+def bias_variance_boots(x_values, y_values, z_values, method, min_degree=1, max_degree=10, test_size=0.2, show_plot=False, lmbda=0.1):
     """
     # TODO: better name
 
@@ -34,7 +36,7 @@ def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0
     list_of_BIAS_testing = []
     list_of_variance_testing = []
     # TODO: comments
-    for degree in range(1, max_degree + 1):
+    for degree in range(min_degree, max_degree + 1):
         # TODO: why len(z_test)
         n_bootstrap = len(z_test)
         z_pred_test_matrix = np.empty((z_test.shape[0], n_bootstrap))
@@ -56,12 +58,21 @@ def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0
             _z_scaled = _z - _z_scale
 
             # Evaluate the new model on the same test data each time.
-            betas_OLS = exercise1.get_betas_OLS(
-                X_train_scaled, _z_scaled)
-
+            # Check what regression we are using
+            if method == 'OLS':
+                betas = exercise1.get_betas_OLS(
+                    X_train_scaled, _z_scaled)
+            elif method == 'RIDGE':
+                betas = exercise4.get_betas_RIDGE(
+                    X_train_scaled, lmbda, _z_scaled)
+            elif method == "LASSO":
+                betas = exercise5.get_betas_LASSO(
+                    X_train_scaled, lmbda, _z_scaled)
+            else:
+                print("incorrenct regression model in bias_variance_boot")
             # Finding the predicted z values with the current model
             z_pred = exercise1.z_predicted(
-                X_test_scaled, betas_OLS) + _z_scale
+                X_test_scaled, betas) + _z_scale
 
             z_pred_test_matrix[:, i] = z_pred
 
@@ -87,7 +98,7 @@ def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0
         list_of_variance_testing.append(variance_test)
 
     if not show_plot:
-        return list_of_MSE_testing
+        return list_of_MSE_testing, list_of_BIAS_testing, list_of_variance_testing
 
     # TODO: nicer plots
     plt.plot(range(1, max_degree + 1),
@@ -101,7 +112,7 @@ def bias_variance_boots(x_values, y_values, z_values, max_degree=10, test_size=0
     plt.legend()
     plt.title(
         f"MSE vs. complexity of the model\n\
-        Bootstrap resampling: True; Data points: {len(x_values)}"
+        Data points: {len(x_values)}; Method: {method}"
     )
     # plt.savefig(f"MSE_vs_Complexity_DP_{n}_BR_{boot_resampling}")
     plt.show()
@@ -171,8 +182,8 @@ def main(n=1000, noise=0.2):
     x_values, y_values, z_values = exercise1.generate_data(n, noise)
 
     # n = 200, noise = 0.0 - 0.1, max_degree = 8 -> great bias_variance
-    # bias_variance_boots(x_values, y_values, z_values,
-    #                     max_degree=8, test_size=0.2, show_plot=True)
+    bias_variance_boots(x_values, y_values, z_values, method="OLS",
+                        max_degree=8, test_size=0.2, show_plot=True)
 
     plot_MSE_vs_complexity(x_values, y_values, z_values,
                            max_degree=20, test_size=0.2)

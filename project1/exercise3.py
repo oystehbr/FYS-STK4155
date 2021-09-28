@@ -1,4 +1,6 @@
 import exercise2
+import exercise4
+import exercise5
 import numpy as np
 import exercise1
 import helper
@@ -60,7 +62,7 @@ def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bo
     return train, test
 
 
-def cross_validation(x_values, y_values, z_values, k_folds=5, degree=5):
+def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, lmbda=0.1):
     """
     # TODO: docs
 
@@ -102,33 +104,42 @@ def cross_validation(x_values, y_values, z_values, k_folds=5, degree=5):
         X_test_scaled = X_test - X_train_scale
 
         # Evaluate the new model on the same test data each time.
-        betas_OLS = exercise1.get_betas_OLS(
-            X_train_scaled, z_train_scaled)
+        if method == 'OLS':
+            betas = exercise1.get_betas_OLS(
+                X_train_scaled, z_train_scaled)
+        elif method == 'RIDGE':
+            betas = exercise4.get_betas_RIDGE(
+                X_train_scaled, lmbda, z_train_scaled)
+        elif method == 'LASSO':
+            betas = exercise5.get_betas_LASSO(
+                X_train_scaled, lmbda, z_train_scaled)
+        else:
+            print("incorrenct regression model in cross_validation")
 
         # Finding the predicted z values with the current model
         z_pred = exercise1.z_predicted(
-            X_test_scaled, betas_OLS) + z_train_scale
+            X_test_scaled, betas) + z_train_scale
 
         MSE_list[i] = exercise1.mean_squared_error(z_test, z_pred)
 
     estimated_MSE_cross_validation = np.mean(MSE_list)
     estimated_MSE_bootstrap = exercise2.bias_variance_boots(
-        x_values, y_values, z_values, degree)[-1]
+        x_values, y_values, z_values, method, min_degree=degree, max_degree=degree, lmbda=lmbda)[0][-1]
 
     X = helper.create_design_matrix(x_values, y_values, degree)
     # estimated_mse_sckit_list_neg = cross_val_score(
     #     linear_model.LinearRegression(), X[:, np.newaxis], z_values[:, np.newaxis], scoring='neg_mean_squared_error', cv=5)
     # estimated_mse_sckit = np.mean(-estimated_mse_sckit_list_neg)
-
-    print(f'MSE_cross: {estimated_MSE_cross_validation}')
-    # print(f'MSE_cross_sckikit: {estimated_mse_sckit}')
-    print(f'MSE_boot: {estimated_MSE_bootstrap}')
+    return estimated_MSE_cross_validation, estimated_MSE_bootstrap
 
 
 def main():
     n = 100
     x_values, y_values, z_values = exercise1.generate_data(n, 0)
-    cross_validation(x_values, y_values, z_values, k_folds=5, degree=10)
+    MSE_cross_validation, MSE_bootstrap = cross_validation(x_values, y_values, z_values,
+                                                           method='OLS',  k_folds=5, degree=10)
+    print(f'MSE_cross: {MSE_cross_validation}')
+    print(f'MSE_boot: {MSE_bootstrap}')
 
 
 if __name__ == "__main__":
