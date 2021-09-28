@@ -92,12 +92,14 @@ def cross_validation(x_values, y_values, z_values, k_folds=5, degree=5):
         # TODO: what do we want with this
         # Train the model with the training data
         X_train = helper.create_design_matrix(x_train, y_train, degree)
-        X_train_scaled = exercise1.scale_design_matrix(X_train)
+        X_train_scale = np.mean(X_train, axis=0)
+        X_train_scaled = X_train - X_train_scale
 
-        z_train_scaled = exercise1.scale_design_matrix(z_train)
+        z_train_scale = np.mean(z_train, axis=0)
+        z_train_scaled = z_train - z_train_scale
 
         X_test = helper.create_design_matrix(x_test, y_test, degree)
-        X_test_scaled = exercise1.scale_design_matrix(X_test)
+        X_test_scaled = X_test - X_train_scale
 
         # Evaluate the new model on the same test data each time.
         betas_OLS = exercise1.get_betas_OLS(
@@ -105,7 +107,7 @@ def cross_validation(x_values, y_values, z_values, k_folds=5, degree=5):
 
         # Finding the predicted z values with the current model
         z_pred = exercise1.z_predicted(
-            X_test_scaled, betas_OLS) + np.mean(z_train)
+            X_test_scaled, betas_OLS) + z_train_scale
 
         MSE_list[i] = exercise1.mean_squared_error(z_test, z_pred)
 

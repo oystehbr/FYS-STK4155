@@ -50,40 +50,31 @@ def generate_data(n, noise_multiplier=0.1):
     x_array = np.zeros(n)
     y_array = np.zeros(n)
     for i in range(n):
-        x = np.random.uniform(0, 1)
-        y = np.random.uniform(0, 1)
+        x_array[i] = np.random.uniform(0, 1)
+        y_array[i] = np.random.uniform(0, 1)
         eps = np.random.normal(0, 1)
-        z = franke_function(x, y) + noise_multiplier * eps
-        x_array[i] = x
-        y_array[i] = y
-        data_array[i] = z
-
-    # data_array = np.zeros(n)
-    # x = np.linspace(-3, 3, n).reshape(-1, 1)
-    # y = np.zeros(n)
-    # z = np.exp(-x**2) + 1.5 * np.exp(-(x-2)**2) + \
-    #     np.random.normal(0, 1, x.shape)
-    # return x, y, z
+        data_array[i] = franke_function(
+            x_array[i], y_array[i]) + noise_multiplier * eps
 
     return x_array, y_array, data_array
 
 
-def get_betas_OLS(X_train, z_values, degree=2):
+def get_betas_OLS(X, z_values, degree=2):
     """
     TODO: docstrings
 
 
     """
 
-    X_train_T = np.matrix.transpose(X_train)
-    betas = np.linalg.pinv(X_train_T @ X_train) @ X_train_T @ z_values
+    X_T = np.matrix.transpose(X)
+    betas = np.linalg.pinv(X_T @ X) @ X_T @ z_values
     # LÆRER SA DENNE VAR BEST:
     # TODO: sjekk denne metoden for å regne betas
     # beta = np.linalg.pinv(X_T @ X) @ X_T @ z_values -> SVD
     return betas
 
 
-def scale_design_matrix(X):
+def scale_design_matrix(X, mean_scale):
     """
     Scaling the desingmatrix by subtracting the mean of each column
 
@@ -94,8 +85,7 @@ def scale_design_matrix(X):
         the scaled matrix
     """
 
-    X_mean = np.mean(X, axis=0)
-    X_scaled = X - X_mean
+    X_scaled = X - mean_scale
     return X_scaled
 
 
@@ -175,10 +165,13 @@ def main(n=1000, degree=5, test_size=0.2, noise=0):
     X_test = helper.create_design_matrix(x_test, y_test, degree)
 
     # Scale data before further use
-    X_train_scaled = scale_design_matrix(X_train)
-    X_test_scaled = scale_design_matrix(X_test)
-    z_test_scaled = scale_design_matrix(z_test)
-    z_train_scaled = scale_design_matrix(z_train)
+    X_train_scale = np.mean(X_train, axis=0)
+    X_train_scaled = X_train - X_train_scale
+
+    # TODO: shall we scale with the above?
+    X_test_scaled = X_test - X_train_scale
+    z_train_scale = np.mean(z_train, axis=0)
+    z_train_scaled = z_train - z_train_scale
 
     # Get the betas from OLS.
     betas_OLS = get_betas_OLS(X_train_scaled, z_train_scaled)
@@ -190,7 +183,7 @@ def main(n=1000, degree=5, test_size=0.2, noise=0):
     # print_betas_CI(betas_OLS, CI_list)
 
     # Scale the data back to its original form
-    z_pred_test = z_predicted(X_test_scaled, betas_OLS) + np.mean(z_train)
+    z_pred_test = z_predicted(X_test_scaled, betas_OLS) + z_train_scale
 
     # Evaluating the Mean Squared error (MSE)
     # TODO: create function for getting MSE and R2_score at same time
