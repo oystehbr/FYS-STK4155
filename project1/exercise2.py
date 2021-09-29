@@ -45,6 +45,7 @@ def bias_variance_boots(x_values, y_values, z_values, method, min_degree=1, max_
         X_test = helper.create_design_matrix(x_test, y_test, degree)
         # Running bootstrap-method on training data -> collect the different betas
         for i in range(n_bootstrap):
+            # TODO: here loop over the different lambdas
 
             _x, _y, _z = resample(x_train, y_train, z_train)
 
@@ -177,22 +178,19 @@ def plot_MSE_vs_complexity(x_values, y_values, z_values, max_degree=10, test_siz
     plt.close()
 
 
-def main(n=1000, noise=0.2):
-
-    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+def main(x_values, y_values, z_values, max_degree=8):
 
     # n = 200, noise = 0.0 - 0.1, max_degree = 8 -> great bias_variance
     bias_variance_boots(x_values, y_values, z_values, method="OLS",
-                        max_degree=8, test_size=0.2, show_plot=True)
+                        max_degree=max_degree, test_size=0.2, show_plot=True)
 
     plot_MSE_vs_complexity(x_values, y_values, z_values,
-                           max_degree=20, test_size=0.2)
+                           max_degree=max_degree, test_size=0.2)
 
 
 if __name__ == '__main__':
-    main()
-
-    # for i in range(300, 600, 50):
-    #     for j in range(5):
-    #         print(0.2*j)
-    #         main(n=i, noise=0.2*j)
+    n = 200
+    noise = 0.05
+    max_degree = 8
+    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+    main(x_values, y_values, z_values, max_degree)

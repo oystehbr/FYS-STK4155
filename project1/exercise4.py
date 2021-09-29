@@ -70,16 +70,16 @@ def ridge_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
     return cross_MSE_estimate, boots_MSE_estimate
 
 
-def main(n=100, noise=0.2):
+def main(n=50, noise=0.2):
 
     x_values, y_values, z_values = exercise1.generate_data(n, noise)
 
-    # # bias-variance vs complexity
-    # ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
-    #                                        max_degree=18, test_size=0.2, lmbda=0.1)
+    # bias-variance vs complexity
+    ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
+                                           max_degree=18, test_size=0.2, lmbda=0.1)
 
-    # # Cross-validation with ridge
-    number_of_lambdas = 100
+    # Cross-validation with ridge
+    number_of_lambdas = 40
     lmbdas = np.logspace(-4, 4, number_of_lambdas)
     cross_MSE_estimates = []
     for lmbda in lmbdas:
@@ -97,10 +97,10 @@ def main(n=100, noise=0.2):
     variance_list = []
 
     # TODO: better explanation
-    degree = 8
+    degree = 5
     for lmbda in lmbdas:
         results = ridge_bootstrap_analysis_vs_lmbda(
-            x_values, y_values, z_values, degree=5, lmbda=lmbda)
+            x_values, y_values, z_values, degree=degree, lmbda=lmbda)
         mse, bias, variance = results
         mse_list.append(mse[-1])
         bias_list.append(bias[-1])
@@ -109,6 +109,8 @@ def main(n=100, noise=0.2):
     plt.plot(np.log10(lmbdas), mse_list, label="MSE")
     plt.plot(np.log10(lmbdas), bias_list, label="BAIS")
     plt.plot(np.log10(lmbdas), variance_list, label="VARIANCE")
+    plt.xlabel(f"log_10(lambda)")
+    plt.ylabel(f"Error")
     plt.legend()
     plt.title(f"Error vs lambda\nData points: {n}\nDegree: {degree}")
     plt.show()

@@ -70,7 +70,7 @@ def lasso_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
     return cross_MSE_estimate, boots_MSE_estimate
 
 
-def main(n=100, noise=0.2):
+def main(n=50, noise=0):
 
     # TODO: check this more carefully, fully copy from Ridge
     x_values, y_values, z_values = exercise1.generate_data(n, noise)
@@ -82,7 +82,7 @@ def main(n=100, noise=0.2):
     # # Cross-validation with lasso
     number_of_lambdas = 100
     # TODO: start_value -2 because of convergenceWarning
-    lmbdas = np.logspace(-2, 2, number_of_lambdas)
+    lmbdas = np.logspace(-4, 2, number_of_lambdas)
     cross_MSE_estimates = []
     for lmbda in lmbdas:
         cross_MSE_estimate, _ = lasso_cross_validation(x_values, y_values, z_values,
@@ -99,10 +99,10 @@ def main(n=100, noise=0.2):
     variance_list = []
 
     # TODO: better explanation
-    degree = 8
+    degree = 14
     for lmbda in lmbdas:
         results = lasso_bootstrap_analysis_vs_lmbda(
-            x_values, y_values, z_values, degree=5, lmbda=lmbda)
+            x_values, y_values, z_values, degree=degree, lmbda=lmbda)
         mse, bias, variance = results
         mse_list.append(mse[-1])
         bias_list.append(bias[-1])
