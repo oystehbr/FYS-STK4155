@@ -70,14 +70,15 @@ def lasso_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
     return cross_MSE_estimate, boots_MSE_estimate
 
 
-def main(n=50, noise=0):
+def main(x_values, y_values, z_values, max_degree, degree):
 
     # TODO: check this more carefully, fully copy from Ridge
-    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+
+    n = len(x_values)
 
     # bias-variance vs complexity
     lasso_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
-                                           max_degree=8, test_size=0.2, lmbda=0.001)
+                                           max_degree=max_degree, test_size=0.2, lmbda=0.001)
 
     # # Cross-validation with lasso
     number_of_lambdas = 100
@@ -86,7 +87,7 @@ def main(n=50, noise=0):
     cross_MSE_estimates = []
     for lmbda in lmbdas:
         cross_MSE_estimate, _ = lasso_cross_validation(x_values, y_values, z_values,
-                                                       degree=1, lmbda=lmbda)
+                                                       degree=degree, lmbda=lmbda)
         cross_MSE_estimates.append(cross_MSE_estimate)
 
     # TODO: nicer plots
@@ -99,7 +100,6 @@ def main(n=50, noise=0):
     variance_list = []
 
     # TODO: better explanation
-    degree = 14
     for lmbda in lmbdas:
         results = lasso_bootstrap_analysis_vs_lmbda(
             x_values, y_values, z_values, degree=degree, lmbda=lmbda)
@@ -117,4 +117,10 @@ def main(n=50, noise=0):
 
 
 if __name__ == "__main__":
-    main()
+    n = 200
+    noise = 0.2
+    max_degree = 18
+    degree = 5
+    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+
+    main(x_values, y_values, z_values, max_degree, degree)

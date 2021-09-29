@@ -70,13 +70,12 @@ def ridge_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
     return cross_MSE_estimate, boots_MSE_estimate
 
 
-def main(n=50, noise=0.2):
+def main(x_values, y_values, z_values, max_degree, degree):
 
-    x_values, y_values, z_values = exercise1.generate_data(n, noise)
-
+    n = len(x_values)
     # bias-variance vs complexity
     ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
-                                           max_degree=18, test_size=0.2, lmbda=0.1)
+                                           max_degree=max_degree, test_size=0.2, lmbda=0.1)
 
     # Cross-validation with ridge
     number_of_lambdas = 40
@@ -84,7 +83,7 @@ def main(n=50, noise=0.2):
     cross_MSE_estimates = []
     for lmbda in lmbdas:
         cross_MSE_estimate, _ = ridge_cross_validation(x_values, y_values, z_values,
-                                                       degree=1, lmbda=lmbda)
+                                                       degree=degree, lmbda=lmbda)
         cross_MSE_estimates.append(cross_MSE_estimate)
 
     # TODO: nicer plots
@@ -97,7 +96,6 @@ def main(n=50, noise=0.2):
     variance_list = []
 
     # TODO: better explanation
-    degree = 5
     for lmbda in lmbdas:
         results = ridge_bootstrap_analysis_vs_lmbda(
             x_values, y_values, z_values, degree=degree, lmbda=lmbda)
@@ -117,4 +115,9 @@ def main(n=50, noise=0.2):
 
 
 if __name__ == "__main__":
-    main()
+    n = 200
+    noise = 0.2
+    max_degree = 18
+    degree = 5
+    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+    main(x_values, y_values, z_values, max_degree, degree)

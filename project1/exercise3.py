@@ -1,34 +1,9 @@
+import helper
+import exercise1
 import exercise2
 import exercise4
 import exercise5
 import numpy as np
-import exercise1
-import helper
-import matplotlib.pyplot as plt
-import sys
-from sklearn.base import ClassifierMixin
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import mean_squared_error, r2_score
-import random
-import numpy as np
-from sklearn.model_selection import train_test_split
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from matplotlib import cm
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-from sklearn.utils import resample
-import exercise1
-from sklearn.model_selection import cross_val_score
-from sklearn import linear_model
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import KFold
-from sklearn.linear_model import Ridge
-from sklearn.model_selection import cross_val_score
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.pipeline import Pipeline
 
 # TODO: Make this even better
 
@@ -135,14 +110,17 @@ def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, 
     return estimated_MSE_cross_validation, estimated_MSE_bootstrap
 
 
-def main():
-    n = 100
-    x_values, y_values, z_values = exercise1.generate_data(n, 0)
+def main(x_values, y_values, z_values, degree):
+
     MSE_cross_validation, MSE_bootstrap = cross_validation(x_values, y_values, z_values,
-                                                           method='OLS',  k_folds=5, degree=10)
+                                                           method='OLS',  k_folds=5, degree=degree)
     print(f'MSE_cross: {MSE_cross_validation}')
     print(f'MSE_boot: {MSE_bootstrap}')
 
 
 if __name__ == "__main__":
-    main()
+    n = 100
+    noise = 0.1
+    degree = 8
+    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+    main(x_values, y_values, z_values, degree)

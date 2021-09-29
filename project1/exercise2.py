@@ -1,24 +1,12 @@
+from sklearn.utils import resample
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 import helper
 import exercise1
 import exercise4
 import exercise5
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
-from sklearn.base import ClassifierMixin
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import mean_squared_error, r2_score
-import random
-import numpy as np
-from sklearn.model_selection import train_test_split
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from matplotlib import cm
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-from sklearn.utils import resample
-import exercise1
 # TODO scalar every column in design matrix ?? week 38
 
 

@@ -1,18 +1,7 @@
-import helper
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
-from sklearn.base import ClassifierMixin
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
-import random
-import numpy as np
 from sklearn.model_selection import train_test_split
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from matplotlib import cm
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import helper
+import numpy as np
 
 
 def franke_function(x, y):
@@ -149,11 +138,10 @@ def z_predicted(X, betas):
     return X @ betas
 
 
-def main(n=1000, degree=5, test_size=0.2, noise=0):
+def main(x_values, y_values, z_values, degree=5, test_size=0.2):
 
     # TODO: test with scikit learn -> week 38 lectures
 
-    x_values, y_values, z_values = generate_data(n, noise)
     # Scale data before further use
 
     # We split the data in test and training data
@@ -197,4 +185,7 @@ def main(n=1000, degree=5, test_size=0.2, noise=0):
 
 
 if __name__ == "__main__":
-    main()
+    n = 1000
+    noise = 0
+    x_values, y_values, z_values = generate_data(n, noise)
+    main(x_values, y_values, z_values)
