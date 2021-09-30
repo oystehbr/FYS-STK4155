@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def bias_variance_boots_looping_lambda(x_values, y_values, z_values, method, degree, test_size=0.2, show_plot=False, lmbda=0.1):
+def bias_variance_boots_looping_lambda(x_values, y_values, z_values, method, degree, test_size=0.2, lmbda=0.1):
     """
     # TODO: docstrings
 
@@ -61,26 +61,7 @@ def bias_variance_boots_looping_lambda(x_values, y_values, z_values, method, deg
         list_of_BIAS_testing.append(BIAS_test)
         list_of_variance_testing.append(variance_test)
 
-    if not show_plot:
-        return list_of_MSE_testing, list_of_BIAS_testing, list_of_variance_testing
-
-    # TODO: nicer plots
-    plt.plot(range(1, max_degree + 1),
-             list_of_MSE_testing, label="Test sample - error")
-    plt.plot(range(1, max_degree + 1),
-             list_of_BIAS_testing, label="Test sample - bias")
-    plt.plot(range(1, max_degree + 1),
-             list_of_variance_testing, label="Test sample - variance")
-    plt.xlabel("Model Complexity")
-    plt.ylabel("Prediction Error")
-    plt.legend()
-    plt.title(
-        f"MSE vs. complexity of the model\n\
-        Data points: {len(x_values)}; Method: {method}"
-    )
-    # plt.savefig(f"MSE_vs_Complexity_DP_{n}_BR_{boot_resampling}")
-    plt.show()
-    plt.close()
+    return list_of_MSE_testing, list_of_BIAS_testing, list_of_variance_testing
 
 
 def bias_variance_boots_looping_degree(x_values, y_values, z_values, method, max_degree=10, n_bootstrap=100, test_size=0.2, show_plot=False, lmbda=0.1):

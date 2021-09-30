@@ -5,6 +5,7 @@ from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 import numpy as np
+from numba import njit
 
 
 def franke_function(x, y):
@@ -51,6 +52,7 @@ def generate_data(n, noise_multiplier=0.1):
     return x_array, y_array, data_array
 
 
+@njit
 def create_design_matrix(x, y, degree):
     """
     # TODO: create docstring
