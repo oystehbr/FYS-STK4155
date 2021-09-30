@@ -30,27 +30,19 @@ def ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values, max_deg
     # TODO: docstrings
 
     """
-    exercise2.bias_variance_boots(x_values=x_values,
-                                  y_values=y_values,
-                                  z_values=z_values,
-                                  method='RIDGE',
-                                  min_degree=1,
-                                  max_degree=max_degree,
-                                  test_size=test_size,
-                                  show_plot=True,
-                                  lmbda=lmbda)
+    exercise2.bias_variance_boots_looping_degree(
+        x_values=x_values, y_values=y_values, z_values=z_values,
+        method='RIDGE', max_degree=max_degree,
+        test_size=test_size, show_plot=True,
+        lmbda=lmbda)
 
 
 def ridge_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree, test_size=0.2, lmbda=0.1):
-    return exercise2.bias_variance_boots(x_values=x_values,
-                                         y_values=y_values,
-                                         z_values=z_values,
-                                         method='RIDGE',
-                                         min_degree=degree,
-                                         max_degree=degree,
-                                         test_size=test_size,
-                                         show_plot=False,
-                                         lmbda=lmbda)
+    return exercise2.bias_variance_boots_looping_lambda(
+        x_values=x_values, y_values=y_values, z_values=z_values,
+        method='RIDGE', degree=degree,
+        test_size=test_size, show_plot=False,
+        lmbda=lmbda)
 
 
 def ridge_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
@@ -59,13 +51,11 @@ def ridge_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
 
     """
 
-    return_values = exercise3.cross_validation(x_values=x_values,
-                                               y_values=y_values,
-                                               z_values=z_values,
-                                               method='RIDGE',
-                                               k_folds=5,
-                                               degree=degree,
-                                               lmbda=lmbda)
+    return_values = exercise3.cross_validation(
+        x_values=x_values, y_values=y_values, z_values=z_values,
+        method='RIDGE', k_folds=5,
+        degree=degree, lmbda=lmbda)
+
     cross_MSE_estimate, boots_MSE_estimate = return_values
     return cross_MSE_estimate, boots_MSE_estimate
 

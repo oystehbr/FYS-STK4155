@@ -4,21 +4,6 @@ import helper
 import numpy as np
 
 
-def get_betas_OLS(X, z_values, degree=2):
-    """
-    TODO: docstrings
-
-
-    """
-
-    X_T = np.matrix.transpose(X)
-    betas = np.linalg.pinv(X_T @ X) @ X_T @ z_values
-    # LÆRER SA DENNE VAR BEST:
-    # TODO: sjekk denne metoden for å regne betas
-    # beta = np.linalg.pinv(X_T @ X) @ X_T @ z_values -> SVD
-    return betas
-
-
 def find_variance(z_true, z_pred):
     """
     # TODO: docs
@@ -41,7 +26,7 @@ def get_confidence_interval_ND(betas, X, z_true, CI_num=0.95):
     """
 
     # TODO: sigma_squared found right
-    z_pred = z_predicted(X, betas)
+    z_pred = helper.z_predicted(X, betas)
     sigma_squared = find_variance(z_true, z_pred)
 
     X_T = np.matrix.transpose(X)
@@ -63,32 +48,26 @@ def get_confidence_interval_ND(betas, X, z_true, CI_num=0.95):
 
 
 def print_betas_CI(betas, CI_list):
+    """
+    # TODO: docsstrings
+    """
 
     print(f'Beta (No)  Beta-value  CI')
     for i, (beta, CI) in enumerate(zip(betas, CI_list)):
         print(f'{i} | {beta} | {CI}')
 
 
-def z_predicted(X, betas):
-    """
-    Returns a  list of z-values predicted by the regression model
-
-    # TODO: docstrings
-    """
-
-    return X @ betas
-
-
 def main(x_values, y_values, z_values, degree=5, test_size=0.2):
+    """
+    # TODO: docstrings
 
-    # TODO: test with scikit learn -> week 38 lectures
-
-    # Scale data before further use
+    """
 
     # We split the data in test and training data
     x_train, x_test, y_train, y_test, z_train, z_test = train_test_split(
         x_values, y_values, z_values, test_size=test_size)
 
+    # TODO: same comment on every such case
     z_pred_test, _, betas_OLS = helper.predict_output(
         x_train=x_train, y_train=y_train, z_train=z_train,
         x_test=x_test, y_test=y_test,
@@ -100,17 +79,14 @@ def main(x_values, y_values, z_values, degree=5, test_size=0.2):
     CI_list = get_confidence_interval_ND(
         betas_OLS, X_train, z_train)
 
-    # print_betas_CI(betas_OLS, CI_list)
+    print_betas_CI(betas_OLS, CI_list)
 
-    # Evaluating the Mean Squared error (MSE)
-    # TODO: create function for getting MSE and R2_score at same time
+    # Evaluating the Mean Squared error (MSE) and R2-score
     MSE = helper.mean_squared_error(z_test, z_pred_test)
     R2_score = helper.r2_score(z_test, z_pred_test)
 
     print(f'MSE: {MSE}')
     print(f'R2_score: {R2_score}')
-
-    # Evaluating the R^2 score function
 
 
 if __name__ == "__main__":
