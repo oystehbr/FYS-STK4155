@@ -37,33 +37,15 @@ def bias_variance_boots(x_values, y_values, z_values, method, min_degree=1, max_
 
             _x, _y, _z = resample(x_train, y_train, z_train)
 
-            # Train the model with the training data
-            X_train = helper.create_design_matrix(_x, _y, degree)
-            X_train_scale = np.mean(X_train, axis=0)
-            X_train_scaled = X_train - X_train_scale
+            # Predicting z with the training set, _x, _y, _z
+            z_pred_test, _, _ = helper.predict_output(
+                x_train=_x, y_train=_y, z_train=_z,
+                x_test=x_test, y_test=y_test,
+                degree=degree, regression_method=method,
+                lmbda=lmbda
+            )
 
-            X_test_scaled = X_test - X_train_scale
-            _z_scale = np.mean(_z, axis=0)
-            _z_scaled = _z - _z_scale
-
-            # Evaluate the new model on the same test data each time.
-            # Check what regression we are using
-            if method == 'OLS':
-                betas = exercise1.get_betas_OLS(
-                    X_train_scaled, _z_scaled)
-            elif method == 'RIDGE':
-                betas = exercise4.get_betas_RIDGE(
-                    X_train_scaled, lmbda, _z_scaled)
-            elif method == "LASSO":
-                betas = exercise5.get_betas_LASSO(
-                    X_train_scaled, lmbda, _z_scaled)
-            else:
-                print("incorrenct regression model in bias_variance_boot")
-            # Finding the predicted z values with the current model
-            z_pred = exercise1.z_predicted(
-                X_test_scaled, betas) + _z_scale
-
-            z_pred_test_matrix[:, i] = z_pred
+            z_pred_test_matrix[:, i] = z_pred_test
 
         # TODO: explain this, maybe vectorize
         MSE_test = 0
@@ -123,30 +105,16 @@ def plot_MSE_vs_complexity(x_values, y_values, z_values, max_degree=10, test_siz
     # Finding MSE for training and test data for different degrees
     for degree in range(1, max_degree + 1):
         # Get designmatrix from the training data and scale it
-        X_train = helper.create_design_matrix(x_train, y_train, degree)
-        X_train_scale = np.mean(X_train, axis=0)
-        X_train_scaled = X_train - X_train_scale
 
-        # Get designmatrix from the test data and scale it
-        X_test = helper.create_design_matrix(x_test, y_test, degree)
-        X_test_scaled = X_test - X_train_scale
+        z_pred_test, z_pred_train, _ = helper.predict_output(
+            x_train=x_train, y_train=y_train, z_train=z_train,
+            x_test=x_test, y_test=y_test,
+            degree=degree, regression_method='OLS',
+        )
 
-        # Scale the output_values
-        z_train_scale = np.mean(z_train, axis=0)
-        z_train_scaled = z_train - z_train_scale
-
-        # Get the betas from OLS - method
-        betas_OLS = exercise1.get_betas_OLS(X_train_scaled, z_train_scaled)
-
-        # Find out how good the model is on our test data
-        z_pred_test = exercise1.z_predicted(
-            X_test_scaled, betas_OLS) + z_train_scale
         MSE_test = mean_squared_error(z_test, z_pred_test)
         list_of_MSE_testing.append(MSE_test)
 
-        # Find out how good the model is on our training data
-        z_pred_train = exercise1.z_predicted(
-            X_train_scaled, betas_OLS) + z_train_scale
         MSE_train = mean_squared_error(z_train, z_pred_train)
         list_of_MSE_training.append(MSE_train)
 
@@ -180,5 +148,5 @@ if __name__ == '__main__':
     n = 200
     noise = 0.05
     max_degree = 8
-    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+    x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values, max_degree)

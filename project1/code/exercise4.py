@@ -5,26 +5,26 @@ import exercise4
 import numpy as np
 import helper
 import matplotlib.pyplot as plt
-from sklearn.linear_model import Lasso
 
 
-def get_betas_LASSO(X, lmbda, z_values):
+def get_betas_RIDGE(X, lmbda, z_values):
     """
     TODO: docstrings
 
-
     """
-    model_lasso = Lasso(lmbda)
-    model_lasso.fit(X, z_values)
-    betas = model_lasso.coef_
+    # TODO: make i RIDGE
+    X_T = np.matrix.transpose(X)
+    p = X.shape[1]
+    I = np.eye(p, p)
+
+    betas = np.linalg.pinv(X_T @ X + lmbda*I) @ X_T @ z_values
 
     return betas
 
+
 # Perform the same bootstrap analysis as in Exercise 2
 # TODO: (for the same polynomials)
-
-
-def lasso_bootstrap_analysis_vs_complexity(x_values, y_values, z_values, max_degree=12, test_size=0.2, lmbda=0.1):
+def ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values, max_degree=12, test_size=0.2, lmbda=0.1):
     """
     FIRST TASK
     # TODO: docstrings
@@ -33,7 +33,7 @@ def lasso_bootstrap_analysis_vs_complexity(x_values, y_values, z_values, max_deg
     exercise2.bias_variance_boots(x_values=x_values,
                                   y_values=y_values,
                                   z_values=z_values,
-                                  method='LASSO',
+                                  method='RIDGE',
                                   min_degree=1,
                                   max_degree=max_degree,
                                   test_size=test_size,
@@ -41,11 +41,11 @@ def lasso_bootstrap_analysis_vs_complexity(x_values, y_values, z_values, max_deg
                                   lmbda=lmbda)
 
 
-def lasso_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree, test_size=0.2, lmbda=0.1):
+def ridge_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree, test_size=0.2, lmbda=0.1):
     return exercise2.bias_variance_boots(x_values=x_values,
                                          y_values=y_values,
                                          z_values=z_values,
-                                         method='LASSO',
+                                         method='RIDGE',
                                          min_degree=degree,
                                          max_degree=degree,
                                          test_size=test_size,
@@ -53,7 +53,7 @@ def lasso_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree, test
                                          lmbda=lmbda)
 
 
-def lasso_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
+def ridge_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
     """
     # TODO: docstrings
 
@@ -62,7 +62,7 @@ def lasso_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
     return_values = exercise3.cross_validation(x_values=x_values,
                                                y_values=y_values,
                                                z_values=z_values,
-                                               method='LASSO',
+                                               method='RIDGE',
                                                k_folds=5,
                                                degree=degree,
                                                lmbda=lmbda)
@@ -72,21 +72,17 @@ def lasso_cross_validation(x_values, y_values, z_values, degree=12, lmbda=0.1):
 
 def main(x_values, y_values, z_values, max_degree, degree):
 
-    # TODO: check this more carefully, fully copy from Ridge
-
     n = len(x_values)
-
     # bias-variance vs complexity
-    lasso_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
-                                           max_degree=max_degree, test_size=0.2, lmbda=0.001)
+    ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
+                                           max_degree=max_degree, test_size=0.2, lmbda=0.1)
 
-    # # Cross-validation with lasso
-    number_of_lambdas = 100
-    # TODO: start_value -2 because of convergenceWarning
-    lmbdas = np.logspace(-4, 2, number_of_lambdas)
+    # Cross-validation with ridge
+    number_of_lambdas = 40
+    lmbdas = np.logspace(-4, 4, number_of_lambdas)
     cross_MSE_estimates = []
     for lmbda in lmbdas:
-        cross_MSE_estimate, _ = lasso_cross_validation(x_values, y_values, z_values,
+        cross_MSE_estimate, _ = ridge_cross_validation(x_values, y_values, z_values,
                                                        degree=degree, lmbda=lmbda)
         cross_MSE_estimates.append(cross_MSE_estimate)
 
@@ -101,7 +97,7 @@ def main(x_values, y_values, z_values, max_degree, degree):
 
     # TODO: better explanation
     for lmbda in lmbdas:
-        results = lasso_bootstrap_analysis_vs_lmbda(
+        results = ridge_bootstrap_analysis_vs_lmbda(
             x_values, y_values, z_values, degree=degree, lmbda=lmbda)
         mse, bias, variance = results
         mse_list.append(mse[-1])
@@ -111,6 +107,8 @@ def main(x_values, y_values, z_values, max_degree, degree):
     plt.plot(np.log10(lmbdas), mse_list, label="MSE")
     plt.plot(np.log10(lmbdas), bias_list, label="BAIS")
     plt.plot(np.log10(lmbdas), variance_list, label="VARIANCE")
+    plt.xlabel(f"log_10(lambda)")
+    plt.ylabel(f"Error")
     plt.legend()
     plt.title(f"Error vs lambda\nData points: {n}\nDegree: {degree}")
     plt.show()
@@ -121,6 +119,5 @@ if __name__ == "__main__":
     noise = 0.2
     max_degree = 18
     degree = 5
-    x_values, y_values, z_values = exercise1.generate_data(n, noise)
-
+    x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values, max_degree, degree)

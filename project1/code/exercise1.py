@@ -4,50 +4,6 @@ import helper
 import numpy as np
 
 
-def franke_function(x, y):
-    """
-    Compute and return function value for a Franke's function
-
-    :param x (float):
-        input value
-    :param y (float):
-        input value
-    :return (float):
-        function value
-    """
-
-    term1 = 0.75*np.exp(-(0.25*(9*x-2)**2) - 0.25*((9*y-2)**2))
-    term2 = 0.75*np.exp(-((9*x+1)**2)/49.0 - 0.1*(9*y+1))
-    term3 = 0.5*np.exp(-(9*x-7)**2/4.0 - 0.25*((9*y-3)**2))
-    term4 = -0.2*np.exp(-(9*x-4)**2 - (9*y-7)**2)
-    return term1 + term2 + term3 + term4
-
-
-def generate_data(n, noise_multiplier=0.1):
-    """
-    Generates data
-    :param n (int):
-        number of x and y values
-    :param noise_multiplier (float, int):
-        scale the noise
-    :return (np.ndarray):
-        array of generated funciton values with noise
-    """
-
-    # TODO: vectorize
-    data_array = np.zeros(n)
-    x_array = np.zeros(n)
-    y_array = np.zeros(n)
-    for i in range(n):
-        x_array[i] = np.random.uniform(0, 1)
-        y_array[i] = np.random.uniform(0, 1)
-        eps = np.random.normal(0, 1)
-        data_array[i] = franke_function(
-            x_array[i], y_array[i]) + noise_multiplier * eps
-
-    return x_array, y_array, data_array
-
-
 def get_betas_OLS(X, z_values, degree=2):
     """
     TODO: docstrings
@@ -61,21 +17,6 @@ def get_betas_OLS(X, z_values, degree=2):
     # TODO: sjekk denne metoden for å regne betas
     # beta = np.linalg.pinv(X_T @ X) @ X_T @ z_values -> SVD
     return betas
-
-
-def scale_design_matrix(X, mean_scale):
-    """
-    Scaling the desingmatrix by subtracting the mean of each column
-
-    :param X (np.ndarray): # TODO: check type
-        the matrix we wanna scale 
-
-    :return:
-        the scaled matrix
-    """
-
-    X_scaled = X - mean_scale
-    return X_scaled
 
 
 def find_variance(z_true, z_pred):
@@ -148,35 +89,23 @@ def main(x_values, y_values, z_values, degree=5, test_size=0.2):
     x_train, x_test, y_train, y_test, z_train, z_test = train_test_split(
         x_values, y_values, z_values, test_size=test_size)
 
-    # Train the model with the training data
-    X_train = helper.create_design_matrix(x_train, y_train, degree)
-    X_test = helper.create_design_matrix(x_test, y_test, degree)
-
-    # Scale data before further use
-    X_train_scale = np.mean(X_train, axis=0)
-    X_train_scaled = X_train - X_train_scale
-
-    # TODO: shall we scale with the above?
-    X_test_scaled = X_test - X_train_scale
-    z_train_scale = np.mean(z_train, axis=0)
-    z_train_scaled = z_train - z_train_scale
-
-    # Get the betas from OLS.
-    betas_OLS = get_betas_OLS(X_train_scaled, z_train_scaled)
+    z_pred_test, _, betas_OLS = helper.predict_output(
+        x_train=x_train, y_train=y_train, z_train=z_train,
+        x_test=x_test, y_test=y_test,
+        degree=degree, regression_method='OLS'
+    )
 
     # Find the confidence intervals of the betas # TODO: confidence interval scaled
+    X_train = helper.create_design_matrix(x_train, y_train, degree)
     CI_list = get_confidence_interval_ND(
         betas_OLS, X_train, z_train)
 
     # print_betas_CI(betas_OLS, CI_list)
 
-    # Scale the data back to its original form
-    z_pred_test = z_predicted(X_test_scaled, betas_OLS) + z_train_scale
-
     # Evaluating the Mean Squared error (MSE)
     # TODO: create function for getting MSE and R2_score at same time
-    MSE = mean_squared_error(z_test, z_pred_test)
-    R2_score = r2_score(z_test, z_pred_test)
+    MSE = helper.mean_squared_error(z_test, z_pred_test)
+    R2_score = helper.r2_score(z_test, z_pred_test)
 
     print(f'MSE: {MSE}')
     print(f'R2_score: {R2_score}')
@@ -187,5 +116,5 @@ def main(x_values, y_values, z_values, degree=5, test_size=0.2):
 if __name__ == "__main__":
     n = 1000
     noise = 0
-    x_values, y_values, z_values = generate_data(n, noise)
+    x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values)

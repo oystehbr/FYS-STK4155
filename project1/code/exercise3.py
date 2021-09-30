@@ -39,7 +39,7 @@ def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bo
     return train, test
 
 
-def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, lmbda=0.1):
+def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, lmbda=1):
     """
     # TODO: docs
 
@@ -68,36 +68,15 @@ def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, 
             print(f'x_test: {x_test}, len: {len(x_test)} ')
             print('------------------------')
 
-        # TODO: what do we want with this
-        # Train the model with the training data
-        X_train = helper.create_design_matrix(x_train, y_train, degree)
-        X_train_scale = np.mean(X_train, axis=0)
-        X_train_scaled = X_train - X_train_scale
+        # TODO: comment - same as always
+        z_pred_test, _, _ = helper.predict_output(
+            x_train=x_train, y_train=y_train, z_train=z_train,
+            x_test=x_test, y_test=y_test,
+            degree=degree, regression_method=method,
+            lmbda=lmbda
+        )
 
-        z_train_scale = np.mean(z_train, axis=0)
-        z_train_scaled = z_train - z_train_scale
-
-        X_test = helper.create_design_matrix(x_test, y_test, degree)
-        X_test_scaled = X_test - X_train_scale
-
-        # Evaluate the new model on the same test data each time.
-        if method == 'OLS':
-            betas = exercise1.get_betas_OLS(
-                X_train_scaled, z_train_scaled)
-        elif method == 'RIDGE':
-            betas = exercise4.get_betas_RIDGE(
-                X_train_scaled, lmbda, z_train_scaled)
-        elif method == 'LASSO':
-            betas = exercise5.get_betas_LASSO(
-                X_train_scaled, lmbda, z_train_scaled)
-        else:
-            print("incorrenct regression model in cross_validation")
-
-        # Finding the predicted z values with the current model
-        z_pred = exercise1.z_predicted(
-            X_test_scaled, betas) + z_train_scale
-
-        MSE_list[i] = exercise1.mean_squared_error(z_test, z_pred)
+        MSE_list[i] = helper.mean_squared_error(z_test, z_pred_test)
 
     estimated_MSE_cross_validation = np.mean(MSE_list)
     estimated_MSE_bootstrap = exercise2.bias_variance_boots(
@@ -122,5 +101,5 @@ if __name__ == "__main__":
     n = 100
     noise = 0.1
     degree = 8
-    x_values, y_values, z_values = exercise1.generate_data(n, noise)
+    x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values, degree)

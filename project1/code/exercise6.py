@@ -25,10 +25,10 @@ def read_terrain_data(filename):
     row_length = np.shape(terrain)[0]
     col_length = np.shape(terrain)[1]
 
-    row_length = 10
-    col_length = 10
+    row_length = 250
+    col_length = 300
 
-    terrain = terrain[:row_length, :col_length]
+    terrain = terrain[250:500, 1000:1300]
 
     x_array = np.linspace(0, 1, col_length)   # x moves sideways
     y_array = np.linspace(0, 1, row_length)
@@ -90,51 +90,27 @@ def terrain_prediction(filename, degree=1):
     x_values, y_values, z_values, terrain, row_length, col_length = read_terrain_data(
         filename)
 
-    # TODO: Call the different main-methods
-    # exercise2.main(x_values, y_values, z_values, max_degree=8)
-    # return
-
-    x_train, x_test, y_train, y_test, z_train, z_test = exercise1.train_test_split(
+    x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
         x_values, y_values, z_values)
 
-    print(2)
-    # Train the model with the training data
-    X_train = helper.create_design_matrix(x_train, y_train, degree)
-    print(2.5)
-    X_test = helper.create_design_matrix(x_test, y_test, degree)
+    _, _, betas = helper.predict_output(
+        x_train=x_train, y_train=y_train, z_train=z_train,
+        x_test=x_test, y_test=y_test,
+        degree=degree, regression_method='OLS',
+    )
 
-    print(3)
-    # Scale data before further use
-    X_train_scale = np.mean(X_train, axis=0)
-    X_train_scaled = X_train - X_train_scale
-
-    print(4)
-    # TODO: shall we scale with the above?
-    X_test_scaled = X_test - X_train_scale
-    z_train_scale = np.mean(z_train, axis=0)
-    z_train_scaled = z_train - z_train_scale
-
-    print(5)
-    # Get the betas from OLS.
-    betas_OLS = exercise1.get_betas_OLS(X_train_scaled, z_train_scaled)
-
-    print(6)
-    # Scale the data back to its original form
     X = helper.create_design_matrix(x_values, y_values, degree)
+    X_scaled = X - np.mean(X, axis=0)
+    z_pred_all = X_scaled @ betas + np.mean(z_train, axis=0)
 
-    print(6.5)
-    z_pred = exercise1.z_predicted(X, betas_OLS) + z_train_scale
-
-    print(7)
     # Transfer back to matrix
     terrain_pred = np.zeros((row_length, col_length))
     counter = 0
     for i in range(row_length):
         for j in range(col_length):
-            terrain_pred[i][j] = z_pred[counter]
+            terrain_pred[i][j] = z_pred_all[counter]
             counter += 1
 
-    print(8)
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
     fig.suptitle('Title of figure', fontsize=20)
@@ -155,7 +131,7 @@ def terrain_prediction(filename, degree=1):
 def main():
 
     # terrain_prediction(filename='SRTM_data_Norway_1.tif', degree=1)
-    # terrain_prediction(filename='case_real_2.tif', degree=25)
+    terrain_prediction(filename='case_real_2.tif', degree=25)
     # terrain_prediction(filename='pandas_real.tif', degree=50)
 
     # Exercise 1
@@ -171,7 +147,7 @@ def main():
     # exercise4_test(filename='SRTM_data_Norway_1.tif', max_degree=5, degree=1)
 
     # Exercise 5
-    exercise5_test(filename='SRTM_data_Norway_1.tif', max_degree=5, degree=1)
+    # exercise5_test(filename='SRTM_data_Norway_1.tif', max_degree=5, degree=1)
 
 
 if __name__ == "__main__":
