@@ -26,7 +26,7 @@ def get_confidence_interval_ND(betas, X, z_true, CI_num=0.95):
     """
 
     # TODO: sigma_squared found right
-    z_pred = helper.z_predicted(X, betas)
+    z_pred = X @ betas
     sigma_squared = find_variance(z_true, z_pred)
 
     X_T = np.matrix.transpose(X)

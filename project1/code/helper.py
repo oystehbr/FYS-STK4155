@@ -74,12 +74,6 @@ def create_design_matrix(x, y, degree):
     return X
 
 
-def z_predicted(X, betas):
-    # TODO: kill this function
-
-    return X @ betas
-
-
 def get_betas_OLS(X, z_values):
     """
     TODO: docstrings
