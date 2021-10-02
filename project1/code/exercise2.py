@@ -5,7 +5,7 @@ import numpy as np
 
 def bias_variance_boots_looping_lambda(x_values, y_values, z_values, method, degree, n_bootstrap=100, test_size=0.2, lmbda=0.1):
     """
-    Function for calculating and return the MSE, bias and variance for testing data.
+    Function for calculating and return the MSE, bias and variance (testing data).
     Will be used for Ridge and Lasso regression. 
 
     :param x_values (np.ndarray):
@@ -76,7 +76,7 @@ def bias_variance_boots_looping_lambda(x_values, y_values, z_values, method, deg
 
 def bias_variance_boots_looping_degree(x_values, y_values, z_values, method, max_degree=10, n_bootstrap=100, test_size=0.2, show_plot=False, lmbda=0.1):
     """
-    Function for plotting/ or returning the MSE, bias and variance for testing data, 
+    Function for plotting/ or returning the MSE, bias and variance (testing data), 
     over complexity. Where complexity means the order of the polynomial 
     that defines the design matrix
 
