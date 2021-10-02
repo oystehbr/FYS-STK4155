@@ -135,7 +135,7 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int):
     Doing what we are expecting in exercise 4:
         - Perform the same bootstrap analysis (mse vs complexity) as in exercise 2
         - Perform cross-validation as in exercise 3 (different values of lmbda)
-        - Perform a bias-variance analysis (mse vs lmbda)
+        - Perform a bias-variance analysis (MSE vs lmbda)
 
     :param x_values (np.ndarray):
         dependent variable

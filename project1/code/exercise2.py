@@ -247,7 +247,6 @@ def main(x_values, y_values, z_values, max_degree: int = 8, test_size: float = 0
         the maximum order (complexity) of the polynomial that will define the design matrix
     """
 
-    # TODO: maybe have two max degrees in main, for easier testing
     mse_vs_complexity(
         x_values, y_values, z_values,
         max_degree=max_degree, test_size=test_size)
