@@ -262,6 +262,6 @@ if __name__ == '__main__':
     # n = 200, noise = 0.0 - 0.1, max_degree = 8 -> great bias_variance
     n = 180
     noise = 0.05
-    max_degree = 14
+    max_degree = 8
     x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values, max_degree)
