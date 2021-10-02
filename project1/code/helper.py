@@ -7,8 +7,10 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from numba import njit
 
+# TODO: regression parameters is beta
 
-def franke_function(x, y):
+
+def franke_function(x: float, y: float):
     """
     Compute and return function value for a Franke's function
 
@@ -16,8 +18,9 @@ def franke_function(x, y):
         input value
     :param y (float):
         input value
+
     :return (float):
-        function value
+        function value 
     """
 
     term1 = 0.75*np.exp(-(0.25*(9*x-2)**2) - 0.25*((9*y-2)**2))
@@ -27,14 +30,17 @@ def franke_function(x, y):
     return term1 + term2 + term3 + term4
 
 
-def generate_data(n, noise_multiplier=0.1):
+def generate_data(n: int, noise_multiplier: float = 0.1):
     """
-    Generates data
+    Generate n data points for x and y, and calculated z 
+    with Franke function
+
     :param n (int):
         number of x and y values
     :param noise_multiplier (float, int):
         scale the noise
-    :return (np.ndarray):
+
+    :return tuple[np.ndarray, np.ndarray, np.ndarray]:
         array of generated funciton values with noise
     """
 
@@ -53,9 +59,20 @@ def generate_data(n, noise_multiplier=0.1):
 
 
 @njit
-def create_design_matrix(x, y, degree):
+def create_design_matrix(x, y, degree: int):
     """
-    # TODO: create docstring
+    Function for creating and returning a
+    design matrix for a given degree.
+
+    :param x (np.ndarray):
+        a dependent variable for the design matrix
+    :param y (np.ndarray):
+        a dependent variable for the design matrix
+    :param degree (int):
+        the order of the polynomial that defines the design matrix
+
+    :return (np.ndarray): 
+        the design matrix
     """
 
     if len(x.shape) > 1:
@@ -74,23 +91,42 @@ def create_design_matrix(x, y, degree):
     return X
 
 
-def get_betas_OLS(X, z_values):
+def get_beta_OLS(X, z_values):
     """
-    TODO: docstrings
+    Function for creating and return the regression parameters,
+    beta, by using the regression method: OLS
 
+    :param X (np.ndarray):
+        a design matrix
+    :param z_values (np.ndarray):
+        the response variable
 
+    :return (np.ndarray):
+        the regression parameters, beta
     """
 
     X_T = np.matrix.transpose(X)
-    betas = np.linalg.pinv(X_T @ X) @ X_T @ z_values
-    return betas
+    beta = np.linalg.pinv(X_T @ X) @ X_T @ z_values
+
+    return beta
 
 
-def get_betas_RIDGE(X, z_values, lmbda):
+def get_betas_RIDGE(X, z_values, lmbda: float):
     """
-    TODO: copy OLS
+    Function for creating and return the regression parameters,
+    beta, by using the regression method: Ridge
 
+    :param X (np.ndarray):
+        a design matrix
+    :param z_values (np.ndarray):
+        the response variable
+    :param lmbda (float):
+        parameter used by Ridge regression (lambda)
+
+    :return (np.ndarray):
+        the regression parameters, beta
     """
+
     X_T = np.matrix.transpose(X)
     p = X.shape[1]
     I = np.eye(p, p)
@@ -100,11 +136,22 @@ def get_betas_RIDGE(X, z_values, lmbda):
     return betas
 
 
-def get_betas_LASSO(X, z_values, lmbda):
+def get_betas_LASSO(X, z_values, lmbda: float):
     """
-    TODO: copy RIDGE
+    Function for creating and return the regression parameters,
+    beta, by using the regression method: Lasso
 
+    :param X (np.ndarray):
+        a design matrix
+    :param z_values (np.ndarray):
+        the response variable
+    :param lmbda (float):
+        parameter used by Lasso regression (lambda)
+
+    :return (np.ndarray):
+        the regression parameters, beta
     """
+
     model_lasso = Lasso(lmbda)
     model_lasso.fit(X, z_values)
     betas = model_lasso.coef_

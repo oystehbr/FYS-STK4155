@@ -176,7 +176,8 @@ def mse_vs_complexity(x_values, y_values, z_values, max_degree=10, test_size=0.2
     plt.title(
         f"MSE vs. complexity of the model\nData points: {len(x_values)}; Method: OLS"
     )
-    # plt.savefig(f"MSE_vs_Complexity_DP_{n}")
+    plt.savefig(
+        f"project1/code/figures/MSE_vs_Complexity_DP_{len(x_values)}_d_{degree}_OLS")
     plt.show()
     plt.close()
 
@@ -188,15 +189,15 @@ def main(x_values, y_values, z_values, max_degree=8):
         x_values, y_values, z_values,
         max_degree=max_degree)
 
-    bias_variance_boots_looping_degree(
-        x_values, y_values, z_values,
-        method="OLS", max_degree=max_degree,
-        show_plot=True)
+    # bias_variance_boots_looping_degree(
+    #     x_values, y_values, z_values,
+    #     method="OLS", max_degree=max_degree,
+    #     show_plot=True)
 
 
 if __name__ == '__main__':
     n = 180
     noise = 0.05
-    max_degree = 8
+    max_degree = 14
     x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values, max_degree)

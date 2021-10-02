@@ -89,7 +89,7 @@ def terrain_prediction(filename, degree=1):
     x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
         x_values, y_values, z_values)
 
-    _, _, betas = helper.predict_output(
+    _, _, beta = helper.predict_output(
         x_train=x_train, y_train=y_train, z_train=z_train,
         x_test=x_test, y_test=y_test,
         degree=degree, regression_method='OLS',
@@ -97,7 +97,7 @@ def terrain_prediction(filename, degree=1):
 
     X = helper.create_design_matrix(x_values, y_values, degree)
     X_scaled = X - np.mean(X, axis=0)
-    z_pred_all = X_scaled @ betas + np.mean(z_train, axis=0)
+    z_pred_all = X_scaled @ beta + np.mean(z_train, axis=0)
 
     # Transfer back to matrix
     terrain_pred = np.zeros((row_length, col_length))
