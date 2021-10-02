@@ -104,7 +104,6 @@ def main(x_values, y_values, z_values, degree: int = 5, test_size: float = 0.2):
 
     print(f'MSE: {MSE}')
     print(f'R2_score: {R2_score}')
-    print(find_variance(z_pred_test, z_test))
 
 
 if __name__ == "__main__":
