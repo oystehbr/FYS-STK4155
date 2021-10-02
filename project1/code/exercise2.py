@@ -30,7 +30,7 @@ def bias_variance_boots_looping_lambda(x_values, y_values, z_values, method, deg
         _x, _y, _z = resample(x_train, y_train, z_train)
 
         # TODO: here loop over the different lambdas
-        # Predicting z with the training set, _x, _y, _z
+        # Predicting z with testing data (given the model base on _x, _y and _z)
         z_pred_test, _, _ = helper.predict_output(
             x_train=_x, y_train=_y, z_train=_z,
             x_test=x_test, y_test=y_test,
