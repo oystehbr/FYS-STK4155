@@ -61,7 +61,7 @@ def ridge_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree: int,
     variance_list = []
 
     # TODO: maybe send into the function
-    number_of_lambdas = 40
+    number_of_lambdas = 20
     lmbdas = np.logspace(-4, 4, number_of_lambdas)
 
     # For every lambda, get MSE, bias and variance
@@ -166,7 +166,7 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int):
 
 
 if __name__ == "__main__":
-    n = 200
+    n = 60
     noise = 0.2
     max_degree = 10
     degree = 5
