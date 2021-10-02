@@ -2,28 +2,6 @@ import helper
 import numpy as np
 
 
-def find_variance(z_true, z_pred):
-    """
-    Simple function for calculating the variance 
-    between two arrays: z_true and z_pred
-
-    :param z_true (np.ndarray):
-        an array
-    :param z_pred (np.ndarray):
-        an array
-
-    return (float):
-        the variance between z_true and z_pred
-    """
-
-    # TODO: is this correct?
-    n = len(z_true)
-    sum = 0
-    for t, p in zip(z_true, z_pred):
-        sum += (t - p)**2
-    return sum/n
-
-
 def get_confidence_interval_beta(beta, X, z_true):
     """
     Function that calculate the 95% confidence interval for the given betas
@@ -40,12 +18,12 @@ def get_confidence_interval_beta(beta, X, z_true):
         with 95% condfidence intervals for beta, in chronological order
     """
 
-    # Finding sigma_squared, betas is scaled -> so we need scale X
+    # Want to predict z, betas is scaled -> so we need to scale X
     X_scaled = X - np.mean(X, axis=0)
     z_pred = X_scaled @ beta + np.mean(z_true, axis=0)  # scaling it back
 
-    # TODO: switch with MSE ?
-    sigma_squared = find_variance(z_true, z_pred)
+    # Estimating sigma_squared with MSE
+    sigma_squared = helper.mean_squared_error(z_true, z_pred)
 
     X_T = np.matrix.transpose(X)
     cov_matrix = sigma_squared * np.linalg.inv(X_T @ X)
