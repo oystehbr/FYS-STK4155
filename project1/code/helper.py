@@ -5,6 +5,7 @@ exercises, and we chose to make this to improve structure
 from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
+from sklearn.utils import resample
 import numpy as np
 from numba import njit
 
@@ -178,6 +179,8 @@ def predict_output(x_train, y_train, z_train, x_test, y_test, degree: int, regre
         testing data: a dependent variable for the testing design matrix
     :param y_test (np.ndarray):
         testing data: a dependent variable for the testing design matrix
+    :param degree (int):
+        the order of the polynomial that defines the design matrix
     :param regression_method (str):
         the preffered regression method: OLS, RIDGE or LASSO
     :param lmbda (float):

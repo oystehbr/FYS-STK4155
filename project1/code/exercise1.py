@@ -75,7 +75,7 @@ def main(x_values, y_values, z_values, degree: int = 5, test_size: float = 0.2):
         response variable
     :param degree (int):
         the order of the polynomial that will define the design matrix
-    :param test_size (number)
+    :param test_size (float)
         the amount of data we will use in testing
     """
 
