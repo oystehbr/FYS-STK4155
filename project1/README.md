@@ -5,6 +5,7 @@
 #### texfile - todo 📈📝
 
 ## Code - folder 🔐💬
+For simplicity, we have created 6 files for the 6 different exercises. Here are some small explanation of the python-files included in this folder.
 
 #### test_project_1.py 🎓🧪
 Function for testing the different exercises. The file contains an easy way to reproduce **exerciseX.py**, with the preferred parameters. We have created the exercises chronologically, so hopefully there will be no surprises. 
@@ -14,7 +15,7 @@ Function for testing the different exercises. The file contains an easy way to r
     - To test an exercise, set the belonging if-statement to True
 
 #### helper.py 🚑👮🏼‍♂️
-This is our helper function. The functions that are included in this file are used in several exercises, and we chose to create this to improve code structure
+This is our helper function. The functions that are included in this file are used in several exercises, and we chose to create this to improve code structure.
 
 #### exercise1.py 🏎🏎
     - Performing an OLS analysis using polynomials in x and y
