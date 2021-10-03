@@ -1,15 +1,22 @@
 # Project 1
 
-## Report - folder 
+## Report - folder 📒📖
 
-#### texfile - todo
+#### texfile - todo 📈📝
 
-## Code - folder
+## Code - folder 🔐💬
 
-#### test_project_1.py 
+#### test_project_1.py 🎓🧪
+Function for testing the different exercises. The file contains an easy way to reproduce **exerciseX.py**, with the preferred parameters. We have created the exercises chronologically, so hopefully there will be no surprises. 
 
-#### helper.py
+How to use this file properly:
+    - Set the preffered parameters (all parameters are located in the beggining of the code)
+    - If you want to try out exerciseX, please set the if-statement, under the comment "# Reproducing exercise X:", to True  
 
+You can change the parameters as you want 
+
+#### helper.py 🚑👮🏼‍♂️
+This is our helper function. The functions that are included in this file are used in several exercises, and we chose to create this to improve code structure
 
 #### exercise1.py 🏎🏎
     - Performing an OLS analysis using polynomials in x and y
