@@ -245,11 +245,13 @@ def main(x_values, y_values, z_values, max_degree: int = 8, test_size: float = 0
         response variable
     :param max_degree (int):
         the maximum order (complexity) of the polynomial that will define the design matrix
+    :param n_bootstrap (int):
+        the number of bootstrap iterations
     """
 
-    mse_vs_complexity(
-        x_values, y_values, z_values,
-        max_degree=max_degree, test_size=test_size)
+    # mse_vs_complexity(
+    #     x_values, y_values, z_values,
+    #     max_degree=max_degree, test_size=test_size)
 
     bias_variance_boots_looping_degree(
         x_values, y_values, z_values,

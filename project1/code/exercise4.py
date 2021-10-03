@@ -104,6 +104,8 @@ def ridge_cross_validation(x_values, y_values, z_values, degree: int, k_folds: i
         response variable
     :param degree (int):
         the order of the polynomial that will define the design matrix
+    :param k_folds (int):
+        the amount of folds we wanna do cross-validation on
     """
 
     # TODO: maybe send in to function
@@ -130,7 +132,7 @@ def ridge_cross_validation(x_values, y_values, z_values, degree: int, k_folds: i
     plt.show()
 
 
-def main(x_values, y_values, z_values, max_degree: int, degree: int):
+def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: float = 0.2, k_folds: int = 5, n_bootstrap: int = 100, lmbda: float = 0.1):
     """
     Doing what we are expecting in exercise 4:
         - Perform the same bootstrap analysis (mse vs complexity) as in exercise 2
@@ -145,24 +147,33 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int):
         response variable
     :param degree (int):
         the order of the polynomial that will define the design matrix
+    :param test_size (float):
+        the amount of data we will use in testing
+    :param k_folds (int):
+        the amount of folds we wanna do cross-validation on
+    :param n_bootstrap (int):
+        the number of bootstrap iterations
+    :param lmbda (float):
+        parameter used in the regression method
     """
 
     # Perform bootstrap analysis for Ridge
     ridge_bootstrap_analysis_vs_complexity(
         x_values, y_values, z_values,
-        max_degree=max_degree,
-        test_size=0.2, lmbda=0.1)
+        max_degree=max_degree, n_bootstrap=n_bootstrap,
+        test_size=test_size, lmbda=lmbda)
 
     # Perform cross-validation with Ridge, vs lmbdas
     # TODO: input to cross -> lmbda start -> slutt maybe ?? narrow splitting?
     ridge_cross_validation(
         x_values, y_values, z_values,
-        degree=degree)
+        degree=degree, k_folds=k_folds)
 
     # Bias-variance trade-off vs parameter lambda
     ridge_bootstrap_analysis_vs_lmbda(
         x_values, y_values, z_values,
-        degree=degree)
+        degree=degree, n_bootstrap=n_bootstrap,
+        test_size=test_size)
 
 
 if __name__ == "__main__":

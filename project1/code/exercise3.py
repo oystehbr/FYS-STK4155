@@ -114,6 +114,8 @@ def main(x_values, y_values, z_values, degree: int, k_folds: int = 5):
         response variable
     :param degree (int):
         the order of the polynomial that will define the design matrix
+    :param k_folds (int):
+        the amount of folds we wanna do cross-validation on
     """
 
     MSE_cross_validation, MSE_bootstrap = cross_validation(

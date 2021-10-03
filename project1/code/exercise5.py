@@ -1,3 +1,4 @@
+from numba.cuda import test
 import exercise1
 import exercise2
 import exercise3
@@ -88,7 +89,7 @@ def lasso_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree: int,
     plt.show()
 
 
-def lasso_cross_validation(x_values, y_values, z_values, degree=12):
+def lasso_cross_validation(x_values, y_values, z_values, degree: int = 12, k_folds: int = 5):
     """
     The function will calculate the MSE with the sampling method:
     cross-validation. It will use Lasso regression and will plot the 
@@ -102,6 +103,8 @@ def lasso_cross_validation(x_values, y_values, z_values, degree=12):
         response variable
     :param degree (int):
         the order of the polynomial that will define the design matrix
+    :param k_folds (int):
+        the amount of folds we wanna do cross-validation on
     """
 
     # TODO: maybe send in to function
@@ -113,7 +116,7 @@ def lasso_cross_validation(x_values, y_values, z_values, degree=12):
     for lmbda in lmbdas:
         cross_MSE_estimate, _ = exercise3.cross_validation(
             x_values=x_values, y_values=y_values, z_values=z_values,
-            method='LASSO', k_folds=5, degree=degree,
+            method='LASSO', k_folds=k_folds, degree=degree,
             lmbda=lmbda)
 
         cross_MSE_estimates.append(cross_MSE_estimate)
@@ -128,7 +131,7 @@ def lasso_cross_validation(x_values, y_values, z_values, degree=12):
     plt.show()
 
 
-def main(x_values, y_values, z_values, max_degree: int, degree: int):
+def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: float = 0.2, k_folds: int = 5,  n_bootstrap: int = 100, lmbda: float = 0.1):
     """
     Doing what we are expecting in exercise 5:
         - Perform the same bootstrap analysis (mse vs complexity) as in exercise 2
@@ -145,20 +148,32 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int):
         the maximum order of the polynomial that will define the design matrix
     :param degree (int):
         the order of the polynomial that will define the design matrix
+    :param test_size (float):   
+        the amount of data we will use in testing
+    :param k_folds (int):
+        the amount of folds we wanna do cross-validation on
+    :param n_bootstrap (int):
+        the number of bootstrap iterations
+    :param lmbda (float):
+        parameter used in the regression method
     """
 
     # Perform bootstrap analysis for Lasso
-    lasso_bootstrap_analysis_vs_complexity(x_values, y_values, z_values,
-                                           max_degree=max_degree, test_size=0.2, lmbda=0.001)
+    lasso_bootstrap_analysis_vs_complexity(
+        x_values, y_values, z_values,
+        max_degree=max_degree, n_bootstrap=n_bootstrap,
+        test_size=test_size, lmbda=lmbda)
 
     # Perform cross-validation with Lasso
-    lasso_cross_validation(x_values, y_values, z_values,
-                           degree=degree)
+    lasso_cross_validation(
+        x_values, y_values, z_values,
+        degree=degree, k_folds=k_folds)
 
     # Bias-variance trade-off vs parameter lambda
     lasso_bootstrap_analysis_vs_lmbda(
         x_values, y_values, z_values,
-        degree=degree)
+        degree=degree, n_bootstrap=n_bootstrap,
+        test_size=test_size)
 
 
 if __name__ == "__main__":
