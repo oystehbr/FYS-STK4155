@@ -108,7 +108,6 @@ def ridge_cross_validation(x_values, y_values, z_values, degree: int, k_folds: i
         the amount of folds we wanna do cross-validation on
     """
 
-    # TODO: maybe send in to function
     number_of_lambdas = 40
     lmbdas = np.logspace(-4, 4, number_of_lambdas)
     cross_MSE_estimates = []
@@ -158,10 +157,10 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
     """
 
     # Perform bootstrap analysis for Ridge
-    ridge_bootstrap_analysis_vs_complexity(
-        x_values, y_values, z_values,
-        max_degree=max_degree, n_bootstrap=n_bootstrap,
-        test_size=test_size, lmbda=lmbda)
+    # ridge_bootstrap_analysis_vs_complexity(
+    #     x_values, y_values, z_values,
+    #     max_degree=max_degree, n_bootstrap=n_bootstrap,
+    #     test_size=test_size, lmbda=lmbda)
 
     # Perform cross-validation with Ridge, vs lmbdas
     # TODO: input to cross -> lmbda start -> slutt maybe ?? narrow splitting?
@@ -169,15 +168,15 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
         x_values, y_values, z_values,
         degree=degree, k_folds=k_folds)
 
-    # Bias-variance trade-off vs parameter lambda
-    ridge_bootstrap_analysis_vs_lmbda(
-        x_values, y_values, z_values,
-        degree=degree, n_bootstrap=n_bootstrap,
-        test_size=test_size)
+    # # Bias-variance trade-off vs parameter lambda
+    # ridge_bootstrap_analysis_vs_lmbda(
+    #     x_values, y_values, z_values,
+    #     degree=degree, n_bootstrap=n_bootstrap,
+    #     test_size=test_size)
 
 
 if __name__ == "__main__":
-    n = 60
+    n = 181
     noise = 0.2
     max_degree = 10
     degree = 5
