@@ -62,7 +62,7 @@ def print_beta_CI(beta, CI_list):
 def main(x_values, y_values, z_values, degree: int = 5, test_size: float = 0.2):
     """
     Doing what we are expecting in exercise 1:
-        - Performing a OLS analysis using polynomials in x and y (_values in our case)
+        - Performing an OLS analysis using polynomials in x and y (_values in our case)
         - Find the confidence intervals of the parameters beta (printing them out in nice format)
         - Evaluating the Mean Squared error (MSE)
         - Evaluating the R^2 score
@@ -107,7 +107,7 @@ def main(x_values, y_values, z_values, degree: int = 5, test_size: float = 0.2):
 
 
 if __name__ == "__main__":
-    n = 1000
-    noise = 0
+    n = 50000
+    noise = 0.1
     x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values)

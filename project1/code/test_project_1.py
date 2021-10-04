@@ -1,7 +1,9 @@
 """
 Function for testing the different exercises,
 please read docstrings if you want to know more 
-about the functions we have been used
+about the functions we have been used.
+
+You can change the parameters as you want 
 """
 
 
@@ -14,13 +16,14 @@ import exercise6
 import helper
 
 # Set the preffered values
-n = 100
-noise = 0.2
-degree = 8
+n = 300
+noise = 0.3
+degree = 6
 test_size = 0.2
-max_degree = 10
+max_degree = 8
 n_bootstrap = 100
 k_folds = 5
+lmbda = 0.1
 x_values, y_values, z_values = helper.generate_data(n, noise)
 
 
@@ -46,10 +49,10 @@ if False:
 if False:
     exercise3.main(
         x_values, y_values, z_values,
-        degree=degree, k_folds=k_folds
+        degree=degree, k_folds=k_folds,
+        n_bootstrap=n_bootstrap
     )
 
-lmbda = 0.1
 # Reproducing exercise 4:
 # Replace with True to test
 if False:
@@ -72,4 +75,3 @@ if False:
 
 # Reproducing exercise 6:
 # Replace with True to test
-# TODO:

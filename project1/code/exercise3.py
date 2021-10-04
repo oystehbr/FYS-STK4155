@@ -37,7 +37,7 @@ def _get_test_and_train_block(values, i: int, test_no: int, last: bool = False):
     return train, test
 
 
-def cross_validation(x_values, y_values, z_values, method: str, k_folds: int = 5, degree: int = 5, lmbda: float = 1):
+def cross_validation(x_values, y_values, z_values, method: str, k_folds: int = 5, n_bootstrap: int = 100, degree: int = 5, lmbda: float = 1):
     """
     Function for finding the MSE with usage of the 
     resampling technique: cross-validation
@@ -95,13 +95,13 @@ def cross_validation(x_values, y_values, z_values, method: str, k_folds: int = 5
     # Get MSE from bootstrap for comparison
     estimated_MSE_bootstrap = exercise2.bias_variance_boots_looping_degree(
         x_values, y_values, z_values,
-        method, max_degree=degree,
+        method, max_degree=degree, n_bootstrap=n_bootstrap,
         lmbda=lmbda)[0][-1]
 
     return estimated_MSE_cross_validation, estimated_MSE_bootstrap
 
 
-def main(x_values, y_values, z_values, degree: int, k_folds: int = 5):
+def main(x_values, y_values, z_values, degree: int, k_folds: int = 5, n_bootstrap: int = 100):
     """
     Doing what we are expecting in exercise 3:
         - Compare the MSE you get from cross-validation with the one from bootstrap
@@ -116,14 +116,18 @@ def main(x_values, y_values, z_values, degree: int, k_folds: int = 5):
         the order of the polynomial that will define the design matrix
     :param k_folds (int):
         the amount of folds we wanna do cross-validation on
+    :param n_bootstrap (int):
+        the number of bootstrap iterations
     """
 
     MSE_cross_validation, MSE_bootstrap = cross_validation(
         x_values, y_values, z_values,
-        method='OLS',  k_folds=k_folds, degree=degree)
+        method='OLS',  k_folds=k_folds,
+        n_bootstrap=n_bootstrap, degree=degree)
 
     print(f'MSE_cross: {MSE_cross_validation}')
     print(f'MSE_boot: {MSE_bootstrap}')
+    print(f'k_folds = {k_folds}')
 
 
 if __name__ == "__main__":

@@ -60,7 +60,6 @@ def ridge_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree: int,
     bias_list = []
     variance_list = []
 
-    # TODO: maybe send into the function
     number_of_lambdas = 20
     lmbdas = np.logspace(-4, 4, number_of_lambdas)
 
@@ -162,23 +161,22 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
     #     max_degree=max_degree, n_bootstrap=n_bootstrap,
     #     test_size=test_size, lmbda=lmbda)
 
-    # Perform cross-validation with Ridge, vs lmbdas
-    # TODO: input to cross -> lmbda start -> slutt maybe ?? narrow splitting?
-    ridge_cross_validation(
-        x_values, y_values, z_values,
-        degree=degree, k_folds=k_folds)
-
-    # # Bias-variance trade-off vs parameter lambda
-    # ridge_bootstrap_analysis_vs_lmbda(
+    # # Perform cross-validation with Ridge, vs lmbdas
+    # ridge_cross_validation(
     #     x_values, y_values, z_values,
-    #     degree=degree, n_bootstrap=n_bootstrap,
-    #     test_size=test_size)
+    #     degree=degree, k_folds=k_folds)
+
+    # Bias-variance trade-off vs parameter lambda
+    ridge_bootstrap_analysis_vs_lmbda(
+        x_values, y_values, z_values,
+        degree=degree, n_bootstrap=n_bootstrap,
+        test_size=test_size)
 
 
 if __name__ == "__main__":
-    n = 181
-    noise = 0.2
+    n = 100
+    noise = 0.1
     max_degree = 10
-    degree = 5
+    degree = 8
     x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values, max_degree, degree)

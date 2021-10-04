@@ -1,0 +1,396 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{esint}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{mathtools}
+\usepackage{ dsfont }
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[font={small,it}]{caption}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\title{Project 1, FYS-STK4155}
+\author{Sigurd Holmsen, Øystein Høistad Bruce}
+\date{October 2021}
+
+\begin{document}
+\maketitle
+
+\section*{Introduction to the code structure:}
+We have decided to create a file, \textbf{helper.py}, which will store all the functions that are not used for just one exercise. For simplicity, we have created 6 files for the 6 different exercises. The code will also provide some helpful docstrings, so if something are unclear please check them out.\\
+\\ We have created a helpful testing file, \textbf{test\_project\_1.py}, where you can reproduce the exercises with different parameters. The structure of the file is very simple, and it will explain (shortly) how to reproduce the exercises. \\
+\\ Check out the \textbf{README.md} file inside the \textbf{project1}-folder for further information about the code.
+
+\section*{Exercise 1}
+\textit{\textbf{Ordinary Least Square (OLS) on the Franke function}}
+\subsection*{Nature of the problem}
+We want to find a linear model which approximates a continuous function using polynomials with two arguments $(x, y)$ of high degrees. More precisely, we want to estimate parameters \(\beta\) such that 
+\\
+\begin{equation}
+\label{egn: first_eq}
+z_i = \beta _0 + \beta _1 x_i + \beta _2 y_i + \beta _3 x_iy_i + ...  + \beta_{(k-1)} x_i^m + \beta_ k y_i^m + \epsilon_i
+\end{equation}
+for all \(i\in {1, ..., m}\) where n is the number of data, and for a polynomial of degree m, where the number of $\beta$s,  $k$, depends on the polynomial degree $m$. \(\epsilon_i\) is the error term for each approximation, and we are looking for a model where the error is as small as possible. More precisely, we want the "Mean Square Error", which is given as the mean square of the difference between the data $y$ and the approximated data $\tilde{y}$:
+\begin{equation}
+\label{eqn: MSE_real}
+    MSE = \frac{1}{n} \sum_i (y_i - \tilde{y}_i)^{2}
+\end{equation}
+to be small. This means our linear regression model is a good approximation to the function we want to approximate. 
+
+
+\subsection*{Generating the data}
+We have used the Franke function to generate the data used in the regression. We have added a noise variable to each datapoint which  is normally distributed as \(N(0,1)\). The code also includes a constant which scales each noise variable which can be changed by the user of the program. 
+
+\subsection*{Perform a standard least square regression analysis}
+To perform the standard least square regression, we first split the data into training and testing. The default testing size is 0.2 of the data. Then the data is scaled, before we compute the design matrix $\boldsymbol{X}$ which contains the variables used in the regression, and finally we use this along with the response variable $\boldsymbol{y}$ to compute the $\boldsymbol{\beta}$ values given by the formula for ordinary least squares regression:
+\begin{equation}
+    \boldsymbol{\beta} = (\boldsymbol{X^{T}} \boldsymbol{X})^{-1} \boldsymbol{X^{T}} \boldsymbol{y}
+\end{equation}
+
+\subsection*{Confidence intervals of the parameters $\boldsymbol{\beta}$}
+We assume that the $\boldsymbol{\beta}$ values are normally  distributed, and $\sigma^2 (\beta_j) = \sigma^2 [(\boldsymbol{X}^T \boldsymbol{X})^-1 ]_{jj}$. Using this, we can compute the confidence intervals of the $\boldsymbol{\beta}$ paramaters.
+
+% TODO: check this out: we use scikit-learn for MSE also -> same explanation for both. 
+\subsection*{Evaluating the Mean Squared error (MSE) and $R^{2}$ score}
+We calculate the Mean Square Error with (\ref{eqn: MSE_real}):
+where $\tilde{y}_i$ are the predicted outputs using our model, and use sci-kitlearn to evaluate the R2-score. 
+
+\subsection*{Why do we scale our data?}
+When using Ridge and Lasso regression, we include a term in the cost function which penalizes extreme values in order to avoid poor approximations e.g. overfitting. However, some features are often given in a different unit than other features, and the different units may differ greatly in magnitude. This will cause the penalizing team to penalize some features an unfair amount simply because of the magnitude of the unit it is given in. To fix this, we scale our data such that every feature may be assessed more equally. In our code, we have subtracted the mean of the data set for every feature as such:
+
+\begin{equation}
+    x^{(i)}_j \rightarrow x^{(i)}_j - \Bar{x}_j
+\end{equation}
+
+In some cases, you man also want to divide by the standard deviation, but in this case where it is not calculated we do not take it into account.
+
+
+\subsection*{Final comments:}
+\begin{enumerate}
+    \item train test splitting
+    
+\end{enumerate}
+
+
+\newpage
+\section*{Exercise 2}
+\textit{\textbf{Bias-variance trade-off and resampling techniques}}
+\subsection*{MSE vs the complexity of the model}\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{MSE_vs_Complexity_DP_180_d_14_OLS}
+    \captionof{figure}{MSE of the test- and training data}
+    \label{fig: MSE_vs_complexity}
+\end{figure}\\
+We can expect that the MSE-score of the training data will go to 0 as complexity increases, since the model is built on more information of the training data itself, which may lead to an overfitted model. For the testing data we will see the opposite: when the complexity increases, the model will be more accurate to the training data and the prediction will get worse (since the predictions are obviously not used in the model making).
+
+\newpage
+\subsection*{The terms in (\ref{eqn: bias_variance_equation}), an extension of the MSE}
+We want to find $\boldsymbol{\beta}$ by optimize the mean squared error, via the so-called cost function:
+
+\begin{equation}
+    C(\boldsymbol{X}, \boldsymbol{B})
+        = \frac{1}{n} \sum_{i=0}^{n-1} (y_i - \tilde{y}_i)^{2}
+        = \mathds{E} [(\boldsymbol{y} - \boldsymbol{\tilde{y}})^2]
+\end{equation}
+
+which we can rewrite to:\\
+
+\begin{align*}
+    \mathds{E} [(\boldsymbol{y} - \boldsymbol{\tilde{y}})^{2}] 
+    &= \mathds{E} [(\boldsymbol{y} - \mathds{E} [\boldsymbol{\tilde{y}}] + \mathds{E} [\boldsymbol{\tilde{y}}] - \boldsymbol{\tilde{y}})^2]\\
+    &= \mathds{E} [(\boldsymbol{y} - \mathds{E} [\boldsymbol{\tilde{y}}])^2] + 2 \mathds{E} [\boldsymbol{\tilde{y}} - \mathds{E} [\boldsymbol{\tilde{y}}]] \cdot \mathds{E} [\mathds{E} [\boldsymbol{\tilde{y}}] - \boldsymbol{y}] + \mathds{E} [(\boldsymbol{\tilde{y}} - \mathds{E}[\boldsymbol{\tilde{y}}])^2]\\
+    &=^1 \mathds{E} [(\boldsymbol{f} + \boldsymbol{\epsilon} - \mathds{E}[\boldsymbol{\tilde{y}}])^2] + \mathds{E} [(\boldsymbol{\tilde{y}} - \mathds{E} [\boldsymbol{\tilde{y}}])^2]\\
+    &= \mathds{E} [(\boldsymbol{f} - \mathds{E}[\boldsymbol{\tilde{y}}])^2] + 2\mathds{E}[\boldsymbol{f} - \mathds{E}[\boldsymbol{\tilde{y}}]] \cdot
+    \mathds{E} [\boldsymbol{\epsilon}] + \mathds{E} [\boldsymbol{\epsilon}^{2}] + \mathds{E} [(\boldsymbol{\tilde{y}} - \mathds{E}[\boldsymbol{\tilde{y}}])^2]\\
+    &=^2 \dfrac{1}{n} \sum_i (f_i - \mathds{E} [\boldsymbol{\tilde{y}}])^2 + \dfrac{1}{n} \sum_i (\tilde{y}_i - \mathds{E} [\boldsymbol{\tilde{y}}])^2 + \sigma ^2
+\end{align*}
+\underline{Hence}:
+\begin{equation}
+\label{eqn: bias_variance_equation}
+    \mathds{E} [(\boldsymbol{y} - \boldsymbol{\tilde{y}})^2]
+     = \frac{1}{n} \sum_{i} (f_i - \mathds{E}[\boldsymbol{\tilde{y}}])^{2}
+     + \frac{1}{n} \sum_{i} (\tilde{y}_i - \mathds{E}[\boldsymbol{\tilde{y}}])^{2}
+     + \sigma^{2}
+\end{equation}
+\underline{Comments}:
+\begin{enumerate}
+    \item $\mathds{E} [\boldsymbol{\tilde{y}} - \mathds{E} [\boldsymbol{\tilde{y}}]] = \mathds{E} [\boldsymbol{\tilde{y}}] - \mathds{E} [\boldsymbol{\tilde{y}}] = 0$
+    \item $\mathds{E} [\boldsymbol{\epsilon}] = 0$, and $\mathds{E} [\boldsymbol{\epsilon}^2] = \mathds{E} [\boldsymbol{\epsilon}]^2 + \mathds{V} [\boldsymbol{\epsilon}] = \sigma^{2}$
+\end{enumerate}\\
+The equation (\ref{eqn: bias_variance_equation}) shows that the Mean Square Error can be rewritten as the sum of bias, variance and $\sigma^2$. The first term is bias, and this is an expression for how much our model is expected to deviate from the actual function we are approximating. It has to be noted that when we estimate this, we do not know the true function we are estimating, and we have to replace $f_i$ with our data $y_i$. The second term is the variation, and this shows how much our model varies from the expected computed model. This may become large if we have few data to train our model. When deciding what complexity to utilize when creating a model, one has to take into consideration both how it will affect the bias and the variance, as bias often decreases with complexity, while variation usually increases. 
+
+\newpage
+\subsection*{Perform a bias-variance analysis of the Franke function}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{bias_variance_boots_looping_degree_DP_250_d_8_OLS}
+    \captionof{figure}{With some noise}
+    \label{fig: bias_variance_OLS_boots}
+\end{figure}\\
+
+We plot the bias, variance and total MSE for the model as a function of complexity, and as seen in the plots, we recognize that the bias always decreases when the complexity increases. This makes sense, as the model will not always be able to fit a complicated function using polynomials of low degrees, the variance for such models is always low in the results. When the complexity increases, we usually see the variance increase as well. These two effects makes it such that the MSE will often have a minimum when the complexity is not too high or too low, and hence there is an optimal trade-off between bias and variance. However, if we increase the number of data points, we see that the variance will increase more slowly, and the optimal complexity will increase. Though it appears that you can always get rid of variance in the model by adding more data points, this will not necessarily be possible in real life scenarios, and this insures the importance of the bias-variance trade-off.
+
+\subsection*{Final comments:}
+\begin{enumerate}
+    \item train test splitting
+    
+\end{enumerate}
+
+\newpage
+\section*{Exercise 3}
+\textit{\textbf{Cross-validation as resampling techniques}}
+\subsection*{Cross-validation}
+We wrote our own code for the cross-validation technique, and are able to change the parameter for number of folds. We compute the MSE we get from the cross-validation technique between 5 and 10 folds. 
+
+\subsection*{Comparison with bootstrap}
+When we compare the cross-validation and bootstrap techniques, we generally observe that that cross-validation gives slightly lower MSE than the bootstrap-technique. This may be because the cross-validation technique does not use the same training-data for every iteration, but uses all the data both for training and testing when building the model. When the number of data point is high, both the bootstrap, and cross-validation techniques give somewhat similar results, but this is because the variance in the model parameters is low. It is also worth noting that this technique generally requires less computing power, since the bootstrap method often needs many iterations to approximate an accurate MSE. 
+
+\subsection*{Increasing amount of folds}
+We check the MSE produces using cross-validation where the amount of folds increases from 5 to 10, and see that the MSE generally decreases. This may be because we split the data more times, and put less emphasis on train-test splits which cause unusually high MSE. 
+
+\section*{Exercise 4}
+\textit{\textbf{Ridge Regression on the Franke function with resampling}}
+\subsection*{Performing ridge regression}
+To perform the ridge regression, we use matrix inversion as with OLS. We let our program take different values for $\lambda$. 
+% TODO: check if above is correct -> used pinv, both here and in OLS
+
+\subsection*{Comparison with OLS}
+We perform the same bootstrap and cross-validation methods from exercise 2 and 3. In the bootstrap analysis where we compare the model complexity with the MSE, we use the same number of data points and the same polynomial degrees, and we compare the two plots showing the bootstrap analysis. We observe that the variance for the Ridge method is lower, especially when the degree is high as seen in the plot below. This makes sense as the goal of Ridge regression is to penalize extreme values of $\boldsymbol{\beta}$s, which should give a lower variance. The MSE seems to increase for very small values of $\lambda$ as this causes more variance. 
+
+\begin{figure}[h]
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[width=1.1\linewidth]{PRbias_variance_boots_looping_degree_DP_220_d_8_OLS}
+      \captionof{figure}{OLS}
+      \label{fig:OLS_vs_ridge_bias}
+    \end{minipage}%
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[width=1.1\linewidth]{PRbias_variance_boots_looping_degree_DP_220_d_8_RIDGE}
+      \captionof{figure}{RIDGE (lambda = 0.1)}
+      \label{fig:RIDGE_vs_ols_bias}
+    \end{minipage}
+\end{figure}\\
+
+When comparing the cross-validation results, we observe less MSE from Ridge than OLS. All signs indicate that Ridge is a better fit than OLS.
+
+\newpage
+\subsection*{Cross-Validation}
+When evaluating the cross-validation method, the MSE is also dependent on $\lambda$. The MSE achieves a minimum when $\lambda$ has a value around $0.1$,  as shown in the produced plot:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_cross_validation_vs_lambda_DP_100_d_5_RIDGE}
+    \captionof{figure}{MSE depends on the lambda parameter in Ridge regression}
+    \label{fig: cross_val_RIDGE_vs_lmbda}
+\end{figure}\\
+% TODO: why so?
+The minimum becomes more apparent when the model has significant noise. If the model were to have no noise, it seems it would be optimal to choose as low of a $\lambda$ as possible, but this is not realistic. 
+% TODO: shall we compare with exercise 3, look at MSE Cross-val - with same parameters?
+
+\newpage
+\subsection*{Bias-variance trade-off with Bootstrap}
+Here, we study the bias, variance and total MSE as a function of $\lambda$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_boots_looping_lambda_DP_50_d_5_RIDGE}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Ridge regression}
+    \label{fig: bias_variance_RIDGE_boots_lmbdas}
+\end{figure}\\
+
+
+Since we are drawing a new training set for each $\lambda$, the figure is not very smooth, yet we clearly see the same tendencies as in the cross-validation analysis. The variance decreases, and the bias increases with $\lambda$, which yields a minimum in the MSE where $\lambda$ is chosen optimally. 
+\newpage
+\section*{Exercise 5}
+\textit{\textbf{Lasso Regression on the Franke function with resampling}}
+\subsection*{Performing Lasso regression}
+We decided to use Sci-kitlearn's functionalities to perform the Lasso regression instead of computing our own. 
+
+\subsection*{Cross-Validation}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_cross_validation_vs_lambda_DP_100_d_5_LASSO}
+    \captionof{figure}{MSE depends on the lambda parameter in Lasso regression}
+    \label{fig: cross_val_LASSO_vs_lmbda}
+\end{figure}
+\\As for Ridge regression, the MSE is dependent on the value of $\lambda$. We see that we again achieve an optimal $\lambda$ with a value around 0.01 as seen in the plot. We also see that the error reaches a maximum value when $\lambda$ increases. 
+
+\newpage
+\subsection*{Bias-variance trade-off with Bootstrap}
+Again, we study the bias, variance and total MSE as a function of $\lambda$:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_boots_looping_lambda_DP_200_d_5_LASSO}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Lasso regression}
+    \label{fig: bias_variance_RIDGE_boots_lmbdas}
+\end{figure}\\
+
+We confirm that $\lambda$ has an optimal value since the bias and variance increase and decrease respectively with $\lambda$ as seen in the plot. 
+
+\subsection*{Critical discussion of the three methods}
+We will discuss what regression method gives the best fit for our data.
+TODO: plot med bias-variance looping degree for alle tre metodene?
+
+It is clear the the Ridge and Lasso methods are more robust towards variance in the model, and can better handle a high model complexity without giving a high MSE.
+
+
+
+
+
+
+\newpage
+\section*{Exercise 6}
+\textit{\textbf{Analysis of real data}}
+
+\subsection*{Using real data}
+We now repeat exercise 1-5, but instead of generating the data ourselves, we import real terrain-data. We will not discuss and interpret the results in the same detail, because both results and interpretation are similar as before. We let the x- and y-coordinates correspond to the explanatory variables while the data for each coordinate is the response variable. After reading the data, we perform the regression in the same way as before.
+
+\subsection*{Confidence intervals, MSE and R2 score}
+We compute the confidence intervals as before, the code can be ran in the python file "exercise 6". We also produce the MSE, R2 score. We get an R2 score of around 0.82, which means that 0.82 of the variance in the data is explained by our model.
+
+
+\newpage
+\section*{Exercise 2}
+\textit{\textbf{Bias-variance trade-off and resampling techniques}}
+\subsection*{MSE vs the complexity of the model}\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{MSE_vs_Complexity_DP_75000_d_40_OLS}
+    \captionof{figure}{MSE of the test- and training data}
+    \label{fig: MSE_vs_complexity}
+\end{figure}\\
+In this plot, both the training- and testing-error are decreasing, and coincide even for models with high complexity. This is  not the same result we got for the Franke function, but this can be explained by the number of data points used. If we use a $250 \times 300$ image as data, we will get $7.5 \cdot 10^5$ data points, and the model will have enough training data to avoid and overfit even at a degree of 40. If we computed an even higher polynomial, we would eventually get an increasing test error, but this would require a lot of computing power. 
+
+\newpage
+\subsection*{Perform a bias-variance analysis of the Real data}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{bias_variance_boots_looping_degree_DP_75000_d_20_OLS}
+    \captionof{figure}{With some noise}
+    \label{fig: bias_variance_OLS_boots_ex6}
+\end{figure}\\
+
+We plot the bias, variance and total MSE for the model as a function of complexity, and as seen in the plots. We recognize that the bias is decreasing with the complexity, yet the variance is constant near zero. Again, this is because we have so much data that the variance in the model is very low. In other words, we are able to compute polynomials of high degree without much variance in the model. 
+
+\newpage
+\section*{Exercise 3}
+\subsection*{Cross-validation}
+We reuse our code for cross-validation. 
+
+\subsection*{Comparison with bootstrap}
+\\
+We observe that for the real data, the bootstrap method gives a lower MSE than cross-validation, even when we increase number of folds to 10. This may be because we have less variance in the model with this data.(TODO?) 
+
+\newpage
+\section*{Exercise 4}
+\subsection*{Performing ridge regression}
+To perform the ridge regression, we use matrix inversion as with OLS. We let our program take different values for $\lambda$. 
+
+\subsection*{Comparison with OLS}
+We observe that the variance is low for both ridge and OLS methods. The bias for the ridge method is higher than for OLS, meaning Ridge regression gives a higher MSE for polynomials up to 20. This may be because the penalizing term in Ridge is for limiting variance. But in a model with low variance, the term is of no use, and OLS is a better fit.
+
+\begin{figure}[h]
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[width=1.1\linewidth]{bias_variance_boots_looping_degree_DP_75000_d_20_OLS}
+      \captionof{figure}{OLS}
+      \label{fig:OLS_vs_ridge_bias}
+    \end{minipage}%
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[width=1.1\linewidth]{bias_variance_boots_looping_degree_DP_75000_d_20_RIDGE}
+      \captionof{figure}{RIDGE (lambda = 0.1)}
+      \label{fig:RIDGE_vs_ols_bias}
+    \end{minipage}
+\end{figure}\\
+
+
+\newpage
+\subsection*{Cross-Validation}
+We observe that the cross-validation has a global minimum for ca. $\lambda = 10$. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_cross_validation_vs_lambda_DP_75000_d_5_RIDGE.png}
+    \captionof{figure}{MSE depends on the lambda parameter in Ridge regression}
+    \label{fig: cross_val_RIDGE_vs_lmbda_ex6}
+\end{figure}
+
+\newpage
+\subsection*{Bias-variance trade-off with Bootstrap}
+Here, we study the bias, variance and total MSE as a function of $\lambda$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_boots_looping_lambda_DP_75000_d_3_RIDGE}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Ridge regression}
+    \label{fig: bias_variance_RIDGE_boots_lmbdas_ex6}
+\end{figure}\\
+
+We observe that the MSE increases as a function of $\lambda$ because of the increasing bias. Again, we have very little variance for any $\lambda$.
+
+\newpage
+\section*{Exercise 5}
+\subsection*{Performing Lasso regression}
+We decided to use Sci-kitlearn's functionalities to perform the Lasso regression instead of computing our own. 
+
+\subsection*{Cross-Validation}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_cross_validation_vs_lambda_DP_75000_d_2_LASSO.png}
+    \captionof{figure}{MSE depends on the lambda parameter in Lasso regression}
+    \label{fig: cross_val_LASSO_vs_lmbda_ex6}
+\end{figure}
+\\
+We observe that the cross-validation has a global minimum for ca. $\lambda = 1$. 
+
+\newpage
+\subsection*{Bias-variance trade-off with Bootstrap}
+Again, we study the bias, variance and total MSE as a function of $\lambda$:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{mse_boots_looping_lambda_DP_75000_d_2_LASSO.png}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Lasso regression}
+    \label{fig: bias_variance_RIDGE_boots_lmbdas}
+\end{figure}\\
+
+We observe that the MSE increases as a function of $\lambda$ because of the increasing bias. Again, we have very little variance for any $\lambda$.
+
+\subsection*{Critical discussion of the three methods}
+We will discuss what regression method gives the best fit for our data. Here, we plot the MSE as a function of complexity for all three regression methods.
+
+\begin{figure}[h]
+    \begin{minipage}{.33\textwidth}
+      \centering
+      \includegraphics[width=1.1\linewidth]{bias_variance_boots_looping_degree_DP_75000_d_20_OLS}
+      \captionof{figure}{OLS}
+      \label{fig:OLS_vs_ridge_bias}
+    \end{minipage}%
+    \begin{minipage}{.33\textwidth}
+      \centering
+      \includegraphics[width=1.1\linewidth]{bias_variance_boots_looping_degree_DP_75000_d_20_RIDGE}
+      \captionof{figure}{RIDGE}
+      \label{fig:RIDGE_vs_ols_bias}
+    \end{minipage}
+    \begin{minipage}{.33\textwidth}
+      \centering
+      \includegraphics[width=1.1\linewidth]{bias_variance_boots_looping_degree_DP_75000_d_5_LASSO}
+      \captionof{figure}{LASSO}
+      \label{fig:LASSO_vs_ols_bias}
+    \end{minipage}
+\end{figure}\\
+
+
+For this data, we get very little variance in our models, either with OLS, Ridge or Lasso regression. Ridge and Lasso regression penalize high variance in models, but since we have such a great amount of data will our model almost have no variance, it appears that OLS is the best fit. Of course, it would be possible to increase the complexity of our model, in which case the variance would also increase and perhaps Ridge or Lasso would give the best fit, but it would require more computing power than we had available during this project. In other words, for this data set we did not experience a bias-variance trade-off as much as a trade-off between MSE and computing duration. 
+
+
+\end{document}

@@ -46,7 +46,6 @@ def generate_data(n: int, noise_multiplier: float = 0.1):
         - the output value from Franke function
     """
 
-    # TODO: vectorize
     data_array = np.zeros(n)
     x_array = np.zeros(n)
     y_array = np.zeros(n)
@@ -77,7 +76,6 @@ def create_design_matrix(x, y, degree: int):
         the design matrix
     """
 
-    # TODO: maybe explain this function
     if len(x.shape) > 1:
         x = np.ravel(x)
         y = np.ravel(y)

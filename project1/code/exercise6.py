@@ -11,8 +11,10 @@ import helper
 
 def read_terrain_data(filename):
     """
-    #TODO:docs
+    Takes an image and break it down to coordinates and colors
+    and returns it
     """
+
     # Load the terrain
     terrain = imread(filename)
 
@@ -23,7 +25,6 @@ def read_terrain_data(filename):
 
     row_length = 250
     col_length = 300
-
     terrain = terrain[250:500, 1000:1300]
 
     x_array = np.linspace(0, 1, col_length)   # x moves sideways
@@ -37,11 +38,9 @@ def read_terrain_data(filename):
     return x_values, y_values, z_values, terrain, row_length, col_length
 
 
-# TODO:
-
 def exercise1_test(filename, degree):
     """
-    # TODO: docstrings -> copy main() - docs
+    Read docstrings of main method in exercise 1
     """
 
     x_values, y_values, z_values, terrain, row_length, col_length = read_terrain_data(
@@ -51,7 +50,7 @@ def exercise1_test(filename, degree):
 
 def exercise2_test(filename, max_degree):
     """
-    # TODO: docstrings -> copy main() - docs
+    Read docstrings of main method in exercise 2
     """
 
     x_values, y_values, z_values, terrain, row_length, col_length = read_terrain_data(
@@ -60,18 +59,30 @@ def exercise2_test(filename, max_degree):
 
 
 def exercise3_test(filename, degree):
+    """
+    Read docstrings of main method in exercise 3
+    """
+
     x_values, y_values, z_values, terrain, row_length, col_length = read_terrain_data(
         filename)
     exercise3.main(x_values, y_values, z_values, degree)
 
 
 def exercise4_test(filename, max_degree, degree):
+    """
+    Read docstrings of main method in exercise 4
+    """
+
     x_values, y_values, z_values, terrain, row_length, col_length = read_terrain_data(
         filename)
     exercise4.main(x_values, y_values, z_values, max_degree, degree)
 
 
 def exercise5_test(filename, max_degree, degree):
+    """
+    Read docstrings of main method in exercise 5
+    """
+
     x_values, y_values, z_values, terrain, row_length, col_length = read_terrain_data(
         filename)
     exercise5.main(x_values, y_values, z_values, max_degree, degree)
@@ -79,7 +90,7 @@ def exercise5_test(filename, max_degree, degree):
 
 def terrain_prediction(filename, degree=1):
     """
-    # TODO: docs
+    Shows how our model works on our data
 
     """
 
@@ -92,7 +103,7 @@ def terrain_prediction(filename, degree=1):
     _, _, beta = helper.predict_output(
         x_train=x_train, y_train=y_train, z_train=z_train,
         x_test=x_test, y_test=y_test,
-        degree=degree, regression_method='OLS',
+        degree=degree, regression_method='OLS'
     )
 
     X = helper.create_design_matrix(x_values, y_values, degree)
@@ -127,23 +138,24 @@ def terrain_prediction(filename, degree=1):
 def main():
 
     # terrain_prediction(filename='SRTM_data_Norway_1.tif', degree=1)
-    terrain_prediction(filename='case_real_2.tif', degree=25)
+    terrain_prediction(filename='SRTM_data_Norway_2.tif', degree=35)
+    # terrain_prediction(filename='case_real_2.tif', degree=5)
     # terrain_prediction(filename='pandas_real.tif', degree=50)
 
     # Exercise 1
-    # exercise1_test(filename='SRTM_data_Norway_2.tif', degree=5)
+    # exercise1_test(filename='SRTM_data_Norway_2.tif', degree=6)
 
-    # # Exercise 2
-    # exercise2_test(filename='SRTM_data_Norway_1.tif', max_degree=12)
+    # Exercise 2
+    # exercise2_test(filename='SRTM_data_Norway_2.tif', max_degree=20)
 
-    # # Exercise 3, do not take the whole picture -> scale down
-    # exercise3_test(filename='SRTM_data_Norway_1.tif', degree=1)
+    # Exercise 3, do not take the whole picture -> scale down
+    # exercise3_test(filename='SRTM_data_Norway_2.tif', degree=5)
 
     # Exercise 4
-    # exercise4_test(filename='SRTM_data_Norway_1.tif', max_degree=5, degree=1)
+    # exercise4_test(filename='SRTM_data_Norway_2.tif', max_degree=1, degree=3)
 
     # Exercise 5
-    # exercise5_test(filename='SRTM_data_Norway_1.tif', max_degree=5, degree=1)
+    # exercise5_test(filename='SRTM_data_Norway_2.tif', max_degree=10, degree=4)
 
 
 if __name__ == "__main__":

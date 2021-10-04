@@ -62,7 +62,7 @@ def lasso_bootstrap_analysis_vs_lmbda(x_values, y_values, z_values, degree: int,
     bias_list = []
     variance_list = []
 
-    number_of_lambdas = 40
+    number_of_lambdas = 20
     lmbdas = np.logspace(-4, 4, number_of_lambdas)
 
     # For every lambda, get MSE, bias and variance
@@ -107,9 +107,8 @@ def lasso_cross_validation(x_values, y_values, z_values, degree: int = 12, k_fol
         the amount of folds we wanna do cross-validation on
     """
 
-    # TODO: maybe send in to function
-    number_of_lambdas = 40
-    lmbdas = np.logspace(-4, 2, number_of_lambdas)
+    number_of_lambdas = 80
+    lmbdas = np.logspace(-3, 2, number_of_lambdas)
     cross_MSE_estimates = []
 
     # For every lambda, get MSE with cross-validation
@@ -159,21 +158,21 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
     """
 
     # Perform bootstrap analysis for Lasso
-    # lasso_bootstrap_analysis_vs_complexity(
-    #     x_values, y_values, z_values,
-    #     max_degree=max_degree, n_bootstrap=n_bootstrap,
-    #     test_size=test_size, lmbda=lmbda)
+    lasso_bootstrap_analysis_vs_complexity(
+        x_values, y_values, z_values,
+        max_degree=max_degree, n_bootstrap=n_bootstrap,
+        test_size=test_size, lmbda=lmbda)
 
     # Perform cross-validation with Lasso
     # lasso_cross_validation(
     #     x_values, y_values, z_values,
     #     degree=degree, k_folds=k_folds)
 
-    # Bias-variance trade-off vs parameter lambda
-    lasso_bootstrap_analysis_vs_lmbda(
-        x_values, y_values, z_values,
-        degree=degree, n_bootstrap=n_bootstrap,
-        test_size=test_size)
+    # # Bias-variance trade-off vs parameter lambda
+    # lasso_bootstrap_analysis_vs_lmbda(
+    #     x_values, y_values, z_values,
+    #     degree=degree, n_bootstrap=n_bootstrap,
+    #     test_size=test_size)
 
 
 if __name__ == "__main__":
