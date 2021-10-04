@@ -371,4 +371,7 @@ We will discuss what regression method gives the best fit for our data. Here, we
 
 For this data, we get very little variance in our models, either with OLS, Ridge or Lasso regression. Ridge and Lasso regression penalize high variance in models, but since we have such a great amount of data will our model almost have no variance, it appears that OLS is the best fit. Of course, it would be possible to increase the complexity of our model, in which case the variance would also increase and perhaps Ridge or Lasso would give the best fit, but it would require more computing power than we had available during this project. In other words, for this data set we did not experience a bias-variance trade-off as much as a trade-off between MSE and computing duration. 
 
+\subsubsection*{Image of our predicting model:}
+% TODO: add a picture showing a OK prediction of the terrain
+
 \end{document}
