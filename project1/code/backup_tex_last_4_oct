@@ -64,7 +64,7 @@ We calculate the Mean Square Error with (\ref{eqn: MSE_real}):
 where $\tilde{y}_i$ are the predicted outputs using our model, and use sci-kitlearn to evaluate the R2-score. 
 
 \subsection*{Why do we scale our data?}
-When using Ridge and Lasso regression, we include a term in the cost function which penalizes extreme values in order to avoid poor approximations e.g. overfitting. However, some features are often given in a different unit than other features, and the different units may differ greatly in magnitude. This will cause the penalizing team to penalize some features in an unfair amount simply by the magnitude the unit it is given in. To fix this, we scale our data such that every feature may be assessed more equally. In our code, we have subtracted the mean of the data set for every feature as such:
+When using ridge and lasso regression, we include a term in the cost function which penalizes extreme values in order to avoid poor approximations e.g. overfitting. However, some features are often given in a different unit than other features, and the different units may differ greatly in magnitude. This will cause the penalizing team to penalize some features in an unfair amount simply by the magnitude the unit it is given in. To fix this, we scale our data such that every feature may be assessed more equally. In our code, we have subtracted the mean of the data set for every feature as such:
 
 \begin{equation}
     x^{(i)}_j \rightarrow x^{(i)}_j - \Bar{x}_j
@@ -156,7 +156,7 @@ To perform the ridge regression, we use matrix inversion as with OLS. We let our
 % TODO: different values for lambda just in MSE vs complexity 
 
 \subsection*{Comparison with OLS}
-We perform the same bootstrap and cross-validation methods from exercise 2 and 3. In the bootstrap analysis, we compare the model complexity with the MSE and use the same number of data points and the same polynomial degrees. We observe that the variance for the Ridge method is lower, especially when the degree is high as seen in the plot below. This makes sense as the goal of Ridge regression is to penalize extreme values of $\boldsymbol{\beta}$, which should give a lower variance. The MSE seems to increase for very small values of $\lambda$ as this causes more variance. 
+We perform the same bootstrap and cross-validation methods from exercise 2 and 3. In the bootstrap analysis, we compare the model complexity with the MSE and use the same number of data points and the same polynomial degrees. We observe that the variance for the ridge method is lower, especially when the degree is high as seen in the plot below. This makes sense as the goal of ridge regression is to penalize extreme values of $\boldsymbol{\beta}$, which should give a lower variance. The MSE seems to increase for very small values of $\lambda$ as this causes more variance. 
 
 \begin{figure}[h]
     \begin{minipage}{.5\textwidth}
@@ -173,7 +173,7 @@ We perform the same bootstrap and cross-validation methods from exercise 2 and 3
     \end{minipage}
 \end{figure}\\
 
-When comparing the cross-validation results, we observe less MSE from Ridge than OLS. All signs indicate that Ridge is a better fit than OLS.
+When comparing the cross-validation results, we observe less MSE from ridge than OLS. All signs indicate that ridge is a better fit than OLS.
 
 \subsection*{Cross-Validation}
 When evaluating the cross-validation method, the MSE is also dependent on the parameter $\lambda$. The MSE achieves a minimum when $\lambda$ has a value around $0.1$,  as shown in the produced plot:
@@ -181,7 +181,7 @@ When evaluating the cross-validation method, the MSE is also dependent on the pa
 \begin{figure}[h]
     \centering
     \includegraphics[width=9.2cm]{mse_cross_validation_vs_lambda_DP_100_d_5_RIDGE}
-    \captionof{figure}{MSE depends on the lambda parameter in Ridge regression}
+    \captionof{figure}{MSE depends on the lambda parameter in ridge regression}
     \label{fig: cross_val_RIDGE_vs_lmbda}
 \end{figure}\\
 % TODO: why so?
@@ -194,7 +194,7 @@ Here, we study the bias, variance and total MSE as a function of $\lambda$.
 \begin{figure}[h]
     \centering
     \includegraphics[width=10cm]{mse_boots_looping_lambda_DP_50_d_5_RIDGE}
-    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Ridge regression}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in ridge regression}
     \label{fig: bias_variance_RIDGE_boots_lmbdas}
 \end{figure}\\
 
@@ -203,17 +203,17 @@ Since we are drawing a new training set for each $\lambda$, the figure is not ve
 \newpage
 \section*{Exercise 5}
 \textit{\textbf{Lasso regression on the Franke function with resampling}}
-\subsection*{Performing Lasso regression}
-We decided to use Sci-kitlearn's functionalities to perform the Lasso regression instead of computing our own. 
+\subsection*{Performing lasso regression}
+We decided to use Sci-kitlearn's functionalities to perform the lasso regression instead of computing our own. 
 
 \subsection*{Cross-Validation}
 \begin{figure}[h]
     \centering
     \includegraphics[width=10cm]{mse_cross_validation_vs_lambda_DP_100_d_5_LASSO}
-    \captionof{figure}{MSE depends on the lambda parameter in Lasso regression}
+    \captionof{figure}{MSE depends on the lambda parameter in lasso regression}
     \label{fig: cross_val_LASSO_vs_lmbda}
 \end{figure}
-\\As for Ridge regression, the MSE is dependent on the value of $\lambda$. We see that we again achieve an optimal $\lambda$ with a value around 0.01 as seen in the plot. We also see that the error reaches a maximum value when $\lambda$ increases. 
+\\As for ridge regression, the MSE is dependent on the value of $\lambda$. We see that we again achieve an optimal $\lambda$ with a value around 0.01 as seen in the plot. We also see that the error reaches a maximum value when $\lambda$ increases. 
 
 \newpage
 \subsection*{Bias-variance trade-off with Bootstrap}
@@ -221,7 +221,7 @@ Again, we study the bias, variance and total MSE as a function of $\lambda$:
 \begin{figure}[h]
     \centering
     \includegraphics[width=10cm]{mse_boots_looping_lambda_DP_200_d_5_LASSO}
-    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Lasso regression}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in lasso regression}
     \label{fig: bias_variance_RIDGE_boots_lmbdas}
 \end{figure}\\
 
@@ -231,7 +231,7 @@ We confirm that $\lambda$ has an optimal value since the bias and variance incre
 We will discuss what regression method gives the best fit for our data.
 TODO: plot med bias-variance looping degree for alle tre metodene?
 
-It is clear the the Ridge and Lasso methods are more robust towards variance in the model, and can better handle a high model complexity without giving a high MSE.
+It is clear the the ridge and lasso methods are more robust towards variance in the model, and can better handle a high model complexity without giving a high MSE.
 
 
 \newpage
@@ -278,7 +278,7 @@ We plot the bias, variance and total MSE for the model as a function of complexi
 \textit{\textbf{Ridge regression on the real data with resampling}}
 
 \subsubsection*{Comparison with OLS}
-We observe that the variance is low for both ridge and OLS regression. The bias for the ridge method is higher than for OLS, meaning Ridge regression gives a higher MSE for polynomials of a degree up to 20. This may be because the penalizing term in ridge is for limiting variance. With a model with low variance, the term is of no use, and OLS is a better fit.
+We observe that the variance is low for both ridge and OLS regression. The bias for the ridge method is higher than for OLS, meaning ridge regression gives a higher MSE for polynomials of a degree up to 20. This may be because the penalizing term in ridge is for limiting variance. With a model with low variance, the term is of no use, and OLS is a better fit.
 
 \begin{figure}[h]
     \begin{minipage}{.5\textwidth}
@@ -303,7 +303,7 @@ We observe that the cross-validation has a global minimum around $\lambda = 10$.
 \begin{figure}[h]
     \centering
     \includegraphics[width=8.2cm]{mse_cross_validation_vs_lambda_DP_75000_d_5_RIDGE.png}
-    \captionof{figure}{MSE depends on the lambda parameter in Ridge regression}
+    \captionof{figure}{MSE depends on the lambda parameter in ridge regression}
     \label{fig: cross_val_RIDGE_vs_lmbda_ex6}
 \end{figure}
 
@@ -313,7 +313,7 @@ Here, we study the bias, variance and total MSE as a function of $\lambda$.
 \begin{figure}[h]
     \centering
     \includegraphics[width=8.2cm]{mse_boots_looping_lambda_DP_75000_d_3_RIDGE}
-    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Ridge regression}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in ridge regression}
     \label{fig: bias_variance_RIDGE_boots_lmbdas_ex6}
 \end{figure}\\
 
@@ -327,7 +327,7 @@ We observe that the MSE increases as a function of $\lambda$ because of the incr
 \begin{figure}[h]
     \centering
     \includegraphics[width=7cm]{mse_cross_validation_vs_lambda_DP_75000_d_2_LASSO.png}
-    \captionof{figure}{MSE depends on the lambda parameter in Lasso regression}
+    \captionof{figure}{MSE depends on the lambda parameter in lasso regression}
     \label{fig: cross_val_LASSO_vs_lmbda_ex6}
 \end{figure}
 \\
@@ -339,7 +339,7 @@ Again, we study the bias, variance and total MSE as a function of $\lambda$:
 \begin{figure}[h]
     \centering
     \includegraphics[width=7cm]{mse_boots_looping_lambda_DP_75000_d_2_LASSO.png}
-    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in Lasso regression}
+    \captionof{figure}{MSE, bias and variance depends on the lambda parameter in lasso regression}
     \label{fig: bias_variance_RIDGE_boots_lmbdas}
 \end{figure}\\
 
@@ -369,7 +369,7 @@ We will discuss what regression method gives the best fit for our data. Here, we
     \end{minipage}
 \end{figure}\\
 
-For this data, we get very little variance in our models, either with OLS, Ridge or Lasso regression. Ridge and Lasso regression penalize high variance in models, but since we have such a great amount of data will our model almost have no variance, it appears that OLS is the best fit. Of course, it would be possible to increase the complexity of our model, in which case the variance would also increase and perhaps Ridge or Lasso would give the best fit, but it would require more computing power than we had available during this project. In other words, for this data set we did not experience a bias-variance trade-off as much as a trade-off between MSE and computing duration. 
+For this data, we get very little variance in our models, either with OLS, ridge or lasso regression. Ridge and lasso regression penalize high variance in models, but since we have such a great amount of data will our model almost have no variance, it appears that OLS is the best fit. Of course, it would be possible to increase the complexity of our model, in which case the variance would also increase and perhaps ridge or lasso would give the best fit, but it would require more computing power than we had available during this project. In other words, for this data set we did not experience a bias-variance trade-off as much as a trade-off between MSE and computing duration. 
 
 \subsubsection*{Image of our predicting model:}
 % TODO: add a picture showing a OK prediction of the terrain
