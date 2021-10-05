@@ -42,7 +42,11 @@ This is our helper function. The functions that are included in this file are us
     - Perform a bias-variance analysis (MSE vs lmbda)
 
 #### exercise6.py 🗾🧭
-
+    - Will do exercise 1 - 5 again
+    - Look into the main function - and uncomment the exercise you wanna run
+    - We have currently restricted the images to be in some specific coordinates. Just go to the function "read_terrain_data" and replace the boolean inside the  if-statement to run the code with the fully image/ terrain.  
+    
+ENJOY☺️
 
 
 
