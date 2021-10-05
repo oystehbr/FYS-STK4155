@@ -164,15 +164,15 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
         test_size=test_size, lmbda=lmbda)
 
     # Perform cross-validation with Lasso
-    # lasso_cross_validation(
-    #     x_values, y_values, z_values,
-    #     degree=degree, k_folds=k_folds)
+    lasso_cross_validation(
+        x_values, y_values, z_values,
+        degree=degree, k_folds=k_folds)
 
-    # # Bias-variance trade-off vs parameter lambda
-    # lasso_bootstrap_analysis_vs_lmbda(
-    #     x_values, y_values, z_values,
-    #     degree=degree, n_bootstrap=n_bootstrap,
-    #     test_size=test_size)
+    # Bias-variance trade-off vs parameter lambda
+    lasso_bootstrap_analysis_vs_lmbda(
+        x_values, y_values, z_values,
+        degree=degree, n_bootstrap=n_bootstrap,
+        test_size=test_size)
 
 
 if __name__ == "__main__":

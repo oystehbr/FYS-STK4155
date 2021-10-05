@@ -156,15 +156,15 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
     """
 
     # Perform bootstrap analysis for Ridge
-    # ridge_bootstrap_analysis_vs_complexity(
-    #     x_values, y_values, z_values,
-    #     max_degree=max_degree, n_bootstrap=n_bootstrap,
-    #     test_size=test_size, lmbda=lmbda)
+    ridge_bootstrap_analysis_vs_complexity(
+        x_values, y_values, z_values,
+        max_degree=max_degree, n_bootstrap=n_bootstrap,
+        test_size=test_size, lmbda=lmbda)
 
-    # # Perform cross-validation with Ridge, vs lmbdas
-    # ridge_cross_validation(
-    #     x_values, y_values, z_values,
-    #     degree=degree, k_folds=k_folds)
+    # Perform cross-validation with Ridge, vs lmbdas
+    ridge_cross_validation(
+        x_values, y_values, z_values,
+        degree=degree, k_folds=k_folds)
 
     # Bias-variance trade-off vs parameter lambda
     ridge_bootstrap_analysis_vs_lmbda(
