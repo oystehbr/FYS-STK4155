@@ -41,9 +41,9 @@ def read_terrain_data(filename):
 
     # Set this to false, if you wanna look at the whole image
     if True:
-        row_length = 250
-        col_length = 300
-        terrain = terrain[250:500, 1000:1300]
+        row_length = 20
+        col_length = 20
+        terrain = terrain[200:220, 800:820]
 
     x_array = np.linspace(0, 1, col_length)   # x moves sideways
     y_array = np.linspace(0, 1, row_length)
@@ -174,7 +174,7 @@ def main():
     """
 
     # TODO: get the files from figures map -> set constant for the two filer
-    TERRAIN_1 = 'terrain/SRTM_data_Norway_1.tif'
+    TERRAIN_1 = ' terrain/SRTM_data_Norway_1.tif'
     TERRAIN_2 = 'terrain/SRTM_data_Norway_2.tif'
     IMAGE_ = 'terrain/case_real_2.tif'
 
@@ -186,16 +186,16 @@ def main():
     # exercise1_test(filename=TERRAIN_2, degree=1)
 
     # Exercise 2
-    # exercise2_test(filename=TERRAIN_2, max_degree=2)
+    # exercise2_test(filename=TERRAIN_2, max_degree=12)
 
     # Exercise 3, do not take the whole picture -> scale down
     # exercise3_test(filename=TERRAIN_2, degree=2)
 
     # Exercise 4
-    # exercise4_test(filename=TERRAIN_2, max_degree=1, degree=3)
+    # exercise4_test(filename=TERRAIN_2, max_degree=30, degree=3)
 
     # Exercise 5
-    # exercise5_test(filename=TERRAIN_2, max_degree=3, degree=2)
+    # exercise5_test(filename=TERRAIN_2, max_degree=20, degree=2)
 
 
 if __name__ == "__main__":

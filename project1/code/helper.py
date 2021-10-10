@@ -153,7 +153,7 @@ def get_beta_LASSO(X, z_values, lmbda: float):
         the regression parameters, beta
     """
 
-    model_lasso = Lasso(lmbda)
+    model_lasso = Lasso(lmbda, fit_intercept=False)
     model_lasso.fit(X, z_values)
     beta = model_lasso.coef_
 

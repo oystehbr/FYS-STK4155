@@ -5,7 +5,7 @@ import helper
 import matplotlib.pyplot as plt
 
 
-def ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values, max_degree: int, n_bootstrap: int = 100, test_size: float = 0.2, lmbda: float = 1):
+def ridge_bootstrap_analysis_vs_complexity(x_values, y_values, z_values, max_degree: int, n_bootstrap: int = 100, test_size: float = 0.2, lmbda: float = 0.1):
     """
     Function for plotting MSE, bias and variance (testing data),
     over complexity. Where complexity means the order of the polynomial
@@ -174,9 +174,10 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
 
 
 if __name__ == "__main__":
-    n = 100
-    noise = 0.1
-    max_degree = 10
+    n = 125
+    noise = 0.4
+    max_degree = 20
     degree = 8
     x_values, y_values, z_values = helper.generate_data(n, noise)
     main(x_values, y_values, z_values, max_degree, degree)
+    exercise2.main(x_values, y_values, z_values, 6)

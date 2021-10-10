@@ -176,10 +176,10 @@ def main(x_values, y_values, z_values, max_degree: int, degree: int, test_size: 
 
 
 if __name__ == "__main__":
-    n = 200
-    noise = 0.2
-    max_degree = 10
+    n = 119
+    noise = 0.1
+    max_degree = 20
     degree = 5
     x_values, y_values, z_values = helper.generate_data(n, noise)
 
-    main(x_values, y_values, z_values, max_degree, degree)
+    main(x_values, y_values, z_values, max_degree, degree, lmbda=0.001)
