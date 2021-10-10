@@ -2,7 +2,7 @@
 
 ## Report - folder 📒📖
 
-#### project1_FYSSTK_4155.pdf 📈📝
+#### project_1_FYS_STK4155.pdf 📈📝
 
 ## Code - folder 🔐💬
 For simplicity, we have created 6 files for the 6 different exercises. Here are some small explanation of the python-files included in this folder.
