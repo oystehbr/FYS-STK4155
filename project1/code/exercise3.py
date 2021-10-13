@@ -1,14 +1,9 @@
 import helper
-import exercise1
 import exercise2
-import exercise4
-import exercise5
 import numpy as np
 
-# TODO: Make this even better
 
-
-def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bool = False):
+def _get_test_and_train_block(values, i: int, test_no: int, last: bool = False):
     """
     Function that gives out the i-th block of test-data, and gives
     the remaining as training-data
@@ -16,13 +11,16 @@ def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bo
     Usage: for dividing the data in cross-validation
 
     :param values (np.ndarray):
-        the values you wanna get blocks of data of
+        the values you wanna get the i-th block of data
     :param i (int):
         indicate the block_no, we want to get
     :param test_no (int):
         amount of test data
+    :param last (bool):
+        - True: the last block of testing data
+        - False: not the last block of testing data
 
-    :return (tuple):
+    :return (tuple[np.ndarray, np.ndarray]):
         train and test data
     """
 
@@ -39,12 +37,33 @@ def _get_test_and_train_block(values: np.ndarray, i: int, test_no: int, last: bo
     return train, test
 
 
-def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, lmbda=1):
+def cross_validation(x_values, y_values, z_values, method: str, k_folds: int = 5, n_bootstrap: int = 100, degree: int = 5, lmbda: float = 1):
     """
-    # TODO: docs
+    Function for finding the MSE with usage of the 
+    resampling technique: cross-validation
 
+    :param x_values (np.ndarray):
+        dependent variable
+    :param y_values (np.ndarray):
+        dependent variable
+    :param z_values (np.ndarray):
+        response variable
+    :param method (str):
+        the preffered regression method: OLS, RIDGE or LASSO
+    :param k_folds (int):
+        the amount of folds we wanna do cross-validation on
+    :param degree (int):
+        the order of the polynomial that defines the design matrix
+    :param lmbda (float):
+        parameter used by Ridge and Lasso regression (lambda)
+
+    :return (None, tuple[list, list, list]):
+        - MSE for the given model
+        - bias for the given model
+        - variance for the given model 
     """
-    # TODO: x_values and y_values together? INTO X, and better normalizing data
+
+    # Find the correct number of test data
     if len(x_values) % k_folds > 2:
         test_no = len(x_values) // k_folds + 1
     else:
@@ -54,21 +73,14 @@ def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, 
     MSE_list = np.zeros(k_folds)
     for i in range(k_folds):
         if i == (k_folds - 1):
+            # If last "block" -> get the rest of the data
             last = True
 
         x_train, x_test = _get_test_and_train_block(x_values, i, test_no, last)
         y_train, y_test = _get_test_and_train_block(y_values, i, test_no, last)
         z_train, z_test = _get_test_and_train_block(z_values, i, test_no, last)
 
-        if False:
-            # Test for checking that it gives the correct output
-            print(f'ROUND {i}')
-            print(x_values)
-            print(f'x_train: {x_train}, len: {len(x_train)} ')
-            print(f'x_test: {x_test}, len: {len(x_test)} ')
-            print('------------------------')
-
-        # TODO: comment - same as always
+        # Get the predicted values given our train- and test data
         z_pred_test, _, _ = helper.predict_output(
             x_train=x_train, y_train=y_train, z_train=z_train,
             x_test=x_test, y_test=y_test,
@@ -79,22 +91,43 @@ def cross_validation(x_values, y_values, z_values, method, k_folds=5, degree=5, 
         MSE_list[i] = helper.mean_squared_error(z_test, z_pred_test)
 
     estimated_MSE_cross_validation = np.mean(MSE_list)
-    estimated_MSE_bootstrap = exercise2.bias_variance_boots(
-        x_values, y_values, z_values, method, min_degree=degree, max_degree=degree, lmbda=lmbda)[0][-1]
 
-    X = helper.create_design_matrix(x_values, y_values, degree)
-    # estimated_mse_sckit_list_neg = cross_val_score(
-    #     linear_model.LinearRegression(), X[:, np.newaxis], z_values[:, np.newaxis], scoring='neg_mean_squared_error', cv=5)
-    # estimated_mse_sckit = np.mean(-estimated_mse_sckit_list_neg)
+    # Get MSE from bootstrap for comparison
+    estimated_MSE_bootstrap = exercise2.bias_variance_boots_looping_degree(
+        x_values, y_values, z_values,
+        method, max_degree=degree, n_bootstrap=n_bootstrap,
+        lmbda=lmbda)[0][-1]
+
     return estimated_MSE_cross_validation, estimated_MSE_bootstrap
 
 
-def main(x_values, y_values, z_values, degree):
+def main(x_values, y_values, z_values, degree: int, k_folds: int = 5, n_bootstrap: int = 100):
+    """
+    Doing what we are expecting in exercise 3:
+        - Compare the MSE you get from cross-validation with the one from bootstrap
 
-    MSE_cross_validation, MSE_bootstrap = cross_validation(x_values, y_values, z_values,
-                                                           method='OLS',  k_folds=5, degree=degree)
+    :param x_values (np.ndarray):
+        dependent variable
+    :param y_values (np.ndarray):
+        dependent variable
+    :param z_values (np.ndarray):
+        response variable
+    :param degree (int):
+        the order of the polynomial that will define the design matrix
+    :param k_folds (int):
+        the amount of folds we wanna do cross-validation on
+    :param n_bootstrap (int):
+        the number of bootstrap iterations
+    """
+
+    MSE_cross_validation, MSE_bootstrap = cross_validation(
+        x_values, y_values, z_values,
+        method='OLS',  k_folds=k_folds,
+        n_bootstrap=n_bootstrap, degree=degree)
+
     print(f'MSE_cross: {MSE_cross_validation}')
     print(f'MSE_boot: {MSE_bootstrap}')
+    print(f'k_folds = {k_folds}')
 
 
 if __name__ == "__main__":
