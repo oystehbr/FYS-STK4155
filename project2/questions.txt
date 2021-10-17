@@ -1,0 +1,1 @@
+- Loop over learning rates vs learning rate algoritm
