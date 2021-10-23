@@ -1,1 +1,2 @@
 - Loop over learning rates vs learning rate algoritm
+- Scaling the data

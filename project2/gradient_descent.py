@@ -39,10 +39,29 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
 
     # If we want the general gradient decent -> two functions in class tho
     # TODO: scaling the learning rate
+    # print('start theta')
+    # print(theta_init)
+    # print(grad_C(theta_init, X, y, lmbda))
     v = eta*grad_C(theta_init, X, y, lmbda)
     theta_previous = theta_init
 
     # TODO: updating v, will be wrong if no GD, make class Brolmsen
+    N=10
+    for i in range(N):
+        grad = grad_C(theta_previous, X, y, lmbda)
+        # Momentum based GD
+        v = gamma*v + eta*grad
+        theta_next = theta_previous - v
+
+        # If the iterations are not getting any better
+        if np.sum(np.abs(theta_next - theta_previous)) < tol:
+            return theta_next, i
+
+        # Updating the thetas
+        theta_previous = theta_next
+
+    return theta_next, N
+    
     j = 0
     for epoch in range(n_epochs): 
         for i in range(m):
@@ -77,7 +96,7 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
 def learning_schedule(t):
     return 5/(t+50)
     #TODO: initial learning rate or what??
-    return initial guess/(t+1)
+    # return initial guess/(t+1)
 
 
 def cost_OLS(beta, X, y):
