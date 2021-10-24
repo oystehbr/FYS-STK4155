@@ -1,2 +1,8 @@
-- Loop over learning rates vs learning rate algoritm
 - Scaling the data
+- oppdatere learning rate? bra metode
+- derivere sigmoid???
+- hjelper softmax?
+
+
+- Loop over learning rates vs learning rate algoritm
+- stchocastic: hvordan mekke gradient matriser

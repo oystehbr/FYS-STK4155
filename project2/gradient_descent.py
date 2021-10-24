@@ -32,7 +32,7 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
         - number of iterations, before returning
     """
 
-    grad_C = egrad(C)
+    grad_C = egrad(C, 0)
 
     n = X.shape[0]
     m = int(n/M)
@@ -43,6 +43,9 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
     # print(theta_init)
     # print(grad_C(theta_init, X, y, lmbda))
     v = eta*grad_C(theta_init, X, y, lmbda)
+    print('---------v------------')
+    print(v)
+    print('-----------v----------')
     theta_previous = theta_init
 
     # TODO: updating v, will be wrong if no GD, make class Brolmsen
