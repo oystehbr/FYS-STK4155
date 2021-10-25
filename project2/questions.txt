@@ -1,7 +1,11 @@
 - Scaling the data
 - oppdatere learning rate? bra metode
+- når skjer overfitting?
 - derivere sigmoid???
 - hjelper softmax?
+- hvor mye momentum er bra?
+- klarer vi å predicte med bare 1 layer?
+- skal vi ha samme antall neurons i alle hidden layers?
 
 
 - Loop over learning rates vs learning rate algoritm

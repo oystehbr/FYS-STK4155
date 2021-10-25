@@ -4,8 +4,8 @@ from autograd import elementwise_grad as egrad
 class Neural_Network():
     def __init__(self, input_size, output_size, hidden_size, no_of_hidden):
         """
-        Initializing a neural network with the given hyperparameters, 
-        creating initial weights according to the standard 
+        Initializing a neural network with the given hyperparameters,
+        creating initial weights according to the standard
         normal distribution
 
         :param input_size (int):
@@ -17,8 +17,7 @@ class Neural_Network():
         :param no_of_hidden (int):
             the number of hidden layers
         :param bias (float):
-            bias in each hidden layer 
-
+            bias in each hidden layer
         """
 
         # Setting up the Hyperparameters
@@ -28,21 +27,22 @@ class Neural_Network():
         self.number_of_hidden_layers = no_of_hidden
 
         # Initialize weights, bias using standard normal distribution
-        self.bias = np.zeros(self.number_of_hidden_layers)    # self.bias = np.random.randn(self.number_of_hidden_layers)
-        self.weights = np.zeros((self.number_of_hidden_layers, self.input_layer_size, self.hidden_layer_size))
-        for i in range(self.number_of_hidden_layers):
-            self.weights[i] = np.random.randn(
-                        self.input_layer_size, 
-                        self.hidden_layer_size
-                    )
+        self.bias = np.zeros(self.number_of_hidden_layers + 1)    # self.bias = np.random.randn(self.number_of_hidden_layers)
+        
+        self.input_weights = np.random.randn(self.input_layer_size, self.hidden_layer_size)
 
-        # TODO: hidden_to_hidden
-
+        if self.number_of_hidden_layers > 1:
+            self.hidden_weights = np.zeros((self.number_of_hidden_layers - 1, self.hidden_layer_size, self.hidden_layer_size))
+            for i in range(self.number_of_hidden_layers - 1):
+                self.hidden_weights[i] = np.random.randn(
+                            self.hidden_layer_size, 
+                            self.hidden_layer_size
+                        )
+        else:
+            self.hidden_weights = 0
         # Other weights, bias for the last 
-        self.weights_output = np.random.randn(
-                    self.hidden_layer_size, 
-                    self.output_layer_size
-                )
+        self.output_weights = np.random.randn(self.hidden_layer_size, self.output_layer_size)
+        
     
     def feed_forward(self, X):
         """
@@ -57,9 +57,6 @@ class Neural_Network():
         """
 
         # Iterate through the hidden layers
-
-        weights = self.weights
-
         no_data = X.shape[0]
         
         # z = (no_hidden layers, no_data, hidden_øayer_size)
@@ -68,16 +65,19 @@ class Neural_Network():
 
 
         for i in range(self.number_of_hidden_layers):
-            # TODO: More hidden layers, must switch X with z[i-1]
-            self.z[i] = X @ weights[i] + self.bias[i]
+            if i == 0:
+                self.z[i] = X @ self.input_weights + self.bias[i]
+            else: 
+                self.z[i] = self.a[i-1] @ self.hidden_weights[i-1] + self.bias[i]
+            
             self.a[i] = self.sigmoid(self.z[i])
 
         # Propagate to the output layer
-        self.z_output = self.a[-1] @ self.weights_output + self.bias[-1]
-
+        self.z_output = self.a[-1] @ self.output_weights + self.bias[-1]
+        
+        # TODO: Last activation is softmax
         y_hat = self.sigmoid(self.z_output)
 
-        ## TODO: Last activation is softmax
         return y_hat
 
 
@@ -86,10 +86,10 @@ class Neural_Network():
         self.SGD(
             X=X,
             y=y,
-            eta = 0.1,  
+            eta = 0.01,  
             n_epochs=10000, 
             M=2, 
-            gamma=0.5
+            gamma=0.8
             )
 
 
@@ -105,22 +105,40 @@ class Neural_Network():
         # y = actual, output = predicted
         y_hat = self.feed_forward(X)
         print("Error:", end = "    ")
-        print(np.mean(y_hat - y))
+        print(np.sum(np.abs(y_hat - y)))
         
-        self.output_error = y - y_hat  # error in output
-        self.output_delta = self.output_error * self.sigmoid(y_hat, deriv=True)
+        # TODO: deriverte softmax??
+        # ?? -> kanskje .dot eller ganging
+        output_error = y - y_hat  # error in output
+        output_delta = self.sigmoid(y_hat, deriv=True) * output_error
 
-        # For-loop
-        # Den må være 1*3
-        self.z2_error = self.output_error @ self.weights_output.T    # z2 error: how much our hidden layer weights contribute to the output error
-        self.z2_delta = self.z2_error * self.sigmoid(self.z[0], deriv=True)   # applying derivative of sigmoid to z2 error
+        output_weights_grad = - self.a[-1].T @ output_delta
+        
+        if self.number_of_hidden_layers > 1: 
+            hidden_weights_grad = np.zeros((self.number_of_hidden_layers - 1, self.hidden_layer_size, self.hidden_layer_size))
+            hidden_error = output_error @ self.output_weights.T 
+            hidden_delta = self.sigmoid(self.z[-1], deriv=True) * hidden_error
+            hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
 
-        hidden_weights_grad = - X.T.dot(self.z2_delta) 
-        output_weights_grad = - self.z[0].T @ self.output_delta
 
-        return hidden_weights_grad, output_weights_grad
-        # self.W1 += X.T.dot(self.z2_delta) # adjusting first set (input -> hidden layer)
-        # self.W2 += self.z2.T.dot(self.output_delta) # adjusting the second set (hidden -> output layer)
+            for i in range(self.number_of_hidden_layers - 2):
+                hidden_error = hidden_error @ self.hidden_weights[-(i+1)].T
+                hidden_delta = self.sigmoid(self.z[-(i+2)], deriv=True) * hidden_error
+                hidden_weights_grad[-(i+2)] = - self.a[-(i+3)].T @ hidden_delta
+
+            input_error = hidden_error @ self.hidden_weights[0].T
+
+        elif self.number_of_hidden_layers == 1:
+            input_error = output_error @ self.output_weights.T 
+            hidden_weights_grad = 0
+
+        input_delta = self.sigmoid(self.z[0], deriv=True) * input_error
+        
+        input_weights_grad = - X.T @ input_delta
+
+        return input_weights_grad, hidden_weights_grad, output_weights_grad
+
+        
 
 
     def SGD(self, X, y, eta, n_epochs, M, gamma=0, tol=1e-14):
@@ -128,17 +146,18 @@ class Neural_Network():
         # TODO:
         """
 
-        hidden_weights_previous = self.weights
-        output_weights_previous = self.weights_output
+        input_weights_previous = self.input_weights
+        hidden_weights_previous = self.hidden_weights
+        output_weights_previous = self.output_weights
 
         def learning_schedule(t):
             return 5/(t+50)
 
         n = X.shape[0]
         # TODO: change
-        # m = int(n/M)
-        m = 5
+        m = int(n/M)
 
+        v_input_weight = 0
         v_hidden_weight = 0
         v_output_weight = 0
 
@@ -151,11 +170,18 @@ class Neural_Network():
                 k = np.random.randint(m)
 
                 # Finding the k-th batch
+                # ?? kan være feil dimensjon
                 xk_batch = X[k*M:(k+1)*M]
                 yk_batch = y[k*M:(k+1)*M]
+                # print('-testing')
+                # print(k)
+                # exit()
                 
                 # hidden_grad = self.backpropagation(xk_batch, yk_batch) #weights are updated
-                hidden_weights_grad, output_weights_grad = self.backpropagation(X, y) #weights are updated
+                input_weights_grad, hidden_weights_grad, output_weights_grad = self.backpropagation(X, y) #weights are updated
+                
+                v_input_weight = gamma*v_input_weight + eta*input_weights_grad
+                input_weights_next = input_weights_previous - v_input_weight
 
                 v_hidden_weight = gamma*v_hidden_weight + eta*hidden_weights_grad
                 hidden_weights_next = hidden_weights_previous - v_hidden_weight
@@ -163,6 +189,7 @@ class Neural_Network():
                 v_output_weight = gamma*v_output_weight + eta*output_weights_grad
                 output_weights_next = output_weights_previous - v_output_weight
                 
+
                 # TODO: add this one
                 # eta = learning_schedule(epoch*i*m)
             
@@ -173,11 +200,13 @@ class Neural_Network():
                 #     return theta_next, j
 
                 # Updating the thetas
-                output_weights_previous = output_weights_next
+                input_weights_previous = input_weights_next
                 hidden_weights_previous = hidden_weights_next
+                output_weights_previous = output_weights_next
 
-                self.weights[0] = hidden_weights_next
-                self.weights_output = output_weights_next
+                self.input_weights = input_weights_next 
+                self.hidden_weights = hidden_weights_next
+                self.output_weights = output_weights_next
 
 
     def sigmoid(self, x, deriv = False):
@@ -199,37 +228,37 @@ class Neural_Network():
 
 
 def main():
-    X = np.array(([2, 9], [1, 5], [3, 6]), dtype=float)
-    y = np.array(([92], [86], [89]), dtype=float)
     # TODO: scaling of data
-    FFNN = Neural_Network(2, 1, 200, 1)
+    FFNN = Neural_Network(2, 1, 20, 5)
     # Data matrix is (number pf data points, number of data variables)
-    X = np.array(([0, 0], [1, 1], [4, 4])) #, [3, 3], [4, 4]))#, [5, 5], [6, 6], [7, 7]))
+    X = np.array(([1, 1], [2, 2], [6, 6], [8, 8]))#, [5, 5], [6, 6], [7, 7]))
     # ?? kan være 1d array her
-    y = np.array(([0], [1], [16])) #, [30])) #, [80])) #, [25], [36], [49]))
-    X = X/np.amax(X, axis = 0)
-    y = y/100
+    y = np.array(([2], [4], [12], [16])) #, [30])) #, [80])) #, [25], [36], [49]))
+    X = X/np.max(X)
+    y = y/20
     # X = X[:-1]
     # y = y[:-1]
-    # X_pred = X[-1]
-    # y_pred = y[-1]
+    X_pred = np.array(([[5, 5]]))/np.max(X)
+    y_pred = np.array(([10]))/20
+
 
 
     print("----START: ----")
-    print(FFNN.weights)
+    # print(FFNN.weights)
     print(FFNN.feed_forward(X))
+
     FFNN.train_model(X, y)
     print('----AFTER----')
-    print(FFNN.weights)
+    # print(FFNN.weights)
     print(FFNN.feed_forward(X))
 
     print('FAKTISK:')
     print(y)
 
-
-    # print('OUT OF SAMPLE:')
-    # print(FFNN.feed_forward(X_pred))
-    # print(y_pred)
+    print('OUT OF SAMPLE:')
+    print(X_pred)
+    print(FFNN.feed_forward(X_pred))
+    print(y_pred)
 
 
 
