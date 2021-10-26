@@ -2,7 +2,7 @@
 - oppdatere learning rate? bra metode
 - når skjer overfitting?
 - derivere sigmoid???
-- hjelper softmax?
+- en bias per layer eller flere?
 - hvor mye momentum er bra?
 - klarer vi å predicte med bare 1 layer?
 - skal vi ha samme antall neurons i alle hidden layers?

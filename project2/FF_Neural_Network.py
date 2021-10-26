@@ -1,5 +1,8 @@
 import autograd.numpy as np
 from autograd import elementwise_grad as egrad
+import matplotlib.pyplot as plt
+
+
 
 class Neural_Network():
     def __init__(self, input_size, output_size, hidden_size, no_of_hidden):
@@ -27,7 +30,8 @@ class Neural_Network():
         self.number_of_hidden_layers = no_of_hidden
 
         # Initialize weights, bias using standard normal distribution
-        self.bias = np.zeros(self.number_of_hidden_layers + 1)    # self.bias = np.random.randn(self.number_of_hidden_layers)
+        self.hidden_bias = np.zeros((self.number_of_hidden_layers, self.hidden_layer_size))
+        self.output_bias = 0
         
         self.input_weights = np.random.randn(self.input_layer_size, self.hidden_layer_size)
 
@@ -66,14 +70,14 @@ class Neural_Network():
 
         for i in range(self.number_of_hidden_layers):
             if i == 0:
-                self.z[i] = X @ self.input_weights + self.bias[i]
+                self.z[i] = X @ self.input_weights + self.hidden_bias[i]
             else: 
-                self.z[i] = self.a[i-1] @ self.hidden_weights[i-1] + self.bias[i]
+                self.z[i] = self.a[i-1] @ self.hidden_weights[i-1] + self.hidden_bias[i]
             
             self.a[i] = self.sigmoid(self.z[i])
 
         # Propagate to the output layer
-        self.z_output = self.a[-1] @ self.output_weights + self.bias[-1]
+        self.z_output = self.a[-1] @ self.output_weights + self.output_bias
         
         # TODO: Last activation is softmax
         y_hat = self.sigmoid(self.z_output)
@@ -86,8 +90,8 @@ class Neural_Network():
         self.SGD(
             X=X,
             y=y,
-            eta = 0.01,  
-            n_epochs=10000, 
+            eta = 0.05,  
+            n_epochs=20000, 
             M=2, 
             gamma=0.8
             )
@@ -104,27 +108,26 @@ class Neural_Network():
         #backward propogate through the network
         # y = actual, output = predicted
         y_hat = self.feed_forward(X)
-        print("Error:", end = "    ")
-        print(np.sum(np.abs(y_hat - y)))
         
+
         # TODO: deriverte softmax??
-        # ?? -> kanskje .dot eller ganging
         output_error = y - y_hat  # error in output
         output_delta = self.sigmoid(y_hat, deriv=True) * output_error
-
         output_weights_grad = - self.a[-1].T @ output_delta
-        
+        output_bias_grad = - np.mean(output_delta, axis=0)
+        hidden_bias_grad = np.zeros((self.number_of_hidden_layers, self.hidden_layer_size))
+
         if self.number_of_hidden_layers > 1: 
             hidden_weights_grad = np.zeros((self.number_of_hidden_layers - 1, self.hidden_layer_size, self.hidden_layer_size))
             hidden_error = output_error @ self.output_weights.T 
             hidden_delta = self.sigmoid(self.z[-1], deriv=True) * hidden_error
             hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
 
-
             for i in range(self.number_of_hidden_layers - 2):
                 hidden_error = hidden_error @ self.hidden_weights[-(i+1)].T
                 hidden_delta = self.sigmoid(self.z[-(i+2)], deriv=True) * hidden_error
                 hidden_weights_grad[-(i+2)] = - self.a[-(i+3)].T @ hidden_delta
+                hidden_bias_grad[-(i+2)] = - np.mean(hidden_delta, axis=0)
 
             input_error = hidden_error @ self.hidden_weights[0].T
 
@@ -133,10 +136,15 @@ class Neural_Network():
             hidden_weights_grad = 0
 
         input_delta = self.sigmoid(self.z[0], deriv=True) * input_error
-        
+        # print(input_delta.shape)
+        # print(np.sum(input_delta, axis=0).shape)
+        # print(hidden_bias_grad[0].shape)
+        # exit()
+
+        hidden_bias_grad[0] = - np.mean(input_delta, axis=0)
         input_weights_grad = - X.T @ input_delta
 
-        return input_weights_grad, hidden_weights_grad, output_weights_grad
+        return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
         
 
@@ -149,6 +157,8 @@ class Neural_Network():
         input_weights_previous = self.input_weights
         hidden_weights_previous = self.hidden_weights
         output_weights_previous = self.output_weights
+        hidden_bias_previous = self.hidden_bias
+        output_bias_previous = self.output_bias
 
         def learning_schedule(t):
             return 5/(t+50)
@@ -160,10 +170,14 @@ class Neural_Network():
         v_input_weight = 0
         v_hidden_weight = 0
         v_output_weight = 0
+        v_hidden_bias = 0
+        v_output_bias = 0
 
         # TODO: updating v, will be wrong if no GD, make class Brolmsen
         
         j = 0
+        error_list = []
+
         for epoch in range(n_epochs): 
             for i in range(m):
                 # Do something with the end interval of the selected
@@ -178,7 +192,8 @@ class Neural_Network():
                 # exit()
                 
                 # hidden_grad = self.backpropagation(xk_batch, yk_batch) #weights are updated
-                input_weights_grad, hidden_weights_grad, output_weights_grad = self.backpropagation(X, y) #weights are updated
+                input_weights_grad, hidden_weights_grad, output_weights_grad, \
+                    hidden_bias_grad, output_bias_grad = self.backpropagation(X, y) #weights are updated
                 
                 v_input_weight = gamma*v_input_weight + eta*input_weights_grad
                 input_weights_next = input_weights_previous - v_input_weight
@@ -188,6 +203,12 @@ class Neural_Network():
 
                 v_output_weight = gamma*v_output_weight + eta*output_weights_grad
                 output_weights_next = output_weights_previous - v_output_weight
+
+                v_hidden_bias = gamma*v_hidden_bias + eta*hidden_bias_grad
+                hidden_bias_next = hidden_bias_previous - v_hidden_bias
+
+                v_output_bias = gamma*v_output_bias + eta*output_bias_grad
+                output_bias_next = output_bias_previous - v_output_bias
                 
 
                 # TODO: add this one
@@ -203,10 +224,22 @@ class Neural_Network():
                 input_weights_previous = input_weights_next
                 hidden_weights_previous = hidden_weights_next
                 output_weights_previous = output_weights_next
+                hidden_bias_previous = hidden_bias_next
+                output_bias_previous = output_bias_next
+
+                
+                error_list.append(np.mean((self.feed_forward(X) - y)**2))
 
                 self.input_weights = input_weights_next 
                 self.hidden_weights = hidden_weights_next
                 self.output_weights = output_weights_next
+                self.hidden_bias = hidden_bias_next
+                self.output_bias = output_bias_next
+        
+        plt.loglog(range(len(error_list)), error_list)
+        plt.show()
+
+
 
 
     def sigmoid(self, x, deriv = False):
@@ -229,17 +262,17 @@ class Neural_Network():
 
 def main():
     # TODO: scaling of data
-    FFNN = Neural_Network(2, 1, 20, 5)
+    FFNN = Neural_Network(2, 1, 10, 3)
     # Data matrix is (number pf data points, number of data variables)
-    X = np.array(([1, 1], [2, 2], [6, 6], [8, 8]))#, [5, 5], [6, 6], [7, 7]))
+    X = np.array(([1, 1], [2, 2], [3, 3], [4, 4]))#, [5, 5], [6, 6], [7, 7]))
     # ?? kan være 1d array her
-    y = np.array(([2], [4], [12], [16])) #, [30])) #, [80])) #, [25], [36], [49]))
+    y = np.array(([2], [4], [6], [8])) #, [30])) #, [80])) #, [25], [36], [49]))
     X = X/np.max(X)
-    y = y/20
+    y = y/10
     # X = X[:-1]
     # y = y[:-1]
     X_pred = np.array(([[5, 5]]))/np.max(X)
-    y_pred = np.array(([10]))/20
+    y_pred = np.array(([10]))/100
 
 
 
