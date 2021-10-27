@@ -1,5 +1,5 @@
-import autograd.numpy as np
-from autograd import elementwise_grad as egrad
+import numpy as np
+# from autograd import elementwise_grad as egrad
 import matplotlib.pyplot as plt
 
 
@@ -91,7 +91,7 @@ class Neural_Network():
             X=X,
             y=y,
             eta = 0.05,  
-            n_epochs=20000, 
+            n_epochs=10000, 
             M=2, 
             gamma=0.8
             )
@@ -119,20 +119,20 @@ class Neural_Network():
 
         if self.number_of_hidden_layers > 1: 
             hidden_weights_grad = np.zeros((self.number_of_hidden_layers - 1, self.hidden_layer_size, self.hidden_layer_size))
-            hidden_error = output_error @ self.output_weights.T 
+            hidden_error = output_delta @ self.output_weights.T 
             hidden_delta = self.sigmoid(self.z[-1], deriv=True) * hidden_error
             hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
 
             for i in range(self.number_of_hidden_layers - 2):
-                hidden_error = hidden_error @ self.hidden_weights[-(i+1)].T
+                hidden_error = hidden_delta @ self.hidden_weights[-(i+1)].T #endret
                 hidden_delta = self.sigmoid(self.z[-(i+2)], deriv=True) * hidden_error
                 hidden_weights_grad[-(i+2)] = - self.a[-(i+3)].T @ hidden_delta
                 hidden_bias_grad[-(i+2)] = - np.mean(hidden_delta, axis=0)
 
-            input_error = hidden_error @ self.hidden_weights[0].T
+            input_error = hidden_delta @ self.hidden_weights[0].T
 
         elif self.number_of_hidden_layers == 1:
-            input_error = output_error @ self.output_weights.T 
+            input_error = output_delta @ self.output_weights.T 
             hidden_weights_grad = 0
 
         input_delta = self.sigmoid(self.z[0], deriv=True) * input_error
@@ -262,11 +262,11 @@ class Neural_Network():
 
 def main():
     # TODO: scaling of data
-    FFNN = Neural_Network(2, 1, 10, 3)
+    FFNN = Neural_Network(2, 1, 20, 10)
     # Data matrix is (number pf data points, number of data variables)
-    X = np.array(([1, 1], [2, 2], [3, 3], [4, 4]))#, [5, 5], [6, 6], [7, 7]))
+    X = np.array(([1, 1], [2, 2], [3, 3]))#, [5, 5], [6, 6], [7, 7]))
     # ?? kan være 1d array her
-    y = np.array(([2], [4], [6], [8])) #, [30])) #, [80])) #, [25], [36], [49]))
+    y = np.array(([2], [4], [6])) #, [30])) #, [80])) #, [25], [36], [49]))
     X = X/np.max(X)
     y = y/10
     # X = X[:-1]
@@ -288,7 +288,7 @@ def main():
     print('FAKTISK:')
     print(y)
 
-    print('OUT OF SAMPLE:')
+    print('OUT OF SAMPLE:') 
     print(X_pred)
     print(FFNN.feed_forward(X_pred))
     print(y_pred)
