@@ -49,7 +49,7 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
     theta_previous = theta_init
 
     # TODO: updating v, will be wrong if no GD, make class Brolmsen
-    N=10
+    N = 10
     for i in range(N):
         grad = grad_C(theta_previous, X, y, lmbda)
         # Momentum based GD
@@ -64,9 +64,9 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
         theta_previous = theta_next
 
     return theta_next, N
-    
+
     j = 0
-    for epoch in range(n_epochs): 
+    for epoch in range(n_epochs):
         for i in range(m):
             # Do something with the end interval of the selected
             k = np.random.randint(m)
@@ -76,14 +76,14 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
             yk_batch = y[k*M:(k+1)*M]
             # grad = grad_C(theta_previous, xk_batch, yk_batch, lmbda)
             grad = grad_C(theta_previous, xk_batch, yk_batch, lmbda)
-            
+
             v = gamma*v + eta*grad
             theta_next = theta_previous - v
 
             # TODO: Scaling the learning rate??
             eta = learning_schedule(epoch*i*m)
             # theta_next = theta_previous - eta*grad
-           
+
             j += 1
             # Check if we have reached the tolerance
             if np.sum(np.abs(theta_next - theta_previous)) < tol:
@@ -92,13 +92,13 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
 
             # Updating the thetas
             theta_previous = theta_next
-        
 
     return theta_next, j
 
+
 def learning_schedule(t):
     return 5/(t+50)
-    #TODO: initial learning rate or what??
+    # TODO: initial learning rate or what??
     # return initial guess/(t+1)
 
 
@@ -114,11 +114,11 @@ def cost_OLS(beta, X, y):
     # TODO: make better, maybe have code
     return np.mean((y_pred - y)**2)
 
+
 def cost_RIDGE(beta, X, y, lmbda):
-    
+
     y_pred = X @ beta
     return np.mean((y_pred - y)**2) + lmbda*np.sum(beta**2)
-
 
 
 def main_OLS():
@@ -126,7 +126,6 @@ def main_OLS():
     x_values, y_values, z_values = helper.generate_data(n)
     x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
         x_values, y_values, z_values, test_size=0.2)
-    
 
     _, _, beta_OLS = helper.predict_output(
         x_train=x_train, y_train=y_train, z_train=z_train,
@@ -134,28 +133,26 @@ def main_OLS():
         degree=1, regression_method='OLS'
     )
 
-
     X_train = helper.create_design_matrix(x_train, y_train, 1)
     X_train_scaled = X_train - np.mean(X_train, axis=0)
     z_train_scaled = z_train - np.mean(z_train, axis=0)
     X_T = np.matrix.transpose(X_train_scaled)
     res, num = SGD(
-        theta_init=np.array([0.0, 1.2, 2.1]), 
-        eta=1e-1, 
-        C=cost_OLS, 
+        theta_init=np.array([0.0, 1.2, 2.1]),
+        eta=1e-1,
+        C=cost_OLS,
         n_epochs=100,
         M=10,
         X=X_train_scaled,
-        y=z_train_scaled, 
-        gamma=0.5, 
+        y=z_train_scaled,
+        gamma=0.5,
         lmbda=0.1)
 
-    
-    
     print('---')
     print(f'num: {num}')
     print(f'RIKTIG: {beta_OLS}')
     print(f'Fake: {res}')
+
 
 def main_RIDGE():
     sns.set()
@@ -164,7 +161,7 @@ def main_RIDGE():
     x_values, y_values, z_values = helper.generate_data(n, 0)
     x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
         x_values, y_values, z_values, test_size=0.2)
-    
+
     learning_rates = np.logspace(0, -4, 5)
     lmbda_values = np.logspace(0, -6, 7)
 
@@ -188,13 +185,13 @@ def main_RIDGE():
 
             z_train_scaled = z_train - np.mean(z_train, axis=0)
             theta, num = SGD(
-                theta_init=np.array([0.0, -1.0, 1.0]), 
-                eta=eta, 
-                C=cost_RIDGE, 
+                theta_init=np.array([0.0, -1.0, 1.0]),
+                eta=eta,
+                C=cost_RIDGE,
                 n_epochs=100,
                 M=20,
                 X=X_train_scaled,
-                y=z_train_scaled, 
+                y=z_train_scaled,
                 gamma=0.5,
                 lmbda=lmbda)
 
@@ -202,31 +199,27 @@ def main_RIDGE():
             print(f"real: {beta_RIDGE}")
             print(f"fake: {theta}")
 
-
             exit()
             z_pred_train = X_train_scaled @ theta + np.mean(z_train, axis=0)
             z_pred_test = X_test_scaled @ theta + np.mean(z_train, axis=0)
 
             train_R2_score[i][j] = helper.r2_score(z_train, z_pred_train)
             test_R2_score[i][j] = helper.r2_score(z_test, z_pred_test)
-    
-    
-    
 
-    
-    fig, ax = plt.subplots(figsize = (10, 10))
+    fig, ax = plt.subplots(figsize=(10, 10))
     sns.heatmap(train_R2_score, annot=True, ax=ax, cmap="viridis")
     ax.set_title("Training Accuracy")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
     plt.show()
 
-    fig, ax = plt.subplots(figsize = (10, 10))
+    fig, ax = plt.subplots(figsize=(10, 10))
     sns.heatmap(test_R2_score, annot=True, ax=ax, cmap="viridis")
     ax.set_title("Test Accuracy")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
     plt.show()
+
 
 if __name__ == '__main__':
     # main_OLS()

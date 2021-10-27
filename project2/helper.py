@@ -7,7 +7,6 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
 import numpy as np
-from numba import njit
 
 
 def franke_function(x: float, y: float):
@@ -59,7 +58,6 @@ def generate_data(n: int, noise_multiplier: float = 0.1):
     return x_array, y_array, data_array
 
 
-@njit
 def create_design_matrix(x, y, degree: int):
     """
     Function for creating and returning a

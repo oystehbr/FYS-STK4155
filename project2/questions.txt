@@ -1,3 +1,13 @@
+Spørsmål til Morten:
+- Scaling the data
+- Correct activation function overall
+- momentum in stochastic GD? will it work?
+
+
+
+
+MAYBE ANSWERED
+-------------------------
 - Scaling the data
 - oppdatere learning rate? bra metode
 - derivere sigmoid???
@@ -9,7 +19,4 @@
 - skal vi ha samme antall neurons i alle hidden layers?
 - Loop over learning rates vs learning rate algoritm
 - stchocastic: hvordan mekke gradient matriser
-
-Spørsmål til Morten:
-- Scaling the data
-- Correct activation function overall
+---------------------------
