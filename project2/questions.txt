@@ -10,3 +10,7 @@
 
 - Loop over learning rates vs learning rate algoritm
 - stchocastic: hvordan mekke gradient matriser
+
+Spørsmål til Morten:
+- Scaling the data
+- Correct activation function overall
