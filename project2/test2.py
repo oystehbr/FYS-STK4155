@@ -1,3 +1,1 @@
-import numpy as np
-
-a = np.zeros((30, 10))
+import tensorflow.keras

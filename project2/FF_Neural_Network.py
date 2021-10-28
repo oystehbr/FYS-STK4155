@@ -1,9 +1,14 @@
 import numpy as np
-# from autograd import elementwise_grad as egrad
 import matplotlib.pyplot as plt
 import helper
 np.seterr(all='warn')
 np.seterr(over='raise')
+# from tensorflow.keras.layers import Input
+# from tensorflow.keras.models import Sequential   
+# from tensorflow.keras.layers import Dense         
+# from tensorflow.keras import optimizers            
+# from tensorflow.keras import regularizers          
+# from tensorflow.keras.utils import to_categorical
 
 
 class Neural_Network():
@@ -93,7 +98,7 @@ class Neural_Network():
 
         return y_hat
 
-    def train_model(self, X, y, eta=0.05, n_epochs=1000, M=3, gamma=0.5,  cost_method='OLS', lmbda=0.1):
+    def train_model(self, X, y, eta=0.05, n_epochs=1000, M=3, gamma=0.5,  cost_method='OLS', lmbda=0.1, activation_function='TODO'):
 
         self.SGD(
             X=X,
@@ -102,6 +107,7 @@ class Neural_Network():
             n_epochs=n_epochs,
             M=M,
             gamma=gamma,
+            activation_function=self.sigmoid,
             cost_method=cost_method,
             lmbda=lmbda
         )
@@ -155,7 +161,7 @@ class Neural_Network():
 
         return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
-    def SGD(self, X, y, eta, n_epochs, M, gamma=0, cost_method='OLS', lmbda=0.1, tol=1e-14):
+    def SGD(self, X, y, eta, n_epochs, M, gamma=0, activation_function='TODO', cost_method='OLS', lmbda=0.1, tol=1e-14):
         """
         # TODO:
         """
@@ -263,7 +269,7 @@ class Neural_Network():
                 exit()
 
         return ret
-
+    
 
 def main():
     print("-----STARTING MAIN -----")
@@ -336,3 +342,40 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def main2():
+    X = np.array([[1, 1], [2, 2], [3, 3]])
+    X = X/np.max(X)
+    y = np.array(([2], [4], [6]))
+    y = y/10
+    epochs = 5000
+    batch_size = 3
+    n_neurons_layer = 20
+    n_categories = 1
+
+    FFNN = Neural_Network(2, 1, n_neurons_layer, 1)
+    FFNN.train_model(
+        X, y,
+        eta=0.05, n_epochs=epochs,
+        M=batch_size, gamma=0.1)
+
+    def create_neural_network_keras(n_neurons_layer1, n_neurons_layer2, n_categories, eta, lmbd):
+        model = Sequential()
+        model.add(Dense(n_neurons_layer1, activation='sigmoid', kernel_regularizer=regularizers.l2(lmbd)))
+        model.add(Dense(n_neurons_layer2, activation='sigmoid', kernel_regularizer=regularizers.l2(lmbd)))
+        model.add(Dense(n_categories, activation='sigmoid'))
+        sgd = optimizers.SGD(learning_rate=eta)
+        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+        return model
+    
+    DNN = create_neural_network_keras(n_neurons_layer, n_neurons_layer, n_categories,
+                                         eta=0.05, lmbd=0.1)
+    
+    DNN.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=0)
+    scores = DNN.evaluate(X, y)
+
+    y_hat = FFNN.feed_forward(X)
+    
+    print(y)
+    print(scores)
+    print(y_hat)
