@@ -331,6 +331,7 @@ def main():
     print(helper.mean_squared_error(y_test, y_hat_test_RIDGE))
     print(f'-- (R2) TESTING DATA --')
     print(helper.r2_score(y_hat_test_RIDGE, y_test))
+    print('New')
 
 
 if __name__ == "__main__":
