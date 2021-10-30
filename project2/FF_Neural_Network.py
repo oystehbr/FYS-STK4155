@@ -3,12 +3,6 @@ import matplotlib.pyplot as plt
 import helper
 np.seterr(all='warn')
 np.seterr(over='raise')
-# from tensorflow.keras.layers import Input
-# from tensorflow.keras.models import Sequential   
-# from tensorflow.keras.layers import Dense         
-# from tensorflow.keras import optimizers            
-# from tensorflow.keras import regularizers          
-# from tensorflow.keras.utils import to_categorical
 
 
 class Neural_Network():
@@ -269,7 +263,7 @@ class Neural_Network():
                 exit()
 
         return ret
-    
+
 
 def main():
     print("-----STARTING MAIN -----")
@@ -343,7 +337,16 @@ def main():
 if __name__ == "__main__":
     main()
 
+
 def main2():
+    # from tensorflow.keras.layers import Input
+    # from tensorflow.keras.models import Sequential
+    # from tensorflow.keras.layers import Dense
+    # from tensorflow.keras import optimizers
+    # from tensorflow.keras import regularizers
+    # from tensorflow.keras.utils import to_categorical
+
+    return
     X = np.array([[1, 1], [2, 2], [3, 3]])
     X = X/np.max(X)
     y = np.array(([2], [4], [6]))
@@ -361,21 +364,24 @@ def main2():
 
     def create_neural_network_keras(n_neurons_layer1, n_neurons_layer2, n_categories, eta, lmbd):
         model = Sequential()
-        model.add(Dense(n_neurons_layer1, activation='sigmoid', kernel_regularizer=regularizers.l2(lmbd)))
-        model.add(Dense(n_neurons_layer2, activation='sigmoid', kernel_regularizer=regularizers.l2(lmbd)))
+        model.add(Dense(n_neurons_layer1, activation='sigmoid',
+                  kernel_regularizer=regularizers.l2(lmbd)))
+        model.add(Dense(n_neurons_layer2, activation='sigmoid',
+                  kernel_regularizer=regularizers.l2(lmbd)))
         model.add(Dense(n_categories, activation='sigmoid'))
         sgd = optimizers.SGD(learning_rate=eta)
-        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy',
+                      optimizer=sgd, metrics=['accuracy'])
         return model
-    
+
     DNN = create_neural_network_keras(n_neurons_layer, n_neurons_layer, n_categories,
-                                         eta=0.05, lmbd=0.1)
-    
+                                      eta=0.05, lmbd=0.1)
+
     DNN.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=0)
     scores = DNN.evaluate(X, y)
 
     y_hat = FFNN.feed_forward(X)
-    
+
     print(y)
     print(scores)
     print(y_hat)
