@@ -20,3 +20,10 @@ MAYBE ANSWERED
 - Loop over learning rates vs learning rate algoritm
 - stchocastic: hvordan mekke gradient matriser
 ---------------------------
+
+
+
+NEW, 31.okt:
+------------------------
+- Shall the code be able to predict more than 1 output value?
+- RELU, Leaky_RELU -> trash, enten predicte same values, or exploding results. 

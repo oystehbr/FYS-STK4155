@@ -1,7 +1,7 @@
 import autograd.numpy as np
 import matplotlib.pyplot as plt
 from autograd import elementwise_grad as egrad
-from project1 import helper
+import helper
 from sklearn.metrics import accuracy_score
 import seaborn as sns
 
@@ -43,27 +43,25 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
     # print(theta_init)
     # print(grad_C(theta_init, X, y, lmbda))
     v = eta*grad_C(theta_init, X, y, lmbda)
-    print('---------v------------')
-    print(v)
-    print('-----------v----------')
     theta_previous = theta_init
 
-    # TODO: updating v, will be wrong if no GD, make class Brolmsen
-    N = 10
-    for i in range(N):
-        grad = grad_C(theta_previous, X, y, lmbda)
-        # Momentum based GD
-        v = gamma*v + eta*grad
-        theta_next = theta_previous - v
+    # v = 0
+    # # TODO: updating v, will be wrong if no GD, make class Brolmsen
+    # N = 10
+    # for i in range(1000):
+    #     grad = grad_C(theta_previous, X, y, lmbda)
+    #     # Momentum based GD
+    #     v = gamma*v + eta*grad
+    #     theta_next = theta_previous - v
 
-        # If the iterations are not getting any better
-        if np.sum(np.abs(theta_next - theta_previous)) < tol:
-            return theta_next, i
+    #     # If the iterations are not getting any better
+    #     if np.sum(np.abs(theta_next - theta_previous)) < tol:
+    #         return theta_next, i
 
-        # Updating the thetas
-        theta_previous = theta_next
+    #     # Updating the thetas
+    #     theta_previous = theta_next
 
-    return theta_next, N
+    # return theta_next, N
 
     j = 0
     for epoch in range(n_epochs):
@@ -81,7 +79,7 @@ def SGD(theta_init, eta, C, n_epochs, M,  X, y, gamma=0, tol=1e-14, lmbda=0):
             theta_next = theta_previous - v
 
             # TODO: Scaling the learning rate??
-            eta = learning_schedule(epoch*i*m)
+            # eta = learning_schedule(epoch*i*m)
             # theta_next = theta_previous - eta*grad
 
             j += 1
@@ -146,6 +144,7 @@ def main_OLS():
         X=X_train_scaled,
         y=z_train_scaled,
         gamma=0.5,
+
         lmbda=0.1)
 
     print('---')
@@ -162,7 +161,7 @@ def main_RIDGE():
     x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
         x_values, y_values, z_values, test_size=0.2)
 
-    learning_rates = np.logspace(0, -4, 5)
+    learning_rates = np.logspace(1, -4, 6)
     lmbda_values = np.logspace(0, -6, 7)
 
     train_R2_score = np.zeros((len(learning_rates), len(lmbda_values)))
@@ -170,8 +169,8 @@ def main_RIDGE():
 
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
-            eta = 0.01
-            lmbda = 0.001
+            # eta = 0.01
+            #lmbda = 0.001
             _, _, beta_RIDGE = helper.predict_output(
                 x_train=x_train, y_train=y_train, z_train=z_train,
                 x_test=x_test, y_test=y_test,
@@ -186,10 +185,10 @@ def main_RIDGE():
             z_train_scaled = z_train - np.mean(z_train, axis=0)
             theta, num = SGD(
                 theta_init=np.array([0.0, -1.0, 1.0]),
-                eta=eta,
+                eta=0.0001,
                 C=cost_RIDGE,
-                n_epochs=100,
-                M=20,
+                n_epochs=1000,
+                M=5,
                 X=X_train_scaled,
                 y=z_train_scaled,
                 gamma=0.5,
@@ -198,8 +197,8 @@ def main_RIDGE():
             print('compare:')
             print(f"real: {beta_RIDGE}")
             print(f"fake: {theta}")
-
             exit()
+
             z_pred_train = X_train_scaled @ theta + np.mean(z_train, axis=0)
             z_pred_test = X_test_scaled @ theta + np.mean(z_train, axis=0)
 
