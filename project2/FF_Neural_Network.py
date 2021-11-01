@@ -19,6 +19,8 @@ from sklearn.metrics import accuracy_score
 
 # TODO: does the CLASS work for more than 1 output nodes
 
+# TODO: hyperparameter lmbda
+
 
 class Neural_Network():
     def __init__(self, no_input_nodes, no_output_nodes, no_hidden_nodes, no_hidden_layers):

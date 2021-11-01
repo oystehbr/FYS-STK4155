@@ -40,10 +40,10 @@ FFNN.set_SGD_values(
     gamma=0.8,
     eta=0.01)
 
-for i in range(1, 30):
+for i in range(1, 10):
     FFNN.set_activation_function_output_layer('sigmoid')
     FFNN.train_model(X_cancer_2D_scaled, y_cancer)
-    # FFNN.plot_accuracy_score_last_training()
+    FFNN.plot_accuracy_score_last_training()
     FFNN.set_activation_function_output_layer('sigmoid_classification')
     print(
         f'Accuracy (after {i} training): = {accuracy_score(FFNN.feed_forward(X_cancer_2D_scaled),  y_cancer)}')
