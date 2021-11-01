@@ -2,7 +2,7 @@
 This is a helper function. These functions are used in several
 exercises, and we chose to make this to improve structure
 """
-from sklearn.linear_model import Lasso
+from sklearn.linear_model import Lasso, Ridge
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
