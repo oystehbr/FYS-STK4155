@@ -11,7 +11,8 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import helper
-from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max
+from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification
+from sklearn.metrics import accuracy_score
 # TODO: ?? delete this
 # np.seterr(all='warn')
 # np.seterr(over='raise')
@@ -178,6 +179,7 @@ class Neural_Network():
 
         j = 0
         error_list = []
+        accuracy_list = []
 
         # TODO: change to iteration
         for epoch in range(self.n_epochs):
@@ -237,12 +239,23 @@ class Neural_Network():
                 #     return theta_next, j
 
                 # Keeping track of the mean square error after each iteration.
+                # TODO: make this a method
                 y_hat = self.feed_forward(X)
                 error_list.append(helper.mean_squared_error(
                     y_hat, y))
 
+                # TODO: make some input if this shall happen -> takes more time
+                the_activation_function_output = self.activation_function_output
+                self.set_activation_function_output_layer(
+                    'sigmoid_classification')
+                accuracy_list.append(accuracy_score(self.feed_forward(X), y))
+                # Reset the activation function output layer
+                self.activation_function_output = the_activation_function_output
+
                 # Checking if the predicted values are the same, if so - restart the weights and biases
                 if sum(y_hat[0] == y_hat) == len(y_hat) and y_hat[0] != 0:
+                    print(
+                        'PREDICTING THE SAME VALUES, refreshing the weights and biases')
                     self.refresh_the_biases()
                     self.refresh_the_weights()
                     zero_change = 10
@@ -255,6 +268,7 @@ class Neural_Network():
                     return
 
         self.error_list = error_list
+        self.accuracy_list = accuracy_list
 
     def plot_MSE_of_last_training(self):
         """
@@ -263,6 +277,19 @@ class Neural_Network():
         """
 
         plt.loglog(range(len(self.error_list)), self.error_list)
+        plt.show()
+
+    def plot_accuracy_score_last_training(self):
+        """
+        Plot the mean square error vs. iterations of the last
+        training
+        """
+        # TODO: maybe add some title or something?
+        plt.title(
+            'Accuracy score from the last training. \nAccuracy = 1 (100% correct)')
+        plt.ylabel('The accuracy between 0 - 1')
+        plt.xlabel('The number of iterations')
+        plt.plot(range(len(self.accuracy_list)), self.accuracy_list)
         plt.show()
 
     def refresh_the_biases(self):
@@ -351,7 +378,7 @@ class Neural_Network():
         Setting the activation function for the output layer.
 
         :param activation_name (str), default = 'sigmoid':
-            the preffered activation function: sigmoid, Leaky_RELU, RELU or softmax
+            the preffered activation function: sigmoid, Leaky_RELU, RELU, softmax, sigmoid_classification
         """
 
         if activation_name.lower() == 'sigmoid'.lower():
@@ -362,6 +389,8 @@ class Neural_Network():
             self.activation_function_output = RELU
         elif activation_name.lower() == 'softmax'.lower():
             self.activation_function_output = soft_max
+        elif activation_name.lower() == 'sigmoid_classification'.lower():
+            self.activation_function_output = sigmoid_classification
         else:
             print('Not a proper activation function')
 
