@@ -1,3 +1,4 @@
+import time
 from FF_Neural_Network import Neural_Network
 from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import accuracy_score
@@ -11,13 +12,7 @@ import helper
 # TODO: We need to use the accuracy score when looking at the classification problem
 
 
-def test_cancer_data(n_components: int = 2):
-    """
-
-    :param n_components (int):
-        the n most important features of the breast cancer data.
-    """
-
+def load_cancer_data(n_components):
     cancer = load_breast_cancer()
 
     # Parameter labels
@@ -38,8 +33,30 @@ def test_cancer_data(n_components: int = 2):
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.train_test_split(
         X_cancer_2D_scaled, y_cancer)
 
-    no_hidden_nodes = 50
-    no_hidden_layers = 7
+    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+
+    print(pca.explained_variance_ratio_)
+    print(pca.components_)
+    print(pd.DataFrame(pca.components_,
+                       columns=X_cancer[0, :], index=['PC-1', 'PC-2']))
+
+    exit()
+    print("Eigenvector of largest eigenvalue")
+    print(pca.components_.T[:, 0])
+
+
+def test_cancer_data(n_components: int = 2):
+    """
+
+    :param n_components (int):
+        the n most important features of the breast cancer data.
+    """
+
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = load_cancer_data(
+        n_components)
+
+    no_hidden_nodes = 2
+    no_hidden_layers = 1
 
     FFNN = Neural_Network(
         no_input_nodes=n_components,
@@ -48,18 +65,21 @@ def test_cancer_data(n_components: int = 2):
         no_hidden_layers=no_hidden_layers
     )
     FFNN.set_SGD_values(
-        n_epochs=20,
-        batch_size=100,
+        n_epochs=50,
+        batch_size=10,
         gamma=0.8,
-        eta=0.01)
+        eta=0.01,
+        lmbda=1e-4)
 
-    for i in range(1, 10):
-        FFNN.set_activation_function_output_layer('sigmoid')
-        FFNN.train_model(X_cancer_2D_scaled, y_cancer)
-        # FFNN.plot_accuracy_score_last_training()
-        FFNN.set_activation_function_output_layer('sigmoid_classification')
-        print(
-            f'Accuracy (after {i} training): = {accuracy_score(FFNN.feed_forward(X_cancer_2D_scaled),  y_cancer)}')
+    FFNN.set_activation_function_output_layer('sigmoid')
+    FFNN.train_model(X_cancer_train, y_cancer_train)
+    FFNN.set_activation_function_output_layer('sigmoid_classification')
+    print(
+        f'Accuracy_train = {accuracy_score(FFNN.feed_forward(X_cancer_train),  y_cancer_train)}')
+    print(
+        f'Accuracy_test = {accuracy_score(FFNN.feed_forward(X_cancer_test),  y_cancer_test)}')
+
+    return
 
     learning_rates = np.logspace(0, -5, 6)
     lmbda_values = np.logspace(0, -5, 6)
@@ -107,7 +127,7 @@ def test_cancer_data(n_components: int = 2):
     ax.set_title("Training Accuracy")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
-    plt.savefig("BREAST_heatmap_training_3.png")
+    plt.savefig("BREAST_heatmap_training_4.png")
     plt.show()
     print("Plotten er klar!!!")
 
@@ -117,22 +137,12 @@ def test_cancer_data(n_components: int = 2):
     ax.set_title("Test Accuracy")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
-    plt.savefig("BREAST_heatmap_testing_3.png")
+    plt.savefig("BREAST_heatmap_testing_4.png")
     plt.show()
 
     exit()
 
     FFNN.set_activation_function_output_layer("sigmoid_classification")
-
-    exit()
-    print(pca.explained_variance_ratio_)
-    print(pca.components_)
-    print(pd.DataFrame(pca.components_,
-                       columns=X_cancer[0, :], index=['PC-1', 'PC-2']))
-
-    exit()
-    print("Eigenvector of largest eigenvalue")
-    print(pca.components_.T[:, 0])
 
 
 def main():
@@ -141,4 +151,7 @@ def main():
 
 
 if __name__ == '__main__':
+    a = time.time()
     main()
+    print('TID: ', end='')
+    print(time.time() - a)
