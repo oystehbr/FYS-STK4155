@@ -2,6 +2,7 @@ Spørsmål til Morten:
 - Scaling the data
 - Correct activation function overall
 - momentum in stochastic GD? will it work?
+- 
 
 
 

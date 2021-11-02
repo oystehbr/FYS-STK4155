@@ -95,8 +95,11 @@ class Neural_Network():
         # Propagate to the output layer
         self.z_output = self.a[-1] @ self.output_weights + self.output_bias
 
-        # Applying the activation function to the output layer
-        y_hat = self.activation_function_output(self.z_output)
+        # Applying the activation function to the output layer (if provided)
+        if self.activation_function_output != None:
+            y_hat = self.activation_function_output(self.z_output)
+        else:
+            y_hat = self.z_output
 
         return y_hat
 
@@ -116,8 +119,12 @@ class Neural_Network():
         # Error in output
         output_error = y - y_hat
 
-        output_delta = self.activation_function_output(
-            y_hat, deriv=True) * output_error
+        if self.activation_function_output != None:
+            output_delta = self.activation_function_output(
+                y_hat, deriv=True) * output_error
+        else:
+            output_delta = output_error
+
         output_weights_grad = - self.a[-1].T @ output_delta
         output_bias_grad = - np.mean(output_delta, axis=0)
         hidden_bias_grad = np.zeros(
@@ -151,9 +158,18 @@ class Neural_Network():
         hidden_bias_grad[0] = - np.mean(input_delta, axis=0)
         input_weights_grad = - X.T @ input_delta
 
+        # Regularization
+        if self.lmbda > 0:
+            input_weights_grad += self.lmbda*self.input_weights
+            output_weights_grad += self.lmbda*self.output_weights
+
+            # If have more than one hidden layer, then we have hidden_weights too
+            if self.number_of_hidden_layers > 1:
+                hidden_weights_grad += self.lmbda*self.hidden_weights
+
         return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
-    def SGD(self, X, y, tol=1e-14):
+    def SGD(self, X, y, tol=1e-3):
         """
         The stochastic gradient descent algorithm for updating 
         the weights and the biases of the network. It will use the 
@@ -219,7 +235,6 @@ class Neural_Network():
                 self.output_weights = output_weights_previous - v_output_weight
                 self.hidden_bias = hidden_bias_previous - v_hidden_bias
                 self.output_bias = output_bias_previous - v_output_bias
-
                 j += 1
                 # Checking if the changes are close to 0, then we are done
                 zero_change = 0
@@ -247,15 +262,15 @@ class Neural_Network():
                     y_hat, y))
 
                 # TODO: make some input if this shall happen -> takes more time
-                the_activation_function_output = self.activation_function_output
-                self.set_activation_function_output_layer(
-                    'sigmoid_classification')
-                accuracy_list.append(accuracy_score(self.feed_forward(X), y))
-                # Reset the activation function output layer
-                self.activation_function_output = the_activation_function_output
+                # the_activation_function_output = self.activation_function_output
+                # self.set_activation_function_output_layer(
+                #     'sigmoid_classification')
+                # accuracy_list.append(accuracy_score(self.feed_forward(X), y))
+                # # Reset the activation function output layer
+                # self.activation_function_output = the_activation_function_output
 
                 # Checking if the predicted values are the same, if so - restart the weights and biases
-                if sum(y_hat[0] == y_hat) == len(y_hat) and y_hat[0] != 0:
+                if sum(abs(y_hat[0] - y_hat) < tol) == len(y_hat) and y_hat[0] != 0:
                     print(
                         'PREDICTING THE SAME VALUES, refreshing the weights and biases')
                     self.refresh_the_biases()
@@ -330,13 +345,15 @@ class Neural_Network():
         self.output_weights = np.random.randn(
             self.no_hidden_nodes, self.no_ouput_nodes)
 
-    def set_SGD_values(self, eta: float = 0.05, n_epochs: int = 1000, batch_size: int = 3, gamma: float = 0.5):
+    def set_SGD_values(self, eta: float = 0.05, lmbda: float = 0, n_epochs: int = 1000, batch_size: int = 3, gamma: float = 0.5):
         """
         Method for setting the values that the stochastic gradient descent
         will be using in its algorithm.
 
         :param eta (number):
             the learning rate
+        :param lmbda (number):
+            the regularization parameter
         :param n_epochs (int):
             # TODO:
         :param batch_size (int):
@@ -351,6 +368,7 @@ class Neural_Network():
         """
 
         self.eta = eta
+        self.lmbda = lmbda
         self.n_epochs = n_epochs
         # TODO: maybe change to batch_size
         self.M = batch_size
@@ -375,7 +393,7 @@ class Neural_Network():
         else:
             print('Not a proper activation function')
 
-    def set_activation_function_output_layer(self, activation_name: str = 'sigmoid'):
+    def set_activation_function_output_layer(self, activation_name: str = ''):
         """
         Setting the activation function for the output layer.
 
@@ -393,6 +411,8 @@ class Neural_Network():
             self.activation_function_output = soft_max
         elif activation_name.lower() == 'sigmoid_classification'.lower():
             self.activation_function_output = sigmoid_classification
+        elif activation_name.lower() == '':
+            self.activation_function_output = None
         else:
             print('Not a proper activation function')
 
@@ -492,16 +512,60 @@ def main2(X_train, X_test, y_train, y_test):
     print(y_hat)
 
 
+def main3(X_train, X_test, y_train, y_test, M=3, n_epochs=5000):
+    """
+    Testing without some scaling of the data works!
+
+    """
+
+    print("-----STARTING MAIN -----")
+
+    FFNN = Neural_Network(2, 1, 10, 2)
+    FFNN.set_activation_function_hidden_layers('Sigmoid')
+    FFNN.set_SGD_values(
+        eta=0.01,
+        lmbda=0.001,
+        n_epochs=n_epochs,
+        batch_size=M,
+        gamma=0.7)
+    FFNN.train_model(X_train, y_train)
+    FFNN.plot_MSE_of_last_training()
+
+    y_hat_train = FFNN.feed_forward(X_train)
+    y_hat_test = FFNN.feed_forward(X_test)
+
+    for _y, _y_hat in zip(y_train, y_hat_train):
+        diff = abs(_y - _y_hat)
+        print(
+            f'y_real = {_y[0]: 5.5f},    y_hat = {_y_hat[0]: 5.5f},    diff = {diff[0]: 5.5f}')
+
+    print('\n\n\n>>> CHECKING OUR MODEL: \n')
+    print('Neural Network:')
+    print('>> (MSE) TRAINING DATA: ', end='')
+    print(helper.mean_squared_error(y_train, y_hat_train))
+    print('>> (MSE) TESTING DATA: ', end='')
+    print(helper.mean_squared_error(y_test, y_hat_test))
+    print('>> (R2) TRAINING DATA: ', end='')
+    print(helper.r2_score(y_train, y_hat_train))
+    print(f'>> (R2) TESTING DATA: ', end='')
+    print(helper.r2_score(y_hat_test, y_test))
+
+
 if __name__ == "__main__":
 
     # TODO: scaling the data
     # Generate some data from the Franke Function
-    x_1, x_2, y = helper.generate_data(100, noise_multiplier=0)
+    x_1, x_2, y = helper.generate_data(50, noise_multiplier=0.2)
     X = np.array(list(zip(x_1, x_2)))
     y = y.reshape(-1, 1)
+    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
+
+    main3(X_train, X_test, y_train, y_test, )
+
+    exit()
     y_scalar = max(y)
     y /= y_scalar
+    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Splitting the data in train and testing
-    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
     main2(X_train, X_test, y_train, y_test)
