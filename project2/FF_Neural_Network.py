@@ -568,4 +568,9 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Splitting the data in train and testing
-    main2(X_train, X_test, y_train, y_test)
+<< << << < HEAD
+main2(X_train, X_test, y_train, y_test)
+== == == =
+X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
+main(X_train, X_test, y_train, y_test)
+>>>>>> > d92d42c638e7a4645979ed6741149d65754c3e26
