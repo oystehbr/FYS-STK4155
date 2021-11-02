@@ -106,12 +106,47 @@ def sigmoid(z, deriv=False):
             ret = np.exp(-z)/((1+np.exp(-z))**2)
         except Exception or Warning as e:
             # Refreshing the variables
+            print(f'>> (sigmoid derivative) ERROR: {e}')
+            print('maybe turn down the complexity')
+            exit()
+    else:
+        try:
+            ret = 1/(1 + np.exp(-z))
+        except Exception or Warning as e:
+            # Refreshing the variables
+            print(f'>> (sigmoid function) ERROR {e}')
+            print('maybe reduce the complexity')
+            exit()
+
+    return ret
+
+
+def sigmoid_classification(z, deriv=False):
+    """
+    Apply the sigmoid activation function to
+    scalar, vectors or matrices
+
+    :param z (np.ndarray):
+        input value
+    :param deriv (bool):
+        - True if we want the derivative
+        - False if we want the function value
+
+    :return (float):
+        the function value
+    """
+    if deriv:
+        try:
+            ret = np.exp(-z)/((1+np.exp(-z))**2)
+        except Exception or Warning as e:
+            # Refreshing the variables
             print(f'>> ERROR: {e}')
             print('maybe turn down the complexity')
             exit()
     else:
         try:
             ret = 1/(1 + np.exp(-z))
+            ret = np.where(ret >= 0.5, 1, 0)
         except Exception or Warning as e:
             # Refreshing the variables
             print(f'>> ERROR {e}')
