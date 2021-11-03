@@ -102,7 +102,8 @@ class Neural_Network():
             y_hat = self.z_output
 
         return y_hat
-
+    
+    
     def backpropagation(self, X, y):
         """
         The backpropagation algorithm for the neural network
@@ -112,6 +113,11 @@ class Neural_Network():
         :param y (np.ndarray): 
             the target values (output values)
         """
+        # Batch normalization 
+        # X -= np.mean(X, axis=0)
+        # X /= std(X, axis=0)
+        # y -= np.mean(y)
+
 
         # Backward propogate through the network
         y_hat = self.feed_forward(X)
@@ -221,7 +227,7 @@ class Neural_Network():
                 input_weights_grad, hidden_weights_grad, output_weights_grad, \
                     hidden_bias_grad, output_bias_grad = self.backpropagation(
                         xk_batch, yk_batch)
-
+                
                 # Using the gradients and stochastic to update the weights and biases
                 v_input_weight = self.gamma*v_input_weight + self.eta*input_weights_grad
                 v_hidden_weight = self.gamma*v_hidden_weight + self.eta*hidden_weights_grad
@@ -276,6 +282,15 @@ class Neural_Network():
                     self.refresh_the_biases()
                     self.refresh_the_weights()
                     zero_change = 10
+                    # print(v_input_weight)
+                    # print(v_output_weight)
+                    # TODO: is this smart
+                    # v_input_weight = 0
+                    # v_hidden_weight = 0
+                    # v_output_weight = 0
+                    # v_hidden_bias = 0
+                    # v_output_bias = 0
+                    print('-----')
 
                 if zero_change == 0:
                     # TODO: delete printing
@@ -283,7 +298,7 @@ class Neural_Network():
                     print(j)
                     self.error_list = error_list
                     return
-
+    
         self.error_list = error_list
         # self.accuracy_list = accuracy_list
 
@@ -427,16 +442,21 @@ class Neural_Network():
         self.SGD(X, y)
 
 
-def main(X_train, X_test, y_train, y_test, M, n_epochs):
+def main(X_train, X_test, y_train, y_test, M=8, n_epochs=3000):
     print("-----STARTING MAIN -----")
 
-    FFNN = Neural_Network(2, 1, 2, 1)
-    FFNN.set_activation_function_hidden_layers('Leaky_RELU')
-    FFNN.set_activation_function_output_layer('Leaky_RELU')
+    FFNN = Neural_Network(2, 1, 10, 3)
+    FFNN.set_activation_function_hidden_layers('sigmoid')
+    # FFNN.set_activation_function_output_layer('sigmoid')
     FFNN.set_SGD_values(
+        eta=5e-3,
+        lmbda=1e-6,
         n_epochs=n_epochs,
-        batch_size=M)
+        batch_size=M,
+        gamma=0.6)
     FFNN.train_model(X_train, y_train)
+    FFNN.plot_MSE_of_last_training()
+    print("NN done")
 
     y_hat_train = FFNN.feed_forward(X_train)
     y_hat_test = FFNN.feed_forward(X_test)
@@ -446,50 +466,59 @@ def main(X_train, X_test, y_train, y_test, M, n_epochs):
         print(
             f'y_real = {_y[0]: 5.5f},    y_hat = {_y_hat[0]: 5.5f},    diff = {diff[0]: 5.5f}')
 
-    # # OLS:
-    # y_hat_test_OLS, y_hat_train_OLS, _ = helper.predict_output(
-    #     x_train=X_train[:, 0], y_train=X_train[:, 1], z_train=y_train,
-    #     x_test=X_test[:, 0], y_test=X_test[:, 1],
-    #     degree=4, regression_method='OLS'
-    # )
+    # OLS:
+    y_hat_test_OLS, y_hat_train_OLS, _ = helper.predict_output(
+        x_train=X_train[:, 0], y_train=X_train[:, 1], z_train=y_train,
+        x_test=X_test[:, 0], y_test=X_test[:, 1],
+        degree=4, regression_method='OLS'
+    )
+    print("OLS done")
 
-    # # RIDGE:
-    # y_hat_test_RIDGE, y_hat_train_RIDGE, _ = helper.predict_output(
-    #     x_train=X_train[:, 0], y_train=X_train[:, 1], z_train=y_train,
-    #     x_test=X_test[:, 0], y_test=X_test[:, 1],
-    #     degree=4, regression_method='RIDGE', lmbda=0.01
-    # )
+    # RIDGE:
+    y_hat_test_RIDGE, y_hat_train_RIDGE, _ = helper.predict_output(
+        x_train=X_train[:, 0], y_train=X_train[:, 1], z_train=y_train,
+        x_test=X_test[:, 0], y_test=X_test[:, 1],
+        degree=4, regression_method='RIDGE', lmbda=0.01
+    )
+
+    print("RIDGE Done")
 
     print('\n\n\n>>> CHECKING OUR MODEL: \n')
     print('Neural Network:')
-    print('-- (MSE) TRAINING DATA --')
-    print(helper.mean_squared_error(y_train, y_hat_train))
-    print('-- (MSE) TESTING DATA --')
-    print(helper.mean_squared_error(y_test, y_hat_test))
+    # print('-- (MSE) TRAINING DATA --')
+    # print(helper.mean_squared_error(y_train, y_hat_train))
+    # print('-- (MSE) TESTING DATA --')
+    # print(helper.mean_squared_error(y_test, y_hat_test))
+    print(f'-- (R2) TRAINING DATA --')
+    print(helper.r2_score(y_hat_train, y_train))
     print(f'-- (R2) TESTING DATA --')
     print(helper.r2_score(y_hat_test, y_test))
 
-    # print('\nOLS:')
-    # print('-- TESTING DATA --')
+    print('\nOLS:')
+    print('-- TESTING DATA --')
     # print(helper.mean_squared_error(y_train, y_hat_train_OLS))
     # print('-- TRAINING DATA: --')
     # print(helper.mean_squared_error(y_test, y_hat_test_OLS))
-    # print(f'-- (R2) TESTING DATA --')
-    # print(helper.r2_score(y_hat_test_OLS, y_test))
+    print(f'-- (R2) TRAINING DATA --')
+    print(helper.r2_score(y_hat_train_OLS, y_train))
+    print(f'-- (R2) TESTING DATA --')
+    print(helper.r2_score(y_hat_test_OLS, y_test))
 
-    # print('\nRIDGE:')
-    # print('-------TESTING DATA-------')
+    print('\nRIDGE:')
+    print('-------TESTING DATA-------')
     # print(helper.mean_squared_error(y_train, y_hat_train_RIDGE))
     # print('-------TRAINING DATA:-------')
     # print(helper.mean_squared_error(y_test, y_hat_test_RIDGE))
-    # print(f'-- (R2) TESTING DATA --')
-    # print(helper.r2_score(y_hat_test_RIDGE, y_test))
+    print(f'-- (R2) TRAINING DATA --')
+    print(helper.r2_score(y_hat_train_RIDGE, y_train))
+    print(f'-- (R2) TESTING DATA --')
+    print(helper.r2_score(y_hat_test_RIDGE, y_test))
 
 
-def main2(X_train, X_test, y_train, y_test):
-    FFNN = Neural_Network(2, 1, 5, 1)
-    FFNN.set_activation_function_hidden_layers('RELU')
-    FFNN.set_activation_function_output_layer('RELU')
+def main2(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
+    FFNN = Neural_Network(2, 1, 2, 1)
+    FFNN.set_activation_function_hidden_layers('sigmoid')
+    # FFNN.set_activation_function_output_layer('sigmoid')
 
     X = np.array([[1, 1], [2, 2], [3, 3]])
     y = np.array([[2], [4], [6]])
@@ -512,7 +541,7 @@ def main2(X_train, X_test, y_train, y_test):
     print(y_hat)
 
 
-def main3(X_train, X_test, y_train, y_test, M=3, n_epochs=5000):
+def main3(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
     """
     Testing without some scaling of the data works!
 
@@ -520,11 +549,11 @@ def main3(X_train, X_test, y_train, y_test, M=3, n_epochs=5000):
 
     print("-----STARTING MAIN -----")
 
-    FFNN = Neural_Network(2, 1, 10, 2)
+    FFNN = Neural_Network(2, 1, 20, 3)
     FFNN.set_activation_function_hidden_layers('Sigmoid')
     FFNN.set_SGD_values(
         eta=0.01,
-        lmbda=0.001,
+        lmbda=0.01,
         n_epochs=n_epochs,
         batch_size=M,
         gamma=0.7)
@@ -555,12 +584,12 @@ if __name__ == "__main__":
 
     # TODO: scaling the data
     # Generate some data from the Franke Function
-    x_1, x_2, y = helper.generate_data(50, noise_multiplier=0.2)
+    x_1, x_2, y = helper.generate_data(100, noise_multiplier=0.1)
     X = np.array(list(zip(x_1, x_2)))
     y = y.reshape(-1, 1)
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
-    main3(X_train, X_test, y_train, y_test, )
+    main(X_train, X_test, y_train, y_test)
 
     exit()
     y_scalar = max(y)
