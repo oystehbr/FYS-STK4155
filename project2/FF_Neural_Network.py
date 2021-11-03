@@ -246,31 +246,31 @@ class Neural_Network():
                 error_list.append(helper.mean_squared_error(
                     y_hat, y))
 
-                # TODO: make some input if this shall happen -> takes more time
-                the_activation_function_output = self.activation_function_output
-                self.set_activation_function_output_layer(
-                    'sigmoid_classification')
-                accuracy_list.append(accuracy_score(self.feed_forward(X), y))
-                # Reset the activation function output layer
-                self.activation_function_output = the_activation_function_output
+                # # TODO: make some input if this shall happen -> takes more time
+                # the_activation_function_output = self.activation_function_output
+                # self.set_activation_function_output_layer(
+                #     'sigmoid_classification')
+                # accuracy_list.append(accuracy_score(self.feed_forward(X), y))
+                # # Reset the activation function output layer
+                # self.activation_function_output = the_activation_function_output
 
-                # Checking if the predicted values are the same, if so - restart the weights and biases
-                if sum(y_hat[0] == y_hat) == len(y_hat) and y_hat[0] != 0:
-                    print(
-                        'PREDICTING THE SAME VALUES, refreshing the weights and biases')
-                    self.refresh_the_biases()
-                    self.refresh_the_weights()
-                    zero_change = 10
+                # # Checking if the predicted values are the same, if so - restart the weights and biases
+                # if sum(y_hat[0] == y_hat) == len(y_hat) and y_hat[0] != 0:
+                #     print(
+                #         'PREDICTING THE SAME VALUES, refreshing the weights and biases')
+                #     self.refresh_the_biases()
+                #     self.refresh_the_weights()
+                #     zero_change = 10
 
-                if zero_change == 0:
-                    # TODO: delete printing
-                    print('local')
-                    print(j)
-                    self.error_list = error_list
-                    return
+                # if zero_change == 0:
+                #     # TODO: delete printing
+                #     print('local')
+                #     print(j)
+                #     self.error_list = error_list
+                #     return
 
         self.error_list = error_list
-        self.accuracy_list = accuracy_list
+        # self.accuracy_list = accuracy_list
 
     def plot_MSE_of_last_training(self):
         """
@@ -504,4 +504,4 @@ if __name__ == "__main__":
 
     # Splitting the data in train and testing
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
-    main(X_train, X_test, y_train, y_test)
+    main2(X_train, X_test, y_train, y_test)
