@@ -17,10 +17,8 @@ from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_cl
 # np.seterr(all='warn')
 # np.seterr(over='raise')
 
-# TODO: does the CLASS work for more than 1 output nodes
 
 # TODO: hyperparameter lmbda
-
 
 class Neural_Network():
     def __init__(self, no_input_nodes, no_output_nodes, no_hidden_nodes, no_hidden_layers):
@@ -46,6 +44,7 @@ class Neural_Network():
         self.number_of_hidden_layers = no_hidden_layers
 
         # Initializing the biases for each layer (exluded the input layer)
+        # TODO: set initialize biases instead of the refresh
         self.refresh_the_biases()
 
         # Initialize weights using the standard normal distribution
@@ -270,6 +269,7 @@ class Neural_Network():
                 # self.activation_function_output = the_activation_function_output
 
                 # Checking if the predicted values are the same, if so - restart the weights and biases
+                # TODO: don't do this, if not specified -> not good to try to fit a model with bad values
                 if sum(abs(y_hat[0] - y_hat) < tol) == len(y_hat) and y_hat[0] != 0:
                     print(
                         'PREDICTING THE SAME VALUES, refreshing the weights and biases')

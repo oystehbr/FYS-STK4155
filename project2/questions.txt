@@ -1,6 +1,7 @@
 - Complexity in logistic regression?
     - if no higher complexity than one (st. do not need design matrix), change logistic regression to handle more features
 - Cost function for classification?
+- Hvor mye koden må vi ha i rapporten? holder det med bra readme file?
 
 
 MAYBE ANSWERED
