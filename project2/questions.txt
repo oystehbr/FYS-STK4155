@@ -1,9 +1,6 @@
-Spørsmål til Morten:
-- Scaling the data
-- Correct activation function overall
-- momentum in stochastic GD? will it work?
-
-
+- Complexity in logistic regression?
+    - if no higher complexity than one (st. do not need design matrix), change logistic regression to handle more features
+- Cost function for classification?
 
 
 MAYBE ANSWERED

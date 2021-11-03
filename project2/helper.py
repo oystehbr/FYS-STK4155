@@ -6,6 +6,7 @@ from sklearn.linear_model import Lasso, Ridge
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
+from sklearn.metrics import accuracy_score
 import numpy as np
 
 
