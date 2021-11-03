@@ -102,6 +102,7 @@ def sigmoid(z, deriv=False):
         the function value
     """
     if deriv:
+        return np.exp(-z)/((1+np.exp(-z))**2)
         try:
             ret = np.exp(-z)/((1+np.exp(-z))**2)
         except Exception or Warning as e:
@@ -110,6 +111,7 @@ def sigmoid(z, deriv=False):
             print('maybe turn down the complexity')
             exit()
     else:
+        return 1/(1 + np.exp(-z))
         try:
             ret = 1/(1 + np.exp(-z))
         except Exception or Warning as e:
