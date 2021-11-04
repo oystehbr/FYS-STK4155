@@ -101,8 +101,7 @@ class Neural_Network():
             y_hat = self.z_output
 
         return y_hat
-    
-    
+
     def backpropagation(self, X, y):
         """
         The backpropagation algorithm for the neural network
@@ -112,11 +111,10 @@ class Neural_Network():
         :param y (np.ndarray): 
             the target values (output values)
         """
-        # Batch normalization 
+        # Batch normalization
         # X -= np.mean(X, axis=0)
         # X /= std(X, axis=0)
         # y -= np.mean(y)
-
 
         # Backward propogate through the network
         y_hat = self.feed_forward(X)
@@ -226,7 +224,7 @@ class Neural_Network():
                 input_weights_grad, hidden_weights_grad, output_weights_grad, \
                     hidden_bias_grad, output_bias_grad = self.backpropagation(
                         xk_batch, yk_batch)
-                
+
                 # Using the gradients and stochastic to update the weights and biases
                 v_input_weight = self.gamma*v_input_weight + self.eta*input_weights_grad
                 v_hidden_weight = self.gamma*v_hidden_weight + self.eta*hidden_weights_grad
@@ -298,7 +296,7 @@ class Neural_Network():
                     print(j)
                     self.error_list = error_list
                     return
-    
+
         self.error_list = error_list
         # self.accuracy_list = accuracy_list
 
@@ -580,8 +578,34 @@ def main3(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
     print(helper.r2_score(y_hat_test, y_test))
 
 
-if __name__ == "__main__":
+def main4():
 
+    X = np.array([[1, 1], [2, 2], [3, 3]])
+    y = np.array([[2], [4], [6]])
+    y_scalar = max(y)
+    y = y / y_scalar
+
+    FFNN = Neural_Network(2, 1, 2, 1)
+    FFNN.set_SGD_values(
+        n_epochs=2000,
+        batch_size=3,
+        eta=0.01,
+        gamma=0.7,
+        lmbda=0)
+
+    FFNN.train_model(X, y)
+    FFNN.plot_MSE_of_last_training()
+
+    y_hat = FFNN.feed_forward(X)
+    print('PREDICTED')
+    print(y_hat)
+    print('ACTUAL')
+    print(y)
+
+
+if __name__ == "__main__":
+    main4()
+    exit()
     # TODO: scaling the data
     # Generate some data from the Franke Function
     x_1, x_2, y = helper.generate_data(100, noise_multiplier=0.1)
