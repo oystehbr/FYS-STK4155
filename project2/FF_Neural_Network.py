@@ -141,12 +141,14 @@ class Neural_Network():
                 self.z[-1], deriv=True) * hidden_error
             hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
 
+            # TODO: Range -1
             for i in range(self.number_of_hidden_layers - 2):
                 # endret
                 hidden_error = hidden_delta @ self.hidden_weights[-(i+1)].T
                 hidden_delta = self.activation_function_hidden(
                     self.z[-(i+2)], deriv=True) * hidden_error
                 hidden_weights_grad[-(i+2)] = - self.a[-(i+3)].T @ hidden_delta
+                # TODO: shall it be plus 1 down
                 hidden_bias_grad[-(i+2)] = - np.mean(hidden_delta, axis=0)
 
             input_error = hidden_delta @ self.hidden_weights[0].T

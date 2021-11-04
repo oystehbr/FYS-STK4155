@@ -106,9 +106,9 @@ class Neural_Network():
         """
         The backpropagation algorithm for the neural network
 
-        :param X (np.ndarray): 
+        :param X (np.ndarray):
             the input values
-        :param y (np.ndarray): 
+        :param y (np.ndarray):
             the target values (output values)
         """
         # Batch normalization
@@ -156,31 +156,29 @@ class Neural_Network():
                 if layers > 1:
                     hidden_weights_grad = np.zeros(
                         (layers - 1, nodes, nodes))
-
-                    hidden_delta = self.activation_function_hidden(
-                        self.z_list[-(j+1)][-1], deriv=True) * hidden_error
-                    hidden_weights_grad_list.append(-
-                                                    self.a_list[-(j+1)][-2].T @ last_delta)
+                    # TODO: ?? this upwards? same in else-statement - approxametly - kindof usikke rpå den nedenfor
+                    # hidden_weights_grad_list.append(-
+                    #                                 self.a_list[-(j+1)][-2].T @ last_delta)
 
                     # Second case, loop through the rest
-                    for i in range(layers - 2):
+                    for i in range(layers - 1):
                         hidden_error = hidden_delta @ self.hidden_weights_list[-j][-(
-                            i+1)].T
+                            i)].T
 
                         hidden_delta = self.activation_function_hidden(
-                            self.z_list[j][-(i+2)], deriv=True) * hidden_error
+                            self.z_list[j][-(i+1)], deriv=True) * hidden_error
 
-                        hidden_weights_grad[-(i+2)] = - \
-                            self.a_list[-(i+3)].T @ hidden_delta
+                        hidden_weights_grad[-(i+1)] = - \
+                            self.a_list[-(j+1)][-(i+2)].T @ hidden_delta
 
-                        hidden_bias_grad[-(j+1)][-(i+1)] = - \
+                        hidden_bias_grad[-(i+1)] = - \
                             np.mean(hidden_delta, axis=0)
 
                 else:
                     hidden_weights_grad = - \
-                        self.a_list[-(j+1)][-1].T @ hidden_delta
+                        self.a_list[-(j+1)][-2].T @ last_delta
 
-                hidden_bias_grad[-(j+1)][0] = - \
+                hidden_bias_grad[0] = - \
                     np.mean(hidden_delta, axis=0)
 
                 hidden_weights_grad_list.append(hidden_weights_grad)
@@ -199,7 +197,6 @@ class Neural_Network():
         input_delta = self.activation_function_hidden(
             self.z_list[0][0], deriv=True) * input_error
 
-        hidden_bias_grad_list[0][0] = - np.mean(input_delta, axis=0)
         input_weights_grad = - X.T @ input_delta
 
         # Regularization
@@ -216,15 +213,15 @@ class Neural_Network():
 
     def SGD(self, X, y, tol=1e-3):
         """
-        The stochastic gradient descent algorithm for updating 
-        the weights and the biases of the network. It will use the 
-        initialized SGD_values. 
+        The stochastic gradient descent algorithm for updating
+        the weights and the biases of the network. It will use the
+        initialized SGD_values.
 
-        :param X (np.ndarray): 
+        :param X (np.ndarray):
             the input values
-        :param y (np.ndarray): 
+        :param y (np.ndarray):
             the target values (output values)
-        :param tol (number): 
+        :param tol (number):
             # TODO: delete or implement this
             some tolerance to check if the changes in weights and biases are so small,
             so it's not necessary to adjust the weights, biases anymore.
@@ -239,8 +236,8 @@ class Neural_Network():
         v_output_bias = 0
 
         # To be able to have advance hidden structure
-        v_hidden_weight_list = [0] * (len(self.hidden_info)*2 + 1)
-        v_hidden_bias_list = [0] * (len(self.hidden_info)*2 + 1)
+        v_hidden_weight_list = [0] * 1
+        v_hidden_bias_list = [0] * 1
 
         j = 0
         error_list = []
@@ -270,26 +267,25 @@ class Neural_Network():
                     hidden_bias_grad_list, output_bias_grad = self.backpropagation(
                         xk_batch, yk_batch)
 
+                # print(hidden_weights_grad_list)
+                # print('start')
+                # print(self.hidden_weights_list)
+                # exit()
+
                 # Using the gradients and stochastic to update the weights and biases
                 v_input_weight = self.gamma*v_input_weight + self.eta*input_weights_grad
                 v_output_weight = self.gamma*v_output_weight + self.eta*output_weights_grad
                 v_output_bias = self.gamma*v_output_bias + self.eta*output_bias_grad
 
-                print('START')
-                print(hidden_weights_grad_list)
-                print(hidden_bias_grad_list)
-                print('STOP')
-
                 # TODO: comment
                 for l in range(len(hidden_weights_grad_list)):
-                    v_hidden_weight_list[l] = self.gamma * \
-                        v_hidden_weight_list[l] + self.eta * \
-                        hidden_weights_grad_list[-(l+1)]
+                    v_hidden_weight_list[-(l+1)] = self.gamma * \
+                        v_hidden_weight_list[-(l+1)] + self.eta * \
+                        hidden_weights_grad_list[l]
 
                 for u in range(len(hidden_bias_grad_list)):
-                    v_hidden_bias_list[u] = self.gamma * \
-                        v_hidden_bias_list[u] + self.eta * \
-                        hidden_bias_grad_list[-(u+1)]
+                    v_hidden_bias_list[-(u+1)] = self.gamma * v_hidden_bias_list[-(u+1)] + self.eta *\
+                        hidden_bias_grad_list[u]
 
                 # Updating the weights and biases
                 self.input_weights = input_weights_previous - v_input_weight
@@ -394,7 +390,7 @@ class Neural_Network():
 
     def refresh_the_biases(self):
         """
-        Refreshing the biases of the network, the biases will be 
+        Refreshing the biases of the network, the biases will be
         divided into hidden and output biases and every bias are
         set to be 0.01
         """
@@ -415,7 +411,7 @@ class Neural_Network():
 
     def refresh_the_weights(self):
         """
-        Refreshing the weights of the network, the weights will be 
+        Refreshing the weights of the network, the weights will be
         divided into input, hidden and output weights and every weight are
         drawn from a standard normal distribution.
         """
@@ -446,7 +442,7 @@ class Neural_Network():
                     hidden_weights_transition = np.zeros(
                         (1, nodes, self.hidden_info[i+1][1]))
 
-                self.hidden_weights_list.append(hidden_weights_transition)
+                    self.hidden_weights_list.append(hidden_weights_transition)
         else:
             # TODO: raise some error maybe
             print('NO hidden layers, we need that ')
@@ -682,11 +678,11 @@ def main4():
     y_scalar = max(y)
     y = y / y_scalar
 
-    FFNN = Neural_Network(2, 1, [[10, 4]])
+    FFNN = Neural_Network(2, 1, [[10, 4], [2, 3], [1, 4]])
     FFNN.set_SGD_values(
-        n_epochs=5000,
+        n_epochs=200,
         batch_size=3,
-        eta=0.01,
+        eta=0.001,
         gamma=0.4,
         lmbda=0)
 
