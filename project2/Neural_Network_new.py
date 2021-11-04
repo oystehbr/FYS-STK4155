@@ -77,18 +77,19 @@ class Neural_Network():
 
         self.a_list = self.z_list.copy()
 
-        for j, [layers, nodes] in enumerate(self.hidden_info):
-            for i in range(layers):
-                if i == 0:
-                    self.z_list[j][i] = X @ self.input_weights + \
-                        self.hidden_bias_list[j][i]
+        for i, [layers, nodes] in enumerate(self.hidden_info):
+            for j in range(layers):
+                # If first case
+                if i == 0 and j == 0:
+                    self.z_list[i][j] = X @ self.input_weights + \
+                        self.hidden_bias_list[i][j]
                 else:
-                    self.z_list[j][i] = self.a[j][i-1] @ self.hidden_weights_list[j][i-1] + \
-                        self.hidden_bias_list[j][i]
+                    self.z_list[i][j] = self.a_list[i][j-1] @ self.hidden_weights_list[i][j-1] + \
+                        self.hidden_bias_list[i][j]
 
                 # Applying the activation function to the hidden layer
-                self.a_list[j][i] = self.activation_function_hidden(
-                    self.z_list[j][i])
+                self.a_list[i][j] = self.activation_function_hidden(
+                    self.z_list[i][j])
 
         # Propagate to the output layer
         z_output = self.a_list[-1][-1] @ self.output_weights + self.output_bias
@@ -131,46 +132,69 @@ class Neural_Network():
         output_bias_grad = - np.mean(output_delta, axis=0)
 
         hidden_bias_grad_list = []
-        hidden_bias_grad_list.append(np.zeros(
-            (self.hidden_info[-1][0], self.hidden_info[-1][1])))
-
         hidden_weights_grad_list = []
+
         if len(self.hidden_info) > 1 or self.hidden_info[0][0] > 1:
+
             last_weights = self.output_weights
             last_delta = output_delta
 
             # Iterere gjennom layers
-            for j, [layers, nodes] in enumerate(self.hidden_info):
-                # First tilfelle er special
+            # TODO: set this as self attribute
+            reversed_hidden_info = self.hidden_info[::-1]
+
+            for j, [layers, nodes] in enumerate(reversed_hidden_info):
+                # Update some values
                 hidden_bias_grad = np.zeros((layers, nodes))
-                hidden_weights_grad = np.zeros(
-                    (layers - 1, nodes, nodes))
+
+                # This happen with the first layer
                 hidden_error = last_delta @ last_weights.T
                 hidden_delta = self.activation_function_hidden(
                     self.z_list[-(j+1)][-1], deriv=True) * hidden_error
-                hidden_weights_grad[-1] = - self.a[-(j+1)][-2].T @ output_delta
 
-                for i in range(layers - 2):
-                    hidden_error = hidden_delta @ self.hidden_weights_list[-(
-                        j+1)][-(i+1)].T
+                # If more layers
+                if layers > 1:
+                    hidden_weights_grad = np.zeros(
+                        (layers - 1, nodes, nodes))
+
                     hidden_delta = self.activation_function_hidden(
-                        self.z_list[-(j+1)][-(i+2)], deriv=True) * hidden_error
-                    hidden_weights_grad[-(i+2)] = - \
-                        self.a_list[-(j+1)][-(i+3)].T @ hidden_delta
-                    hidden_bias_grad[-(i+2)] = - np.mean(hidden_delta, axis=0)
+                        self.z_list[-(j+1)][-1], deriv=True) * hidden_error
+                    hidden_weights_grad_list.append(-
+                                                    self.a_list[-(j+1)][-2].T @ last_delta)
 
-                hidden_bias_grad_list.append(hidden_bias_grad)
+                    # Second case, loop through the rest
+                    for i in range(layers - 2):
+                        hidden_error = hidden_delta @ self.hidden_weights_list[-j][-(
+                            i+1)].T
+
+                        hidden_delta = self.activation_function_hidden(
+                            self.z_list[j][-(i+2)], deriv=True) * hidden_error
+
+                        hidden_weights_grad[-(i+2)] = - \
+                            self.a_list[-(i+3)].T @ hidden_delta
+
+                        hidden_bias_grad[-(j+1)][-(i+1)] = - \
+                            np.mean(hidden_delta, axis=0)
+
+                else:
+                    hidden_weights_grad = - \
+                        self.a_list[-(j+1)][-1].T @ hidden_delta
+
+                hidden_bias_grad[-(j+1)][0] = - \
+                    np.mean(hidden_delta, axis=0)
+
                 hidden_weights_grad_list.append(hidden_weights_grad)
-
-                last_weights = self.hidden_weights_list[-(j+1)[0]]
+                hidden_bias_grad_list.append(hidden_bias_grad)
+                last_weights = self.hidden_weights_list[-(j+1)][0]
                 last_delta = hidden_delta
-                # TODO: update last_weights and last_delta
 
             # Siste
             input_error = last_delta @ self.hidden_weights_list[0][0].T
 
-        else:
+        elif len(self.hidden_info) == 1 and self.hidden_info[0][0] == 1:
             input_error = output_delta @ self.output_weights.T
+        else:
+            print("Can't handle no hidden layers")
 
         input_delta = self.activation_function_hidden(
             self.z_list[0][0], deriv=True) * input_error
@@ -251,16 +275,21 @@ class Neural_Network():
                 v_output_weight = self.gamma*v_output_weight + self.eta*output_weights_grad
                 v_output_bias = self.gamma*v_output_bias + self.eta*output_bias_grad
 
+                print('START')
+                print(hidden_weights_grad_list)
+                print(hidden_bias_grad_list)
+                print('STOP')
+
                 # TODO: comment
                 for l in range(len(hidden_weights_grad_list)):
                     v_hidden_weight_list[l] = self.gamma * \
                         v_hidden_weight_list[l] + self.eta * \
-                        hidden_weights_grad_list[l]
+                        hidden_weights_grad_list[-(l+1)]
 
                 for u in range(len(hidden_bias_grad_list)):
                     v_hidden_bias_list[u] = self.gamma * \
                         v_hidden_bias_list[u] + self.eta * \
-                        hidden_bias_grad_list[u]
+                        hidden_bias_grad_list[-(u+1)]
 
                 # Updating the weights and biases
                 self.input_weights = input_weights_previous - v_input_weight
@@ -300,7 +329,6 @@ class Neural_Network():
                 # Keeping track of the mean square error after each iteration.
                 # TODO: make this a method
                 y_hat = self.feed_forward(X)
-                print(y_hat)
                 error_list.append(helper.mean_squared_error(
                     y_hat, y))
 
@@ -314,21 +342,21 @@ class Neural_Network():
 
                 # Checking if the predicted values are the same, if so - restart the weights and biases
                 # TODO: don't do this, if not specified -> not good to try to fit a model with bad values
-                if sum(abs(y_hat[0] - y_hat) < tol) == len(y_hat) and y_hat[0] != 0:
-                    print(
-                        'PREDICTING THE SAME VALUES, refreshing the weights and biases')
-                    self.refresh_the_biases()
-                    self.refresh_the_weights()
-                    zero_change = 10
-                    # print(v_input_weight)
-                    # print(v_output_weight)
-                    # TODO: is this smart
-                    # v_input_weight = 0
-                    # v_hidden_weight = 0
-                    # v_output_weight = 0
-                    # v_hidden_bias = 0
-                    # v_output_bias = 0
-                    print('-----')
+                # if sum(abs(y_hat[0] - y_hat) < tol) == len(y_hat) and y_hat[0] != 0:
+                #     print(
+                #         'PREDICTING THE SAME VALUES, refreshing the weights and biases')
+                #     self.refresh_the_biases()
+                #     self.refresh_the_weights()
+                #     zero_change = 10
+                #     # print(v_input_weight)
+                #     # print(v_output_weight)
+                #     # TODO: is this smart
+                #     # v_input_weight = 0
+                #     # v_hidden_weight = 0
+                #     # v_output_weight = 0
+                #     # v_hidden_bias = 0
+                #     # v_output_bias = 0
+                #     print('-----')
 
                 # TODO: fix
                 zero_change = 10
@@ -399,12 +427,13 @@ class Neural_Network():
         # Creating the hidden layer architecture
         if len(self.hidden_info) >= 1:
             for i, [layers, nodes] in enumerate(self.hidden_info):
+                # hidden weights inside one structure (same layer in both ends)
                 hidden_weights = np.zeros(
                     (layers - 1, nodes, nodes))
 
                 # Amount of layers of the current layers structure
-                for i in range(layers - 1):
-                    hidden_weights[i] = np.random.randn(
+                for index in range(layers - 1):
+                    hidden_weights[index] = np.random.randn(
                         nodes,
                         nodes
                     )
@@ -412,20 +441,17 @@ class Neural_Network():
                 self.hidden_weights_list.append(hidden_weights)
 
                 # Transition to new hidden structure/ output layer
-                if i == len(self.hidden_info) - 1:
-                    # Send to output
-                    hidden_weights_transition = np.zeros(
-                        (1, nodes, self.no_output_nodes))
-
-                else:
+                if i != len(self.hidden_info) - 1:
                     # Send to another hidden layer
                     hidden_weights_transition = np.zeros(
                         (1, nodes, self.hidden_info[i+1][1]))
+
                 self.hidden_weights_list.append(hidden_weights_transition)
         else:
             # TODO: raise some error maybe
             print('NO hidden layers, we need that ')
 
+        # Send it from last hidden layer to outputlayer
         self.output_weights = np.random.randn(
             self.hidden_info[-1][1], self.no_output_nodes)
 
@@ -652,23 +678,29 @@ def main3(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
 def main4():
 
     X = np.array([[1, 1], [2, 2], [3, 3]])
-    y = np.array([[2], [4], [6]])
+    y = np.array([[1], [5], [10]])
     y_scalar = max(y)
     y = y / y_scalar
 
-    FFNN = Neural_Network(2, 1, [[1, 2]])
+    FFNN = Neural_Network(2, 1, [[10, 4]])
     FFNN.set_SGD_values(
-        n_epochs=2000,
+        n_epochs=5000,
         batch_size=3,
-        eta=0.001,
-        gamma=0,
-        lmbda=0.1)
+        eta=0.01,
+        gamma=0.4,
+        lmbda=0)
 
     FFNN.train_model(X, y)
     FFNN.plot_MSE_of_last_training()
     y_hat = FFNN.feed_forward(X)
 
     print(y_hat)
+    print(y)
+
+    y_hat = FFNN.feed_forward(X)
+    print('PREDICTED')
+    print(y_hat)
+    print('ACTUAL')
     print(y)
 
 
