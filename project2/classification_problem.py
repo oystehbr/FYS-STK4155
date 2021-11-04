@@ -4,7 +4,7 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
 import pandas as pd
-import numpy as np
+import autograd.numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import helper
@@ -70,6 +70,7 @@ def test_cancer_data(n_components: int = 2):
         gamma=0.8,
         eta=0.01,
         lmbda=1e-4)
+    FFNN.set_cost_function(MSE)
 
     FFNN.set_activation_function_output_layer('sigmoid')
     FFNN.train_model(X_cancer_train, y_cancer_train)
@@ -144,6 +145,16 @@ def test_cancer_data(n_components: int = 2):
 
     FFNN.set_activation_function_output_layer("sigmoid_classification")
 
+def logistic_cost(y_hat, y):
+    sum = 0
+    m = y.shape[0]
+
+    for [y_i], [y_hat_i] in zip(y, y_hat):
+        sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
+    return sum/m
+
+def MSE(y_hat, y):
+    return -1/2 * np.sum((y - y_hat)**2)
 
 def main():
 
