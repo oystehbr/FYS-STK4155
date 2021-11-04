@@ -8,10 +8,11 @@ and the biases will be initialized to 0.01
 """
 
 import time
-import numpy as np
+import autograd.numpy as np
 import matplotlib.pyplot as plt
 import helper
 from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification
+from autograd import elementwise_grad as egrad
 
 # TODO: ?? delete this
 # np.seterr(all='warn')
@@ -120,7 +121,8 @@ class Neural_Network():
         y_hat = self.feed_forward(X)
 
         # Error in output
-        output_error = y - y_hat
+        # ?? Hvilken skal først her, hvilken deriveres med hensyn på
+        output_error = self.cost_grad(y_hat, y)
 
         if self.activation_function_output != None:
             output_delta = self.activation_function_output(
@@ -430,6 +432,11 @@ class Neural_Network():
             self.activation_function_output = None
         else:
             print('Not a proper activation function')
+    
+
+    def set_cost_function(self, func):
+        self.cost_function = func
+        self.cost_grad = egrad(func)
 
     def train_model(self, X, y):
         """
@@ -440,6 +447,23 @@ class Neural_Network():
         """
 
         self.SGD(X, y)
+
+def logisttic_cost(y, y_hat):
+    sum = 0
+    m = y.shape[0]
+    for i in range(m):
+        y_i = y[i][0]
+        y_hat_i = y_hat[i][0]
+        sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
+    return -sum/m
+
+    for [y_i], [y_hat_i] in zip(y, y_hat):
+        sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
+    return -sum/m
+
+def MSE(y, y_hat):
+    return np.mean((y - y_hat)**2)
+
 
 
 def main(X_train, X_test, y_train, y_test, M=8, n_epochs=3000):
@@ -454,6 +478,7 @@ def main(X_train, X_test, y_train, y_test, M=8, n_epochs=3000):
         n_epochs=n_epochs,
         batch_size=M,
         gamma=0.6)
+    FFNN.set_cost_function(MSE)
     FFNN.train_model(X_train, y_train)
     FFNN.plot_MSE_of_last_training()
     print("NN done")
@@ -594,7 +619,7 @@ def main4():
         eta=0.01,
         gamma=0.7,
         lmbda=0)
-
+    FFNN.set_cost_function(MSE)
     FFNN.train_model(X, y)
     FFNN.plot_MSE_of_last_training()
 
