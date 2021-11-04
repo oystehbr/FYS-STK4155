@@ -8,10 +8,11 @@ and the biases will be initialized to 0.01
 """
 
 import time
-import numpy as np
+import autograd.numpy as np
 import matplotlib.pyplot as plt
 import helper
-from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification
+from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification, MSE, cost_logistic_regression
+from autograd import elementwise_grad as egrad
 
 # TODO: ?? delete this
 # np.seterr(all='warn')
@@ -112,17 +113,18 @@ class Neural_Network():
         :param y (np.ndarray): 
             the target values (output values)
         """
-        # Batch normalization 
-        # X -= np.mean(X, axis=0)
-        # X /= std(X, axis=0)
-        # y -= np.mean(y)
-
 
         # Backward propogate through the network
         y_hat = self.feed_forward(X)
 
         # Error in output
-        output_error = y - y_hat
+        if self.cost_function == MSE:
+            output_error = self.grad_cost(y, y_hat)
+        elif self.cost_function == cost_logistic_regression:
+            output_error = self.grad_cost(beta, X, y, self.lmbda)
+            
+
+        output_error = self.grad_cost(y, y_hat)
 
         if self.activation_function_output != None:
             output_delta = self.activation_function_output(
@@ -430,6 +432,10 @@ class Neural_Network():
             self.activation_function_output = None
         else:
             print('Not a proper activation function')
+    
+
+    def set_cost_function(self, func):
+        ...
 
     def train_model(self, X, y):
         """
@@ -440,6 +446,7 @@ class Neural_Network():
         """
 
         self.SGD(X, y)
+
 
 
 def main(X_train, X_test, y_train, y_test, M=8, n_epochs=3000):
@@ -578,7 +585,6 @@ def main3(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
     print(helper.r2_score(y_train, y_hat_train))
     print(f'>> (R2) TESTING DATA: ', end='')
     print(helper.r2_score(y_hat_test, y_test))
-
 
 if __name__ == "__main__":
 

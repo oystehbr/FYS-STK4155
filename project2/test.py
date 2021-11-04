@@ -1,6 +1,5 @@
-# import numpy as np
-# import activation_functions as af
+import numpy as np
 
-# beta = np.array([1, 2, 3])
-# print(beta)
-# print(beta**2)
+y = np.array([[1], [2]])
+y_hat = np.array([[3], [5]])
+print(np.sum(y-y_hat))

@@ -666,6 +666,10 @@ def main4():
 
     FFNN.train_model(X, y)
     FFNN.plot_MSE_of_last_training()
+    y_hat = FFNN.feed_forward(X)
+
+    print(y_hat)
+    print(y)
 
 
 if __name__ == "__main__":
