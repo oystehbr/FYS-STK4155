@@ -1,11 +1,9 @@
+from cost_functions import cost_OLS, cost_RIDGE
+from autograd import elementwise_grad as egrad
 import autograd.numpy as np
 import matplotlib.pyplot as plt
-from autograd import elementwise_grad as egrad
 import helper
-from sklearn.metrics import accuracy_score
 import seaborn as sns
-
-# TODO: delete this
 
 
 def learning_schedule(t):
@@ -84,53 +82,6 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, M, gamma=0, tol=1e-14, l
             theta_previous = theta_next
 
     return theta_next, j
-
-
-def cost_OLS(beta, X, y, lmbda=0):
-    """
-    The cost function of the regression method OLS
-
-    :param beta (np.ndarray):
-        the regression parameters
-    :param X (np.ndarray):
-        input values (dependent variables)
-    :param y (np.ndarray):
-        actual output values
-    :param lmbda (float):
-        do not think about this, it will not be used. Just for simplicity of
-        the code structure of the SGD
-
-    :return (float):
-        the value of the cost function
-    """
-
-    # Find the predicted values according to the given betas and input values
-    y_pred = X @ beta
-
-    return np.mean((y_pred - y)**2)
-
-
-def cost_RIDGE(beta, X, y, lmbda):
-    """
-    The cost function of the regression method RIDGE
-
-    :param beta (np.ndarray):
-        the regression parameters
-    :param X (np.ndarray):
-        input values (dependent variables)
-    :param y (np.ndarray):
-        actual output values
-    :param lmbda (float):
-        the hyperparameter for RIDGE regression
-
-    :return (float):
-        the value of the cost function
-    """
-
-    # Find the predicted values according to the given betas and input values
-    y_pred = X @ beta
-
-    return np.mean((y_pred - y)**2) + lmbda*np.sum(beta**2)
 
 
 def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs=200, degree=1, gamma=0):

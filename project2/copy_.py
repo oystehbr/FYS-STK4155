@@ -7,13 +7,12 @@ The weights in the network will be initalizied by the normal distribution
 and the biases will be initialized to 0.01
 """
 
-from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification
-from autograd import elementwise_grad as egrad
-from cost_functions import MSE
 import time
 import autograd.numpy as np
 import matplotlib.pyplot as plt
 import helper
+from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification
+from autograd import elementwise_grad as egrad
 
 
 class Neural_Network():
@@ -51,9 +50,6 @@ class Neural_Network():
         self.set_activation_function_hidden_layers()
         self.set_activation_function_output_layer()
 
-        # Default cost-function is MSE
-        self.set_cost_function(MSE)
-
     def feed_forward(self, X):
         """
         Running through our network with the input values X
@@ -72,6 +68,10 @@ class Neural_Network():
         self.z = np.zeros(
             (self.number_of_hidden_layers, no_data, self.no_hidden_nodes))
         self.a = self.z.copy()  # copy (same dimension on the activation-array)
+
+        # TODO: ?? maybe working (above)
+        # self.a = np.zeros((self.number_of_hidden_layers,
+        #                   no_data, self.no_hidden_nodes))
 
         # Iterate through the hidden layers
         for i in range(self.number_of_hidden_layers):
@@ -133,12 +133,14 @@ class Neural_Network():
                 self.z[-1], deriv=True) * hidden_error
             hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
 
+            # TODO: Range -1
             for i in range(self.number_of_hidden_layers - 2):
                 # endret
                 hidden_error = hidden_delta @ self.hidden_weights[-(i+1)].T
                 hidden_delta = self.activation_function_hidden(
                     self.z[-(i+2)], deriv=True) * hidden_error
                 hidden_weights_grad[-(i+2)] = self.a[-(i+3)].T @ hidden_delta
+                # TODO: shall it be plus 1 down
                 hidden_bias_grad[-(i+2)] = np.mean(hidden_delta, axis=0)
 
             input_error = hidden_delta @ self.hidden_weights[0].T
@@ -164,7 +166,7 @@ class Neural_Network():
 
         return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
-    def SGD(self, X, y, tol=1e-4):
+    def SGD(self, X, y, tol=1e-3):
         """
         The stochastic gradient descent algorithm for updating 
         the weights and the biases of the network. It will use the 
@@ -175,12 +177,13 @@ class Neural_Network():
         :param y (np.ndarray): 
             the target values (output values)
         :param tol (number): 
-            if the model are predicting the same values by a tolerance, 
-            then a message will occure 
+            # TODO: delete or implement this
+            some tolerance to check if the changes in weights and biases are so small,
+            so it's not necessary to adjust the weights, biases anymore.
         """
 
-        # Finding the number of minibatches
-        num_of_minibatches = int(X.shape[0]/self.batch_size)
+        # TODO: change
+        m = int(X.shape[0]/self.M)
 
         # Starting with zero momentum in the gradient descent
         v_input_weight = 0
@@ -189,18 +192,27 @@ class Neural_Network():
         v_hidden_bias = 0
         v_output_bias = 0
 
-        iter = 0
+        j = 0
         error_list = []
         accuracy_list = []
 
+        # TODO: change to iteration
         for epoch in range(self.n_epochs):
-            for i in range(num_of_minibatches):
+            for i in range(m):
 
-                # Getting some random batch no. k
-                k = np.random.randint(num_of_minibatches)
+                # Saving the previous weights and biases
+                input_weights_previous = self.input_weights
+                hidden_weights_previous = self.hidden_weights
+                output_weights_previous = self.output_weights
+                hidden_bias_previous = self.hidden_bias
+                output_bias_previous = self.output_bias
 
-                xk_batch = X[k*self.batch_size:(k+1)*self.batch_size]
-                yk_batch = y[k*self.batch_size:(k+1)*self.batch_size]
+                # Do something with the end interval of the selected
+                k = np.random.randint(m)
+
+                # TODO: random integer can be wrongFinding the k-th batch
+                xk_batch = X[k*self.M:(k+1)*self.M]
+                yk_batch = y[k*self.M:(k+1)*self.M]
 
                 # Finding the different gradients with backpropagation
                 input_weights_grad, hidden_weights_grad, output_weights_grad, \
@@ -215,13 +227,25 @@ class Neural_Network():
                 v_output_bias = self.gamma*v_output_bias + self.eta*output_bias_grad
 
                 # Updating the weights and biases
-                self.input_weights -= v_input_weight
-                self.hidden_weights -= v_hidden_weight
-                self.output_weights -= v_output_weight
-                self.hidden_bias -= v_hidden_bias
-                self.output_bias -= v_output_bias
+                self.input_weights = input_weights_previous - v_input_weight
+                self.hidden_weights = hidden_weights_previous - v_hidden_weight
+                self.output_weights = output_weights_previous - v_output_weight
+                self.hidden_bias = hidden_bias_previous - v_hidden_bias
+                self.output_bias = output_bias_previous - v_output_bias
+                j += 1
+                # Checking if the changes are close to 0, then we are done
+                zero_change = 0
+                zero_change += np.sum(self.input_weights -
+                                      input_weights_previous)
 
-                iter += 1
+                zero_change += np.sum(self.hidden_weights -
+                                      hidden_weights_previous)
+                zero_change += np.sum(self.output_weights -
+                                      output_weights_previous)
+                zero_change += np.sum(self.hidden_bias -
+                                      hidden_bias_previous)
+                zero_change += np.sum(self.output_bias -
+                                      output_bias_previous)
 
                 # If we want to save the error's according to the costfunction
                 if self.keep_cost_values:
@@ -238,24 +262,27 @@ class Neural_Network():
                     # Reset the activation function output layer
                     self.activation_function_output = the_activation_function_output
 
-                # TODO: do something more pretty
                 if sum(abs(self.y_hat[0] - self.y_hat) < tol) == len(self.y_hat) and self.y_hat[0] != 0:
-                    print('>> Predicting all same values, unstable values')
+                    # TODO:
+                    print('PREDICTING SAME VALUES, maybe wrong')
                     exit()
+
+                if zero_change == 0:
+                    # TODO: delete printing
+                    print('local')
+                    print(j)
+                    self.error_list = error_list
+                    return
 
         self.error_list = error_list
         self.accuracy_list = accuracy_list
 
-    def plot_cost_of_last_training(self):
+    def plot_MSE_of_last_training(self):
         """
-        Plot the cost value vs. iterations of the last
+        Plot the mean square error vs. iterations of the last
         training
         """
 
-        plt.title(
-            'Value of the cost-function from the last training.')
-        plt.ylabel('Cost value')
-        plt.xlabel('The number of iterations')
         plt.loglog(range(len(self.error_list)), self.error_list)
         plt.show()
 
@@ -264,7 +291,7 @@ class Neural_Network():
         Plot the mean square error vs. iterations of the last
         training
         """
-
+        # TODO: maybe add some title or something?
         plt.title(
             'Accuracy score from the last training. \nAccuracy = 1 (100% correct)')
         plt.ylabel('The accuracy between 0 - 1')
@@ -274,7 +301,7 @@ class Neural_Network():
 
     def initialize_the_biases(self):
         """
-        Initializing the biases of the network, the biases will be 
+        Refreshing the biases of the network, the biases will be 
         divided into hidden and output biases and every bias are
         set to be 0.01
         """
@@ -286,7 +313,7 @@ class Neural_Network():
 
     def initialize_the_weights(self):
         """
-        Initializing the weights of the network, the weights will be 
+        Refreshing the weights of the network, the weights will be 
         divided into input, hidden and output weights and every weight are
         drawn from a standard normal distribution.
         """
@@ -318,7 +345,7 @@ class Neural_Network():
         :param lmbda (number):
             the regularization parameter
         :param n_epochs (int):
-            number of epochs to iterate through
+            # TODO:
         :param batch_size (int):
             the data are split into batches (for the stochastic). If
             the size of the batch is equal to the size of the input data,
@@ -331,18 +358,11 @@ class Neural_Network():
         """
         if eta != None:
             self.eta = eta
-
-        if lmbda != None:
-            self.lmbda = lmbda
-
-        if n_epochs != None:
-            self.n_epochs = n_epochs
-
-        if batch_size != None:
-            self.batch_size = batch_size
-
-        if gamma != None:
-            self.gamma = gamma
+        self.lmbda = lmbda
+        self.n_epochs = n_epochs
+        # TODO: maybe change to batch_size
+        self.M = batch_size
+        self.gamma = gamma
 
     def set_activation_function_hidden_layers(self, activation_name: str = 'sigmoid'):
         """
@@ -367,7 +387,7 @@ class Neural_Network():
         """
         Setting the activation function for the output layer.
 
-        :param activation_name (str), default = '':
+        :param activation_name (str), default = 'sigmoid':
             the preffered activation function: sigmoid, Leaky_RELU, RELU, softmax, sigmoid_classification
         """
 
@@ -386,17 +406,13 @@ class Neural_Network():
         else:
             print('Not a proper activation function')
 
-    def set_cost_function(self, cost_function):
+    def set_cost_function(self, func):
         """
-        Setting the costfunction we want the Neural Network to 
-        optimize against and creating an autograd object
-
-        :param cost_function (function): 
-            the costfunction to use in the backpropagation
+        # TODO: docstrings
         """
 
-        self.cost_function = cost_function
-        self.cost_grad = egrad(cost_function)
+        self.cost_function = func
+        self.cost_grad = egrad(func)
 
     def train_model(self, X, y, keep_cost_values: bool = False, keep_accuracy_score: bool = False):
         """
@@ -404,26 +420,31 @@ class Neural_Network():
         a stochastic gradient descent algorithm (with help from backpropagation)
         to update the weights and biases in the neural network
 
-        :param X (np.ndarray):
-            the input variable we want to train the network with
-        :param y (np.ndarray):
-            the target values we want to train the model to predict
-        :param keep_cost_values (bool):
-            - False (default): do not save anything
-            - True: saves what the cost value is after running each backpropagation,
-                so it is possible to plot the cost value vs. training time
+        # TODO: docstrings
 
-        :param keep_accuracy_score (bool):
-            - False (default): do not save anything
-            - True: saves what the accuracy score is after running each backpropagation,
-                so it is possible to plot the accuracy vs. training time
         """
 
         self.keep_cost_values = keep_cost_values
         self.keep_accuracy_score = keep_accuracy_score
-
-        # Calling the SGD-function to help us train the model
         self.SGD(X, y)
+
+
+def logisttic_cost(y, y_hat):
+    sum = 0
+    m = y.shape[0]
+    for i in range(m):
+        y_i = y[i][0]
+        y_hat_i = y_hat[i][0]
+        sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
+    return -sum/m
+
+    for [y_i], [y_hat_i] in zip(y, y_hat):
+        sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
+    return -sum/m
+
+
+def MSE(y, y_hat):
+    return np.mean((y - y_hat)**2)
 
 
 def main(X_train, X_test, y_train, y_test, M=8, n_epochs=3000):
@@ -542,7 +563,7 @@ def main3(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
         batch_size=M,
         gamma=0.7)
     FFNN.train_model(X_train, y_train)
-    FFNN.plot_cost_of_last_training()
+    FFNN.plot_MSE_of_last_training()
 
     y_hat_train = FFNN.feed_forward(X_train)
     y_hat_test = FFNN.feed_forward(X_test)
@@ -580,7 +601,7 @@ def main4():
         lmbda=0)
     FFNN.set_cost_function(MSE)
     FFNN.train_model(X, y)
-    FFNN.plot_cost_of_last_training()
+    FFNN.plot_MSE_of_last_training()
 
     y_hat = FFNN.feed_forward(X)
     print('PREDICTED')
