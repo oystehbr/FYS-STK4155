@@ -14,29 +14,46 @@ import helper
 # TODO: We need to use the accuracy score when looking at the classification problem
 
 
-def load_cancer_data(n_components):
+def load_cancer_data(n):
+    """
+    Loading the cancer_data from scikit-learn. Selecting the 
+    features with the highest explained variance ratio (the first 
+    #n) and returning those
+
+    :param n (int):
+        amount of components we want to return 
+
+    :return tuple(np.ndarray):
+        - Input data, training
+        - Input data, testing 
+        - Target data, training  
+        - Target data, testing
+    """
+
+    # Loading cancer data
     cancer = load_breast_cancer()
 
-    # Parameter labels
+    # Parameter labels (if you want, not used)
     labels = cancer.feature_names[0:30]
 
-    # 569 rows (sample data), 30 columns (parameters)
     X_cancer = cancer.data
-    # 569 rows (0 for benign and 1 for malignant)
-    y_cancer = cancer.target
+    y_cancer = cancer.target    # 0 for benign and 1 for malignant
     y_cancer = y_cancer.reshape(-1, 1)
 
-    pca = PCA(n_components=n_components)
-    X_cancer_2D = pca.fit_transform(X_cancer)
+    # Selecting the n first components w.r.t. the PCA
+    pca = PCA(n_components=n)
+    X_cancer_nD = pca.fit_transform(X_cancer)
 
-    X_scalar = 1/np.max(X_cancer_2D)
-    X_cancer_2D_scaled = X_cancer_2D*X_scalar
+    # TODO: shall we have scaling of the data, or nah? -> maybe scale of mean value??
+    X_scalar = 1/np.max(X_cancer_nD)
+    X_cancer_nD_scaled = X_cancer_nD*X_scalar
 
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.train_test_split(
-        X_cancer_2D_scaled, y_cancer)
+        X_cancer_nD_scaled, y_cancer)
 
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
 
+    # TODO: delete this
     print(pca.explained_variance_ratio_)
     print(pca.components_)
     print(pd.DataFrame(pca.components_,
@@ -47,6 +64,7 @@ def load_cancer_data(n_components):
     print(pca.components_.T[:, 0])
 
 
+# TODO: maybe delete - or make it clear that this was for own testing
 def test_cancer_data(n_components: int = 2):
     """
     :param n_components (int):
@@ -147,22 +165,6 @@ def test_cancer_data(n_components: int = 2):
     exit()
 
     FFNN.set_activation_function_output_layer("sigmoid_classification")
-
-
-def logistic_cost(y_hat, y):
-    sum = 0
-    m = y.shape[0]
-
-    return -np.sum(y*np.log(y_hat) + (1-y)*np.log(1 - y_hat))
-    # for [y_i], [y_hat_i] in zip(y, y_hat):
-    #     sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
-
-    # print(abs(sum1+sum))
-    return -sum
-
-
-def MSE(y_hat, y):
-    return 1/2 * np.sum((y - y_hat)**2)
 
 
 def main():

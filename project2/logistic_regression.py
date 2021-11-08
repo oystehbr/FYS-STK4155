@@ -8,6 +8,7 @@ import autograd.numpy as np
 def cost_logistic_regression(beta, X, y, lmbda=0):
     """
     The cost function of the regression method OLS
+    # TODO: can we do the same as in cost_functions.py -> for this method
 
     :param beta (np.ndarray):
         the regression parameters
@@ -22,7 +23,6 @@ def cost_logistic_regression(beta, X, y, lmbda=0):
     :return (float):
         the value of the cost function
     """
-    # TODO: add regularization lambda
     # Find the predicted values according to the given betas and input values
     n = X.shape[0]
     total_prob = prob(beta, X[0])**y[0]*(1-prob(beta, X[0]))**(1-y[0])
@@ -48,7 +48,7 @@ def prob(beta, X):
     :return (np.ndarray, number):
         function value
     """
-    # TODO: put this in np.exp()
+    # TODO: delete this
     # np.sum([_beta*x**i for i, _beta in enumerate(beta)])
     # print(np.sum([_beta*x**i for i, _beta in enumerate(beta)]))
     # print(beta[0] + beta[1]*x)

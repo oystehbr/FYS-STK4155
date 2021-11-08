@@ -239,9 +239,10 @@ class Neural_Network():
                     self.activation_function_output = the_activation_function_output
 
                 # TODO: do something more pretty
-                if sum(abs(self.y_hat[0] - self.y_hat) < tol) == len(self.y_hat) and self.y_hat[0] != 0:
-                    print('>> Predicting all same values, unstable values')
-                    exit()
+                # if sum(abs(self.y_hat[0] - self.y_hat) < tol) == len(self.y_hat) and self.y_hat[0] != 0 and not self.keep_accuracy_score:
+                #     # TODO: something wrong if accuracy score is applied
+                #     print('>> Predicting all same values, unstable values')
+                #     exit()
 
         self.error_list = error_list
         self.accuracy_list = accuracy_list

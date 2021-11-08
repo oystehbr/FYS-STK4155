@@ -6,6 +6,8 @@ def logistic_cost(y_hat, y):
     m = y.shape[0]
 
     return -np.sum(y*np.log(y_hat) + (1-y)*np.log(1 - y_hat))
+
+    # TODO: delete underneath
     # for [y_i], [y_hat_i] in zip(y, y_hat):
     #     sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
 

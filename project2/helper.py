@@ -8,6 +8,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def franke_function(x: float, y: float):
@@ -220,3 +222,34 @@ def predict_output(x_train, y_train, z_train, x_test, y_test, degree: int, regre
     z_pred_train = (X_train_scaled @ beta) + z_train_scale
 
     return z_pred_test, z_pred_train, beta
+
+
+def seaborn_plot(score, x_tics, y_tics, score_name, save_name=None):
+    """
+    Seaborn plot of the combination of lambda and eta values will be 
+    showned and saved if save_name is provided.
+
+    :param score (list[list]):
+        the scores of lambda and eta values
+    :param x_tics (np.ndarray):
+        the lmbda values that were used
+    :param y_tics (np.ndarray):
+        the eta values that were used
+    :param score_name (str):
+        name of the score-evaluation, for plotting. 
+        e.g. Accuray (training)
+    :param save_name (str), default = None:
+        the name, the plot will be saved in
+    """
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    sns.heatmap(score, annot=True, ax=ax, cmap="viridis",
+                xticklabels=x_tics, yticklabels=y_tics)
+
+    ax.set_title(f'{score_name}')
+    ax.set_xlabel("$\lambda$")
+    ax.set_ylabel("$\eta$")
+
+    if save_name != None:
+        plt.savefig(save_name)
+    plt.show()

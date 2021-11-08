@@ -98,7 +98,6 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
         response variable
     :param list_no_of_minibatches (list):
         list of number of minibatches that we want to run through
-        # TODO: is this a smart idea (this or M??)
     :param n_epochs (int), default = 200:
         the number of epochs that the SGD will be running through
     :param degree (int), default = 1:
@@ -168,6 +167,7 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
         we will use "full" momentum instead.
     """
 
+    # TODO: input variables for lmbda values, eta values
     # TODO: ridge cost-function do not work properly (maybe)
     sns.set()
 
@@ -209,6 +209,7 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
                 lmbda=lmbda
             )
 
+            # TODO: delete
             # print('compare:')
             # print(f"real: {beta_RIDGE}")
             # print(cost_RIDGE(beta_RIDGE, X_train_scaled, z_train_scaled, lmbda))
@@ -232,7 +233,7 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
                        xticklabels=lmbda_values, yticklabels=learning_rates)
 
     # TODO: remove the save fig
-    ax.set_title("Training Accuracy")
+    ax.set_title("Training R2-score")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
     # plt.savefig("project2/plots/RIDGE_heatmap_training_2.png")
@@ -241,7 +242,7 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     fig, ax = plt.subplots(figsize=(8, 8))
     sns.heatmap(test_R2_score, annot=True, ax=ax, cmap="viridis",
                 xticklabels=lmbda_values, yticklabels=learning_rates)
-    ax.set_title("Test Accuracy")
+    ax.set_title("Test R2-score")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
     # plt.savefig("project2/plots/RIDGE_heatmap_testing_2.png")
