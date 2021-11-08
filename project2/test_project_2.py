@@ -1,19 +1,29 @@
 """
 Setup for testing the results of project 2, feel free to change the
-different variables. Read docstrings inside the functions
-to know their functionality
+different variables. Read docstrings inside the functions/ classes
+to know their functionality. 
+
+We have provided some explanation of the different tests above the test, 
+you need to set the test you want to run to True. 
+
+So, if you wanna run TEST 1, change the variable test1:
+test1 = True 
+
+To use this file efficiently:
+VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
+    -> find the similar thing in other editors by doing some small research at google
+then this file will be very easy to read/ use
 """
 
+from FF_Neural_Network import Neural_Network
 from logistic_regression import cost_logistic_regression, prob
 from gradient_descent import SGD
-from classification_problem import load_cancer_data
 from cost_functions import logistic_cost
 import time
 import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-from FF_Neural_Network import Neural_Network
 
 
 """
@@ -319,7 +329,7 @@ if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
     n_components = 2
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = load_cancer_data(
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
     # Setting the architecture of the Neural Network
@@ -374,7 +384,7 @@ if test6:
     print('>> RUNNING TEST 6:')
     # Loading the training and testing dataset
     n_components = 2
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = load_cancer_data(
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
     # Setting the architecture of the Neural Network
@@ -461,7 +471,7 @@ test7 = False
 if test7:
     # Loading the training and testing dataset
     n_components = 2
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = load_cancer_data(
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
     # TODO: this shall change, and shall be able to have more features
@@ -531,7 +541,7 @@ if test8:
 
     # Loading the training and testing dataset
     n_components = 2
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = load_cancer_data(
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
     time_NN_start = time.time()

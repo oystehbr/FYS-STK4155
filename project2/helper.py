@@ -7,6 +7,9 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
+from sklearn.decomposition import PCA
+from sklearn.datasets import load_breast_cancer
+
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -253,3 +256,53 @@ def seaborn_plot(score, x_tics, y_tics, score_name, save_name=None):
     if save_name != None:
         plt.savefig(save_name)
     plt.show()
+
+
+def load_cancer_data(n):
+    """
+    Loading the cancer_data from scikit-learn. Selecting the 
+    features with the highest explained variance ratio (the first 
+    #n) and returning those
+
+    :param n (int):
+        amount of components we want to return 
+
+    :return tuple(np.ndarray):
+        - Input data, training
+        - Input data, testing 
+        - Target data, training  
+        - Target data, testing
+    """
+
+    # Loading cancer data
+    cancer = load_breast_cancer()
+
+    # Parameter labels (if you want, not used)
+    labels = cancer.feature_names[0:30]
+
+    X_cancer = cancer.data
+    y_cancer = cancer.target    # 0 for benign and 1 for malignant
+    y_cancer = y_cancer.reshape(-1, 1)
+
+    # Selecting the n first components w.r.t. the PCA
+    pca = PCA(n_components=n)
+    X_cancer_nD = pca.fit_transform(X_cancer)
+
+    # TODO: shall we have scaling of the data, or nah? -> maybe scale of mean value??
+    X_scalar = 1/np.max(X_cancer_nD)
+    X_cancer_nD_scaled = X_cancer_nD*X_scalar
+
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+        X_cancer_nD_scaled, y_cancer)
+
+    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+
+    # TODO: delete this
+    print(pca.explained_variance_ratio_)
+    print(pca.components_)
+    print(pd.DataFrame(pca.components_,
+                       columns=X_cancer[0, :], index=['PC-1', 'PC-2']))
+
+    exit()
+    print("Eigenvector of largest eigenvalue")
+    print(pca.components_.T[:, 0])

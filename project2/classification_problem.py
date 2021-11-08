@@ -11,57 +11,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import helper
 
+# TODO: maybe delete this function
 # TODO: We need to use the accuracy score when looking at the classification problem
-
-
-def load_cancer_data(n):
-    """
-    Loading the cancer_data from scikit-learn. Selecting the 
-    features with the highest explained variance ratio (the first 
-    #n) and returning those
-
-    :param n (int):
-        amount of components we want to return 
-
-    :return tuple(np.ndarray):
-        - Input data, training
-        - Input data, testing 
-        - Target data, training  
-        - Target data, testing
-    """
-
-    # Loading cancer data
-    cancer = load_breast_cancer()
-
-    # Parameter labels (if you want, not used)
-    labels = cancer.feature_names[0:30]
-
-    X_cancer = cancer.data
-    y_cancer = cancer.target    # 0 for benign and 1 for malignant
-    y_cancer = y_cancer.reshape(-1, 1)
-
-    # Selecting the n first components w.r.t. the PCA
-    pca = PCA(n_components=n)
-    X_cancer_nD = pca.fit_transform(X_cancer)
-
-    # TODO: shall we have scaling of the data, or nah? -> maybe scale of mean value??
-    X_scalar = 1/np.max(X_cancer_nD)
-    X_cancer_nD_scaled = X_cancer_nD*X_scalar
-
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.train_test_split(
-        X_cancer_nD_scaled, y_cancer)
-
-    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
-
-    # TODO: delete this
-    print(pca.explained_variance_ratio_)
-    print(pca.components_)
-    print(pd.DataFrame(pca.components_,
-                       columns=X_cancer[0, :], index=['PC-1', 'PC-2']))
-
-    exit()
-    print("Eigenvector of largest eigenvalue")
-    print(pca.components_.T[:, 0])
 
 
 # TODO: maybe delete - or make it clear that this was for own testing
@@ -71,7 +22,7 @@ def test_cancer_data(n_components: int = 2):
         the n most important features of the breast cancer data.
     """
 
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = load_cancer_data(
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
     no_hidden_nodes = 2

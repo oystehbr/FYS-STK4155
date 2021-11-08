@@ -1,6 +1,5 @@
 import time
 import helper
-from classification_problem import load_cancer_data
 from gradient_descent import SGD
 import autograd.numpy as np
 
@@ -57,7 +56,7 @@ def prob(beta, X):
 
 
 def main():
-    X_train, X_test, y_train, y_test = load_cancer_data(2)
+    X_train, X_test, y_train, y_test = helper.load_cancer_data(2)
 
     X_train_design = helper.create_design_matrix(
         X_train[:, 0], X_train[:, 1], degree=1)
