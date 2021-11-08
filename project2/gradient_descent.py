@@ -143,6 +143,8 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
                 f'MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f} (NUMERICAL (eta = {eta:6.0e}))')
         print('--------------------------------')
 
+# TODO: do we compare against project 1 (RIDGE)
+
 
 def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200, degree=1, gamma=0):
     """
