@@ -16,9 +16,8 @@ then this file will be very easy to read/ use
 """
 
 from FF_Neural_Network import Neural_Network
-from logistic_regression import cost_logistic_regression, prob
 from gradient_descent import SGD
-from cost_functions import logistic_cost
+from cost_functions import logistic_cost, cost_logistic_regression, prob
 import time
 import numpy as np
 import gradient_descent
@@ -467,8 +466,9 @@ TEST 7:
 Logistic regression: create a seaborn plot of the hyperparameter lambda
 and the learning rate. Other SGD values, will be easy to change in the test. 
 """
-test7 = False
+test7 = True
 if test7:
+    print('>> RUNNING TEST 7:')
     # Loading the training and testing dataset
     n_components = 2
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
@@ -591,6 +591,7 @@ if test8:
 
     theta, num = SGD(
         X=X_train_design, y=y_cancer_train,
+        # initial guess of the betas
         theta_init=np.array([0.1]*X_train_design.shape[1]),
         eta=0.01,
         cost_function=cost_logistic_regression,
