@@ -36,7 +36,7 @@ if test1:
     print('>> RUNNING TEST 1:')
     # Generating some data (Franke Function)
     n = 100
-    noise = 0.1
+    noise = 0
     x_values, y_values, z_values = helper.generate_data(n, noise)
     number_of_epochs = 50
     # TODO: Doesn't work for more degrees
