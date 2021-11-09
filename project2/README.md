@@ -5,12 +5,14 @@
 #### project_1_FYS_STK4155.pdf 📈📝
 
 ## Code - folder 🔐💬
-For simplicity, we have created 6 files for the 6 different exercises. Here are some small explanation of the python-files included in this folder.
+We have added TODO files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
+getting in the report. Two files for collecting all activation functions and cost-functions used in the project. Then we have our main-files, that is a file including the Neural Netork class and the gradient descent method. Last one is a "little" helper file, which contains several functions we are using often (copied from project1, and added some new ones).
 
 #### >> test_project_1.py 🎓🧪
 Function for testing the different exercises. The file contains an easy way to reproduce **exerciseX.py**, with the preferred parameters. We have created the exercises chronologically, so hopefully there will be no surprises. 
 
 ##### *How to use this file properly:*
+# TODO: write this better
 - Set the preffered parameters (all parameters are located in the beggining of the code)
 - To test an exercise, set the belonging if-statement to True
 
