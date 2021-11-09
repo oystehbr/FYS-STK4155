@@ -17,7 +17,7 @@ Function for testing the different exercises. The file contains an easy way to r
 - To test an exercise, set the belonging if-statement to True
 
 #### >> helper.py 🚑👮🏼‍♂️
-This is our helper function. The functions that are included in this file are used in several exercises, and we chose to create this to improve code structure. 
+This is our helper function. The functions that are included in this file are used in several times in the project, and we chose to create this to improve code structure. 
 
 #### >> activation_functions.py 🤼‍♂️🎚
 - As the filename highlights, collection of the different activation we are using in this project 
@@ -30,9 +30,9 @@ This is our helper function. The functions that are included in this file are us
 
 #### >> gradient_descent.py 🏔📈
 Includes three functions:
-- *SGD*-function: do stochastic gradient descent and optimize against a cost-function that will be provided into the function.
-- *main_OLS*-function: function for comparing the gradient descent solution of the OLS-problem vs. the actual solution of the problem.
-- *main_RIDGE*-function: using stochastic gradient descent to find optimal hyperparameter lambda and learning rate, by looking at some seaborn plot.
+- **SGD**-function: do stochastic gradient descent and optimize against a cost-function that will be provided into the function.
+- **main_OLS**-function: function for comparing the gradient descent solution of the OLS-problem vs. the actual solution of the problem.
+- **main_RIDGE**-function: using stochastic gradient descent to find optimal hyperparameter lambda and learning rate, by looking at some seaborn plot.
 
 #### >> logistic_regression.py 🚜🚚
 - TODO: maybe delete -> move stuff to activation-funciton.py -> maybe double. I don't know
