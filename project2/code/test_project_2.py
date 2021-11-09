@@ -466,7 +466,7 @@ TEST 7:
 Logistic regression: create a seaborn plot of the hyperparameter lambda
 and the learning rate. Other SGD values, will be easy to change in the test. 
 """
-test7 = True
+test7 = False
 if test7:
     print('>> RUNNING TEST 7:')
     # Loading the training and testing dataset
@@ -534,7 +534,7 @@ TEST 8:
 Comparison: logistic regression vs classification with Neural Network. Comparing
 the R2-score on testing and training data, and the time spent on training the model. 
 """
-test8 = False
+test8 = True
 if test8:
     print('>> RUNNING TEST 8:')
     "First, setting up the Neural Network and finding the results"

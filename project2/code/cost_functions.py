@@ -2,12 +2,24 @@ import autograd.numpy as np
 
 
 def logistic_cost(y_hat, y):
-    sum = 0
-    m = y.shape[0]
+    """
+    Finding the cost w.r.t. the logistic cost function,
+    used to determine the cost in the Neural Network
+
+    :param y_hat (np.ndarray): 
+        predicted target
+    :param y (np.ndarray): 
+        actual target
+
+    :return (number):
+        the cost value
+    """
 
     return -np.sum(y*np.log(y_hat) + (1-y)*np.log(1 - y_hat))
 
     # TODO: delete underneath
+    sum = 0
+    m = y.shape[0]
     # for [y_i], [y_hat_i] in zip(y, y_hat):
     #     sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
 
@@ -17,8 +29,8 @@ def logistic_cost(y_hat, y):
 
 def cost_logistic_regression(beta, X, y, lmbda=0):
     """
-    The cost function of the regression method OLS
-    # TODO: can we do the same as in cost_functions.py -> for this method
+    The cost function of the logistic regression, with given betas
+    # TODO: can it merge into one method?
 
     :param beta (np.ndarray):
         the regression parameters
@@ -34,7 +46,7 @@ def cost_logistic_regression(beta, X, y, lmbda=0):
         the value of the cost function
     """
     # Find the predicted values according to the given betas and input values
-    # TODO: make this functional with
+    # TODO: send in the fully X?
     n = X.shape[0]
     total_prob = prob(beta, X[0])**y[0]*(1-prob(beta, X[0]))**(1-y[0])
 
@@ -42,6 +54,11 @@ def cost_logistic_regression(beta, X, y, lmbda=0):
         p = prob(beta, X[i])
         total_prob *= p**y[i]*(1-p)**(1 - y[i])
 
+    # TODO: solve this problem
+    total_prob1 = prob(beta, X)**y*(1-prob(beta, X))**(1-y)
+    print(total_prob)
+    print(np.prod(total_prob1))
+    print('STOP')
     return - np.log(total_prob) + lmbda*np.sum(beta**2)
 
 
