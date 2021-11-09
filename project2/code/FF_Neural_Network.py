@@ -10,7 +10,6 @@ and the biases will be initialized to 0.01
 from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification
 from autograd import elementwise_grad as egrad
 from cost_functions import MSE
-import time
 import autograd.numpy as np
 import matplotlib.pyplot as plt
 import helper
@@ -258,6 +257,7 @@ class Neural_Network():
         plt.ylabel('Cost value')
         plt.xlabel('The number of iterations')
         plt.loglog(range(len(self.error_list)), self.error_list)
+        plt.savefig(f'plots/cost_of_last_training_{self.gamma}_{self.eta}.png')
         plt.show()
 
     def plot_accuracy_score_last_training(self):
@@ -271,6 +271,8 @@ class Neural_Network():
         plt.ylabel('The accuracy between 0 - 1')
         plt.xlabel('The number of iterations')
         plt.plot(range(len(self.accuracy_list)), self.accuracy_list)
+        plt.savefig(
+            f'plots/accuracy_of_last_training_{self.gamma}_{self.eta}.png')
         plt.show()
 
     def initialize_the_biases(self):
