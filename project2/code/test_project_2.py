@@ -35,10 +35,11 @@ test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Generating some data (Franke Function)
-    n = 500
-    noise = 0.4
+    n = 100
+    noise = 0.1
     x_values, y_values, z_values = helper.generate_data(n, noise)
-    number_of_epochs = 20
+    number_of_epochs = 50
+    # TODO: Doesn't work for more degrees
     degree = 1  # complexity of the model
     gamma = 0.1  # the momentum of the stochastic gradient decent
 
@@ -56,7 +57,7 @@ if test1:
             degree=degree, gamma=gamma
         )
 
-    no_of_minibatches = 10
+    no_of_minibatches = 20
     "Set to true, stochastic gradient decent testing with RIDGE"
     run_main_RIDGE = True
     if run_main_RIDGE:
@@ -92,13 +93,11 @@ if test2:
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Initializing the Neural Network
-    number_of_input_nodes = 2
-    number_of_output_nodes = 1
     number_of_hidden_nodes = 5
     number_of_hidden_layers = 2
     FFNN = Neural_Network(
-        no_input_nodes=number_of_input_nodes,
-        no_output_nodes=number_of_output_nodes,
+        no_input_nodes=2,
+        no_output_nodes=1,
         no_hidden_nodes=number_of_hidden_nodes,
         no_hidden_layers=number_of_hidden_layers,
     )
@@ -248,13 +247,11 @@ if test4:
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Initializing the Neural Network
-    number_of_input_nodes = 2
-    number_of_output_nodes = 1
     number_of_hidden_nodes = 5
     number_of_hidden_layers = 2
     FFNN = Neural_Network(
-        no_input_nodes=number_of_input_nodes,
-        no_output_nodes=number_of_output_nodes,
+        no_input_nodes=2,
+        no_output_nodes=1,
         no_hidden_nodes=number_of_hidden_nodes,
         no_hidden_layers=number_of_hidden_layers,
     )
@@ -263,10 +260,13 @@ if test4:
     FFNN.set_activation_function_hidden_layers('sigmoid')
 
     # Set the preffered values of the gradient descent
+    n_epochs = 100
+    batch_size = 10
+    gamma = 0.3
     FFNN.set_SGD_values(
-        n_epochs=40,
-        batch_size=10,
-        gamma=0.7
+        n_epochs=n_epochs,
+        batch_size=batch_size,
+        gamma=gamma
     )
 
     # Starting up a seaborn plot
@@ -302,14 +302,14 @@ if test4:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name="Training R2-score",
-        # save_name='Ridge_heatmap_training_5.png'
+        save_name=f'plots/test4/test4_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_numdata_{n}_noise_{noise}_training.png'
     )
     helper.seaborn_plot(
         score=test_R2_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name="Test R2-score",
-        # save_name='Ridge_heatmap_training_5.png'
+        save_name=f'plots/test4/test4_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_numdata_{n}_noise_{noise}_test.png'
     )
 
 
@@ -387,7 +387,7 @@ if test6:
         n_components)
 
     # Setting the architecture of the Neural Network
-    no_hidden_nodes = 2
+    no_hidden_nodes = 5
     no_hidden_layers = 1
 
     # Initializing the Neural Network
@@ -398,33 +398,31 @@ if test6:
         no_hidden_layers=no_hidden_layers
     )
 
-    # Setting the preffered Stochastic Gradient Descent parameters
-    FFNN.set_SGD_values(
-        n_epochs=20,
-        batch_size=10,
-        gamma=0.8,
-        eta=0.01,
-        lmbda=1e-5)
-
     # Setting the preffered cost- and hidden_activation function
     FFNN.set_cost_function(logistic_cost)
-    # FFNN.set_activation_function_hidden_layers('sigmoid')
+    FFNN.set_activation_function_hidden_layers('sigmoid')
 
     # Change the activation function to predict 0 or 1's.
-    learning_rates = np.logspace(-3, -5, 3)
-    lmbda_values = np.logspace(-3, -5, 3)
+    learning_rates = np.logspace(-2, -5, 4)
+    lmbda_values = np.logspace(-3, -7, 5)
 
     train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
+    n_epochs = 30
+    batch_size = 10
+    gamma = 0.5
+
     FFNN.set_SGD_values(
-        n_epochs=10,
-        batch_size=10,
-        gamma=0.8)
+        n_epochs=n_epochs,
+        batch_size=batch_size,
+        gamma=gamma)
+
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
             # Reinitializing the weights, biases and activation function
-            FFNN.set_activation_function_output_layer('sigmoid')
+            output_activation = 'sigmoid'
+            FFNN.set_activation_function_output_layer(output_activation)
             FFNN.initialize_the_weights()
             FFNN.initialize_the_biases()
 
@@ -433,6 +431,7 @@ if test6:
                 eta=eta,
                 lmbda=lmbda,
             )
+
             # Training the model
             FFNN.train_model(X_cancer_train, y_cancer_train)
 
@@ -450,14 +449,14 @@ if test6:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Training Accuracy',
-        # save_name='BREAST_heatmap_training_5.png'
+        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_training.png'
     )
     helper.seaborn_plot(
         score=test_accuracy_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Test Accuracy',
-        # save_name='BREAST_heatmap_testing_5.png'
+        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_test.png'
     )
 
 
@@ -470,41 +469,36 @@ test7 = False
 if test7:
     print('>> RUNNING TEST 7:')
     # Loading the training and testing dataset
-    n_components = 2
+    n_components = 10
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
-    # TODO: this shall change, and shall be able to have more features
-    X_train_design = helper.create_design_matrix(
-        X_cancer_train[:, 0], X_cancer_train[:, 1], degree=1)
-
-    X_test_design = helper.create_design_matrix(
-        X_cancer_test[:, 0], X_cancer_test[:, 1], degree=1)
-
-    learning_rates = np.logspace(-3, -5, 3)
-    lmbda_values = np.logspace(-3, -5, 3)
+    learning_rates = np.logspace(0, -4, 5)
+    lmbda_values = np.logspace(-1, -7, 7)
 
     train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
+    n_epochs = 5
+    batch_size = 30
+    gamma = 0.4
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
-
             theta, num = SGD(
-                X=X_train_design, y=y_cancer_train,
-                theta_init=np.array([0.1]*X_train_design.shape[1]),
+                X=X_cancer_train, y=y_cancer_train,
+                theta_init=np.array([0.1]*(X_cancer_train.shape[1] + 1)),
                 eta=eta,
                 cost_function=cost_logistic_regression,
-                n_epochs=30, M=10,
-                gamma=0.8,
+                n_epochs=n_epochs, batch_size=batch_size,
+                gamma=gamma,
                 lmbda=lmbda
             )
 
             # Finding the predicted values
             predicted_values_train = np.where(
-                prob(theta, X_train_design) >= 0.5, 1, 0)
+                prob(theta, X_cancer_train) >= 0.5, 1, 0)
             predicted_values_test = np.where(
-                prob(theta, X_test_design) >= 0.5, 1, 0)
+                prob(theta, X_cancer_test) >= 0.5, 1, 0)
 
             # Applying the model against the target values, and store the results
             train_accuracy_score[i][j] = helper.accuracy_score(
@@ -518,14 +512,14 @@ if test7:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Training Accuracy',
-        save_name='seaborn_plot_logistic_breast_training_1.png'
+        save_name=f'plots/test7/test7_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_training.png'
     )
     helper.seaborn_plot(
         score=test_accuracy_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Test Accuracy',
-        save_name='seaborn_plot_logistic_breast_test_1.png'
+        save_name=f'plots/test7/test7_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_test.png'
     )
 
 
@@ -534,7 +528,7 @@ TEST 8:
 Comparison: logistic regression vs classification with Neural Network. Comparing
 the R2-score on testing and training data, and the time spent on training the model. 
 """
-test8 = True
+test8 = False
 if test8:
     print('>> RUNNING TEST 8:')
     "First, setting up the Neural Network and finding the results"
@@ -582,27 +576,21 @@ if test8:
 
     "Secondly, look at the logistic regression and find the results"
     time_logistic_start = time.time()
-    # TODO: this shall change, and shall be able to have more features
-    X_train_design = helper.create_design_matrix(
-        X_cancer_train[:, 0], X_cancer_train[:, 1], degree=1)
-
-    X_test_design = helper.create_design_matrix(
-        X_cancer_test[:, 0], X_cancer_test[:, 1], degree=1)
 
     theta, num = SGD(
-        X=X_train_design, y=y_cancer_train,
+        X=X_cancer_train, y=y_cancer_train,
         # initial guess of the betas
-        theta_init=np.array([0.1]*X_train_design.shape[1]),
+        theta_init=np.array([0.1]*(X_cancer_train.shape[1] + 1)),
         eta=0.01,
         cost_function=cost_logistic_regression,
-        n_epochs=30, M=10,
+        n_epochs=30, batch_size=10,
         gamma=0.8,
         lmbda=1e-4
     )
 
     # Finding the predicted values
-    predicted_values_train = np.where(prob(theta, X_train_design) >= 0.5, 1, 0)
-    predicted_values_test = np.where(prob(theta, X_test_design) >= 0.5, 1, 0)
+    predicted_values_train = np.where(prob(theta, X_cancer_train) >= 0.5, 1, 0)
+    predicted_values_test = np.where(prob(theta, X_cancer_test) >= 0.5, 1, 0)
 
     print('\n>>>>> Results of logistic regression, with SGD <<<<<')
     print(

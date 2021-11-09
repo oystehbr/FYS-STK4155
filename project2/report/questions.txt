@@ -1,33 +1,5 @@
-- Complexity in logistic regression?
-    - if no higher complexity than one (st. do not need design matrix), change logistic regression to handle more features
-- Cost function for classification?
-- Hvor mye koden må vi ha i rapporten? holder det med bra readme file?
-- Output values of dim>1
-- is clipping necessary?
-    - batch normalization
-
-
-MAYBE ANSWERED
--------------------------
-- Scaling the data
-- oppdatere learning rate? bra metode
-- derivere sigmoid???
-- en bias per layer eller flere?
-- hvor mye momentum er bra?
-- når skjer overfitting?
-
-
-- skal vi ha samme antall neurons i alle hidden layers?
-- Loop over learning rates vs learning rate algoritm
-- stchocastic: hvordan mekke gradient matriser
----------------------------
-
-??? MAYBE NEED TO SCALE THE X_input data for not get exploding gradients (when high number of nodes)
-
-
-NEW, 31.okt:
-------------------------
-- Shall the code be able to predict more than 1 output value? (NOT ANSWERED)
-- RELU, Leaky_RELU -> trash, enten predicte same values, or exploding results. 
-- classification training of the model, use the 0, 1 as output or do this in the end. 
-- Shall we have activation function in the last layer (will we then take away the scaling of the data)
+- much plots, and results?
+- how do we comment on choice of parameters?
+    - can we just say the plot is nicer / easier to comment?
+- do we need to scale data anywhere?
+- comment each package we used? how to import etc.?

@@ -10,7 +10,7 @@ def learning_schedule(t):
     return 5/(t+50)
 
 
-def SGD(X, y, theta_init, eta, cost_function, n_epochs, M, gamma=0, tol=1e-14, lmbda=0):
+def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol=1e-14, lmbda=0):
     """
     Doing the stochastic gradient descent algorithm for updating 
     the initial values (theta) to give a model with better fit
@@ -46,7 +46,7 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, M, gamma=0, tol=1e-14, l
 
     # Finding the number of batches
     n = X.shape[0]
-    m = int(n/M)
+    m = int(n/batch_size)
 
     # TODO: delete either
     # v = eta*grad_C(theta_init, X, y, lmbda)
@@ -60,8 +60,8 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, M, gamma=0, tol=1e-14, l
             k = np.random.randint(m)
 
             # Finding the k-th batch
-            Xk_batch = X[k*M:(k+1)*M]
-            yk_batch = y[k*M:(k+1)*M]
+            Xk_batch = X[k*batch_size:(k+1)*batch_size]
+            yk_batch = y[k*batch_size:(k+1)*batch_size]
 
             grad = grad_C(theta_previous, Xk_batch, yk_batch, lmbda)
 
@@ -136,7 +136,7 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
                 theta_init=np.array(
                     [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
                 eta=eta, cost_function=cost_OLS,
-                n_epochs=n_epochs, M=batch_size,
+                n_epochs=n_epochs, batch_size=batch_size,
                 gamma=0)
 
             print(
@@ -204,7 +204,7 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
                 eta=eta,
                 cost_function=cost_RIDGE,
                 n_epochs=n_epochs,
-                M=batch_size,
+                batch_size=batch_size,
                 X=X_train_scaled,
                 y=z_train_scaled,
                 gamma=gamma,
@@ -238,7 +238,8 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     ax.set_title("Training R2-score")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
-    # plt.savefig("project2/plots/RIDGE_heatmap_training_2.png")
+    plt.savefig(
+        f"plots/test1/test1_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_numdata_{len(x_values)}_noOfMinibatches_{no_of_minibatches}_degree_{degree}_training.png")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -247,7 +248,8 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     ax.set_title("Test R2-score")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
-    # plt.savefig("project2/plots/RIDGE_heatmap_testing_2.png")
+    plt.savefig(
+        f"plots/test1/test1_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_numdata_{len(x_values)}_noOfMinibatches_{no_of_minibatches}_degree_{degree}_test.png")
     plt.show()
 
 
