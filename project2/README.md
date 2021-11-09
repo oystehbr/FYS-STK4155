@@ -40,7 +40,7 @@ Includes three functions:
 #### >> FF_Neural_Network.py 🔗🕸
 Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here.
 
-##### Neural_Network-class
+**Neural_Network**-class:
 
 - **\_\_init__**-method: initialize the Neural Network, initializes the weights according to the standard normal distribution and the biases with a value of 0.01 for every node. It will also set some default activation function for the hidden- and outputlayer, which can be reinitialized with a call on a different method inside the class. 
 - **feed_forward**-method: will do the feed_forward concept in a Neural Network, with the current weights and biases it will "predict" the outcome given the input.
