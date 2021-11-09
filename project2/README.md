@@ -5,7 +5,7 @@
 #### project_1_FYS_STK4155.pdf 📈📝
 
 ## Code - folder 🔐💬
-We have added TODO files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
+We have added # TODO files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
 getting in the report. Two files for collecting all activation functions and cost-functions used in the project. Then we have our main-files, that is a file including the Neural Netork class and the gradient descent method. Last one is a "little" helper file, which contains several functions we are using often (copied from project1, and added some new ones).
 
 #### >> test_project_1.py 🎓🧪
