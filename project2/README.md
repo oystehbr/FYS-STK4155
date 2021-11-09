@@ -7,35 +7,35 @@
 ## Code - folder 🔐💬
 For simplicity, we have created 6 files for the 6 different exercises. Here are some small explanation of the python-files included in this folder.
 
-#### test_project_1.py 🎓🧪
+#### >> test_project_1.py 🎓🧪
 Function for testing the different exercises. The file contains an easy way to reproduce **exerciseX.py**, with the preferred parameters. We have created the exercises chronologically, so hopefully there will be no surprises. 
 
 ##### *How to use this file properly:*
 - Set the preffered parameters (all parameters are located in the beggining of the code)
 - To test an exercise, set the belonging if-statement to True
 
-#### helper.py 🚑👮🏼‍♂️
+#### >> helper.py 🚑👮🏼‍♂️
 This is our helper function. The functions that are included in this file are used in several exercises, and we chose to create this to improve code structure. 
 
-#### activation_functions.py 🤼‍♂️🎚
+#### >> activation_functions.py 🤼‍♂️🎚
 - As the filename highlights, collection of the different activation we are using in this project 
 
-#### classification_problem.py 0️⃣1️⃣
+#### >> classification_problem.py 0️⃣1️⃣
 - TODO: delete maybe -> just for testing, but this is also inside the test_project_2.py (it's just a case of the Neural Network)
 
-#### cost_functions.py 💰💸
+#### >> cost_functions.py 💰💸
 - As the filename highlights, collection of the different cost-functions we are using in this project
 
-#### gradient_descent.py 🏔📈
+#### >> gradient_descent.py 🏔📈
 Includes three functions:
 - *SGD*-function: do stochastic gradient descent and optimize against a cost-function that will be provided into the function.
 - *main_OLS*-function: function for comparing the gradient descent solution of the OLS-problem vs. the actual solution of the problem.
 - *main_RIDGE*-function: using stochastic gradient descent to find optimal hyperparameter lambda and learning rate, by looking at some seaborn plot.
 
-#### logistic_regression.py 🚜🚚
+#### >> logistic_regression.py 🚜🚚
 - TODO: maybe delete -> move stuff to activation-funciton.py -> maybe double. I don't know
 
-#### FF_Neural_Network.py 🔗🕸
+#### >> FF_Neural_Network.py 🔗🕸
 Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods that are included in the class, but will give out some small indications of the methods here.
 
 - **\_\_init__**-method: initialize the Neural Network, initializes the weights according to the standard normal distribution and the biases with a value of 0.01 for every node. It will also set some default activation function for the hidden- and outputlayer, which can be reinitialized with a call on a different method inside the class. 
