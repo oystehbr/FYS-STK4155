@@ -38,7 +38,7 @@ Includes three functions:
 #### FF_Neural_Network.py 🔗🕸
 Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods that are included in the class, but will give out some small indications of the methods here.
 
-- *__init__*-method: initialize the Neural Network, initializes the weights according to the standard normal distribution and the biases with a value of 0.01 for every node. It will also set some default activation function for the hidden- and outputlayer, which can be reinitialized with a call on a different method inside the class. 
+- *\_\_init__*-method: initialize the Neural Network, initializes the weights according to the standard normal distribution and the biases with a value of 0.01 for every node. It will also set some default activation function for the hidden- and outputlayer, which can be reinitialized with a call on a different method inside the class. 
 - *feed_forward*-method: will do the feed_forward concept in a Neural Network, with the current weights and biases it will "predict" the outcome given the input.
 - *backpropagation*-method: will do the backpropagation concept in a Neural Network. It will give return some gradients which depends on the currenct weights and biases. 
 - *SGD*-method: using the stochastic gradient descent on the weights and the biases of the Neural Network. 
