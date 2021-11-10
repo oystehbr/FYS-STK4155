@@ -112,7 +112,9 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
     x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
         x_values, y_values, z_values, test_size=0.2)
     X_train = helper.create_design_matrix(x_train, y_train, degree)
+    X_test = helper.create_design_matrix(x_test, y_test, degree)
     X_train_scaled = X_train - np.mean(X_train, axis=0)
+    X_test_scaled = X_test - np.mean(X_train, axis=0)
     z_train_scaled = z_train - np.mean(z_train, axis=0)
 
     # Analytical betas
@@ -123,7 +125,7 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
     )
 
     # Looping through different learning rates
-    learning_rates = np.logspace(0, -6, 7)
+    learning_rates = np.logspace(1, -6, 8)
     for no_of_minibatches in list_no_of_minibatches:
         batch_size = int(X_train.shape[0]/no_of_minibatches)
         print(f'START: number_of_minibatches: {no_of_minibatches}')
@@ -142,6 +144,21 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
             print(
                 f'MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f} (NUMERICAL (eta = {eta:6.0e}))')
         print('--------------------------------')
+    
+    batch_sizes = [1, 5, 10, 30, 60, 100]
+    for batch_size in batch_sizes:
+        beta_SGD, num = SGD(
+            X=X_train_scaled, y=z_train_scaled,
+            theta_init=np.array(
+                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+            eta=1e-1, cost_function=cost_OLS,
+            n_epochs=batch_size, batch_size=batch_size,
+            gamma=0.5)
+
+        print(
+            f'MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f} (NUMERICAL (batch size = {batch_size}))')
+    print('--------------------------------')
+
 
 # TODO: do we compare against project 1 (RIDGE)
 
@@ -211,21 +228,9 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
                 lmbda=lmbda
             )
 
-            # TODO: delete
-            # print('compare:')
-            # print(f"real: {beta_RIDGE}")
-            # print(cost_RIDGE(beta_RIDGE, X_train_scaled, z_train_scaled, lmbda))
-            # print(f"fake: {theta}")
-            # print(cost_RIDGE(theta, X_train_scaled, z_train_scaled, lmbda))
 
             z_pred_train = X_train_scaled @ theta + np.mean(z_train, axis=0)
             z_pred_test = X_test_scaled @ theta + np.mean(z_train, axis=0)
-
-            # print('UNSCALED')
-            # print('>>>> RIDGE (exact) first, GRADIENT after')
-            # print(np.mean((z_pred_train_RIDGE - z_train)**2) + lmbda*np.sum(theta**2))
-            # print(np.mean((z_pred_train - z_train)**2) + lmbda*np.sum(beta_RIDGE**2))
-            # exit()
 
             train_R2_score[i][j] = helper.r2_score(z_train, z_pred_train)
             test_R2_score[i][j] = helper.r2_score(z_test, z_pred_test)
