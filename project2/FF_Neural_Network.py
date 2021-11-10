@@ -451,12 +451,6 @@ class Neural_Network():
 def logisttic_cost(y, y_hat):
     sum = 0
     m = y.shape[0]
-    for i in range(m):
-        y_i = y[i][0]
-        y_hat_i = y_hat[i][0]
-        sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
-    return -sum/m
-
     for [y_i], [y_hat_i] in zip(y, y_hat):
         sum += y_i * np.log(y_hat_i) + (1-y_i) * np.log(1 - y_hat_i)
     return -sum/m
