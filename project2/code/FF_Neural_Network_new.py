@@ -16,7 +16,7 @@ import helper
 
 
 class Neural_Network():
-    def __init__(self, no_input_nodes, no_output_nodes, no_hidden_nodes, no_hidden_layers):
+    def __init__(self, no_input_nodes, no_output_nodes, node_list):
         """
         Initializing a neural network with the given hyperparameters,
         creating initial weights according to the standard
@@ -34,9 +34,8 @@ class Neural_Network():
 
         # Setting up the Hyperparameters
         self.no_input_nodes = no_input_nodes
-        self.no_ouput_nodes = no_output_nodes
-        self.no_hidden_nodes = no_hidden_nodes
-        self.number_of_hidden_layers = no_hidden_layers
+        self.no_output_nodes = no_output_nodes
+        self.node_list = node_list
 
         # Initializing the weights and biases
         self.initialize_the_weights()
@@ -64,16 +63,13 @@ class Neural_Network():
             the predicted output value(s) given our current weights and biases
         """
 
-        # Find the number of data for creating the z and a - arrays of right dim
-        no_data = X.shape[0]
-
         # Initializing arrays for the values of each layer
-        self.z = np.zeros(
-            (self.number_of_hidden_layers, no_data, self.no_hidden_nodes))
+        self.z = [0] * len(self.node_list)
+
         self.a = self.z.copy()  # copy (same dimension on the activation-array)
 
         # Iterate through the hidden layers
-        for i in range(self.number_of_hidden_layers):
+        for i in range(len(self.node_list)):
             if i == 0:
                 self.z[i] = X @ self.input_weights + self.hidden_bias[i]
             else:
@@ -91,7 +87,6 @@ class Neural_Network():
             self.y_hat = self.activation_function_output(self.z_output)
         else:
             self.y_hat = self.z_output
-
         return self.y_hat
 
     def backpropagation(self, X, y):
@@ -103,10 +98,6 @@ class Neural_Network():
         :param y (np.ndarray): 
             the target values (output values)
         """
-        # Batch normalization
-        # X -= np.mean(X, axis=0)
-        # X /= std(X, axis=0)
-        # y -= np.mean(y)
 
         # Backward propogate through the network
         y_hat = self.feed_forward(X)
@@ -121,19 +112,23 @@ class Neural_Network():
 
         output_weights_grad = self.a[-1].T @ output_delta
         output_bias_grad = np.mean(output_delta, axis=0)
-        hidden_bias_grad = np.zeros(
-            (self.number_of_hidden_layers, self.no_hidden_nodes))
+        # hidden_bias_grad = np.zeros(
+        #     (self.number_of_hidden_layers, self.no_hidden_nodes))
+        hidden_bias_grad = []
+        for nodes in self.node_list:
+            hidden_bias_grad.append(np.zeros(nodes))
+        number_of_hidden_layers = len(self.node_list)
 
-        if self.number_of_hidden_layers > 1:
-            hidden_weights_grad = np.zeros(
-                (self.number_of_hidden_layers - 1, self.no_hidden_nodes, self.no_hidden_nodes))
+        if number_of_hidden_layers > 1:
+            # hidden_weights_grad = np.zeros(
+            #     (self.number_of_hidden_layers - 1, self.no_hidden_nodes, self.no_hidden_nodes))
+            hidden_weights_grad = [0] * (number_of_hidden_layers - 1)
             hidden_error = output_delta @ self.output_weights.T
             hidden_delta = self.activation_function_hidden(
                 self.z[-1], deriv=True) * hidden_error
             hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
 
-            for i in range(self.number_of_hidden_layers - 2):
-                # endret
+            for i in range(number_of_hidden_layers - 2):
                 hidden_error = hidden_delta @ self.hidden_weights[-(i+1)].T
                 hidden_delta = self.activation_function_hidden(
                     self.z[-(i+2)], deriv=True) * hidden_error
@@ -142,7 +137,7 @@ class Neural_Network():
 
             input_error = hidden_delta @ self.hidden_weights[0].T
 
-        elif self.number_of_hidden_layers == 1:
+        elif number_of_hidden_layers == 1:
             input_error = output_delta @ self.output_weights.T
             hidden_weights_grad = 0
 
@@ -158,8 +153,9 @@ class Neural_Network():
             output_weights_grad += self.lmbda*self.output_weights
 
             # If have more than one hidden layer, then we have hidden_weights too
-            if self.number_of_hidden_layers > 1:
-                hidden_weights_grad += self.lmbda*self.hidden_weights
+            if number_of_hidden_layers > 1:
+                #hidden_weights_grad += self.lmbda*self.hidden_weights
+                hidden_weights_grad = [hidden_weights_grad[k] + self.lmbda * weight for k, weight in enumerate(self.hidden_weights)]
 
         return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
@@ -183,9 +179,9 @@ class Neural_Network():
 
         # Starting with zero momentum in the gradient descent
         v_input_weight = 0
-        v_hidden_weight = 0
+        v_hidden_weight = [0] * (len(self.node_list)-1) 
         v_output_weight = 0
-        v_hidden_bias = 0
+        v_hidden_bias = [0] * (len(self.node_list)) 
         v_output_bias = 0
 
         iter = 0
@@ -208,22 +204,25 @@ class Neural_Network():
 
                 # Using the gradients and stochastic to update the weights and biases
                 v_input_weight = self.gamma*v_input_weight + self.eta*input_weights_grad
-                v_hidden_weight = self.gamma*v_hidden_weight + self.eta*hidden_weights_grad
+                # v_hidden_weight = self.gamma*v_hidden_weight + self.eta*hidden_weights_grad
+                v_hidden_weight = [self.gamma*weight + self.eta*grad for weight, grad in zip(v_hidden_weight, hidden_weights_grad)]
                 v_output_weight = self.gamma*v_output_weight + self.eta*output_weights_grad
-                v_hidden_bias = self.gamma*v_hidden_bias + self.eta*hidden_bias_grad
+                v_hidden_bias = [self.gamma*bias + self.eta*grad for bias, grad in zip(v_hidden_bias, hidden_bias_grad)]
                 v_output_bias = self.gamma*v_output_bias + self.eta*output_bias_grad
 
                 # Updating the weights and biases
                 self.input_weights -= v_input_weight
-                self.hidden_weights -= v_hidden_weight
+                # self.hidden_weights -= v_hidden_weight
+                self.hidden_weights = [weight - v for weight, v in zip(self.hidden_weights, v_hidden_weight)]
                 self.output_weights -= v_output_weight
-                self.hidden_bias -= v_hidden_bias
+                # self.hidden_bias -= v_hidden_bias
+                self.hidden_bias = [bias - v for bias, v in zip(self.hidden_bias, v_hidden_bias)]
                 self.output_bias -= v_output_bias
 
                 iter += 1
 
                 # If we want to save the error's according to the costfunction
-                if self.keep_cost_values:
+                if True:
                     error_list.append(self.cost_function(
                         self.feed_forward(X), y))
 
@@ -257,7 +256,7 @@ class Neural_Network():
         plt.ylabel('Cost value')
         plt.xlabel('The number of iterations')
         plt.loglog(range(len(self.error_list)), self.error_list)
-        # plt.savefig(f'plots/cost_of_last_training_{self.gamma}_{self.eta}.png')
+        plt.savefig(f'plots/cost_of_last_training_{self.gamma}_{self.eta}.png')
         plt.show()
 
     def plot_accuracy_score_last_training(self):
@@ -281,9 +280,12 @@ class Neural_Network():
         divided into hidden and output biases and every bias are
         set to be 0.01
         """
+        self.hidden_bias = []
+        for i in range(len(self.node_list)):
+            self.hidden_bias.append(np.zeros(self.node_list[i]) + 0.01) 
 
-        self.hidden_bias = np.zeros(
-            (self.number_of_hidden_layers, self.no_hidden_nodes)) + 0.01
+        # self.hidden_bias = np.zeros(
+        #     (self.number_of_hidden_layers, self.no_hidden_nodes)) + 0.01
 
         self.output_bias = 0.01
 
@@ -295,21 +297,16 @@ class Neural_Network():
         """
 
         self.input_weights = np.random.randn(
-            self.no_input_nodes, self.no_hidden_nodes)
+            self.no_input_nodes, self.node_list[0])
 
-        if self.number_of_hidden_layers > 1:
-            self.hidden_weights = np.zeros(
-                (self.number_of_hidden_layers - 1, self.no_hidden_nodes, self.no_hidden_nodes))
-            for i in range(self.number_of_hidden_layers - 1):
-                self.hidden_weights[i] = np.random.randn(
-                    self.no_hidden_nodes,
-                    self.no_hidden_nodes
-                )
-        else:
-            self.hidden_weights = 0
+        self.hidden_weights = []
+        for i in range(len(self.node_list) - 1):
+            self.hidden_weights.append(np.random.randn(
+            self.node_list[i], self.node_list[i+1]))
 
         self.output_weights = np.random.randn(
-            self.no_hidden_nodes, self.no_ouput_nodes)
+            self.node_list[-1], self.no_output_nodes)
+
 
     def set_SGD_values(self, eta: float = None, lmbda: float = None, n_epochs: int = None, batch_size: int = None, gamma: float = None):
         """
@@ -429,46 +426,24 @@ class Neural_Network():
         self.SGD(X, y)
 
 
-def main(X_train, X_test, y_train, y_test, M=8, n_epochs=3000):
+def main(X_train, X_test, y_train, y_test, M=50, n_epochs=1000):
     print("-----STARTING MAIN -----")
 
-    FFNN = Neural_Network(2, 1, 10, 3)
+    node_list = [4]*2
+    FFNN = Neural_Network(2, 1, node_list)
     FFNN.set_activation_function_hidden_layers('sigmoid')
-    # FFNN.set_activation_function_output_layer('sigmoid')
     FFNN.set_SGD_values(
-        eta=5e-3,
+        eta=5e-4,
         lmbda=1e-6,
         n_epochs=n_epochs,
         batch_size=M,
-        gamma=0.6)
+        gamma=0.8)
     FFNN.set_cost_function(MSE)
     FFNN.train_model(X_train, y_train)
-    print("NN done")
+    FFNN.plot_cost_of_last_training()
 
     y_hat_train = FFNN.feed_forward(X_train)
     y_hat_test = FFNN.feed_forward(X_test)
-
-    for _y, _y_hat in zip(y_train, y_hat_train):
-        diff = abs(_y - _y_hat)
-        print(
-            f'y_real = {_y[0]: 5.5f},    y_hat = {_y_hat[0]: 5.5f},    diff = {diff[0]: 5.5f}')
-
-    # OLS:
-    y_hat_test_OLS, y_hat_train_OLS, _ = helper.predict_output(
-        x_train=X_train[:, 0], y_train=X_train[:, 1], z_train=y_train,
-        x_test=X_test[:, 0], y_test=X_test[:, 1],
-        degree=4, regression_method='OLS'
-    )
-    print("OLS done")
-
-    # RIDGE:
-    y_hat_test_RIDGE, y_hat_train_RIDGE, _ = helper.predict_output(
-        x_train=X_train[:, 0], y_train=X_train[:, 1], z_train=y_train,
-        x_test=X_test[:, 0], y_test=X_test[:, 1],
-        degree=4, regression_method='RIDGE', lmbda=0.01
-    )
-
-    print("RIDGE Done")
 
     print('\n\n\n>>> CHECKING OUR MODEL: \n')
     print('Neural Network:')
@@ -481,134 +456,15 @@ def main(X_train, X_test, y_train, y_test, M=8, n_epochs=3000):
     print(f'-- (R2) TESTING DATA --')
     print(helper.r2_score(y_hat_test, y_test))
 
-    print('\nOLS:')
-    print('-- TESTING DATA --')
-    # print(helper.mean_squared_error(y_train, y_hat_train_OLS))
-    # print('-- TRAINING DATA: --')
-    # print(helper.mean_squared_error(y_test, y_hat_test_OLS))
-    print(f'-- (R2) TRAINING DATA --')
-    print(helper.r2_score(y_hat_train_OLS, y_train))
-    print(f'-- (R2) TESTING DATA --')
-    print(helper.r2_score(y_hat_test_OLS, y_test))
+    for _ in y_hat_train:
+        print(_)
 
-    print('\nRIDGE:')
-    print('-------TESTING DATA-------')
-    # print(helper.mean_squared_error(y_train, y_hat_train_RIDGE))
-    # print('-------TRAINING DATA:-------')
-    # print(helper.mean_squared_error(y_test, y_hat_test_RIDGE))
-    print(f'-- (R2) TRAINING DATA --')
-    print(helper.r2_score(y_hat_train_RIDGE, y_train))
-    print(f'-- (R2) TESTING DATA --')
-    print(helper.r2_score(y_hat_test_RIDGE, y_test))
-
-
-def main2(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
-    FFNN = Neural_Network(2, 1, 2, 1)
-    FFNN.set_activation_function_hidden_layers('sigmoid')
-    # FFNN.set_activation_function_output_layer('sigmoid')
-
-    X = np.array([[1, 1], [2, 2], [3, 3]])
-    y = np.array([[2], [4], [6]])
-    y_scalar = max(y)
-    y = y / y_scalar
-
-    FFNN.set_SGD_values(
-        n_epochs=2000,
-        batch_size=1,
-        gamma=0.8)
-
-    FFNN.train_model(X, y)
-    y_hat = FFNN.feed_forward(X)
-    for _y, _y_hat in zip(y, y_hat):
-        diff = abs(_y - _y_hat)
-        print(
-            f'y_real = {_y[0]: 5.5f},    y_hat = {_y_hat[0]: 5.5f},    diff = {diff[0]: 5.5f}')
-
-    print(y)
-    print(y_hat)
-
-
-def main3(X_train, X_test, y_train, y_test, M=10, n_epochs=1000):
-    """
-    Testing without some scaling of the data works!
-
-    """
-
-    print("-----STARTING MAIN -----")
-
-    FFNN = Neural_Network(2, 1, 20, 3)
-    FFNN.set_activation_function_hidden_layers('Sigmoid')
-    FFNN.set_SGD_values(
-        eta=0.0001,
-        lmbda=0.01,
-        n_epochs=n_epochs,
-        batch_size=M,
-        gamma=0.7)
-    FFNN.train_model(X_train, y_train)
-    FFNN.plot_cost_of_last_training()
-
-    y_hat_train = FFNN.feed_forward(X_train)
-    y_hat_test = FFNN.feed_forward(X_test)
-
-    for _y, _y_hat in zip(y_train, y_hat_train):
-        diff = abs(_y - _y_hat)
-        print(
-            f'y_real = {_y[0]: 5.5f},    y_hat = {_y_hat[0]: 5.5f},    diff = {diff[0]: 5.5f}')
-
-    print('\n\n\n>>> CHECKING OUR MODEL: \n')
-    print('Neural Network:')
-    print('>> (MSE) TRAINING DATA: ', end='')
-    print(helper.mean_squared_error(y_train, y_hat_train))
-    print('>> (MSE) TESTING DATA: ', end='')
-    print(helper.mean_squared_error(y_test, y_hat_test))
-    print('>> (R2) TRAINING DATA: ', end='')
-    print(helper.r2_score(y_train, y_hat_train))
-    print(f'>> (R2) TESTING DATA: ', end='')
-    print(helper.r2_score(y_hat_test, y_test))
-
-
-def main4():
-
-    X = np.array([[1, 1], [2, 2], [3, 3]])
-    y = np.array([[2], [4], [6]])
-    y_scalar = max(y)
-    y = y / y_scalar
-
-    FFNN = Neural_Network(2, 1, 2, 1)
-    FFNN.set_SGD_values(
-        n_epochs=4000,
-        batch_size=3,
-        eta=0.1,
-        gamma=0.7,
-        lmbda=0)
-    FFNN.set_cost_function(MSE)
-    FFNN.train_model(X, y)
-    FFNN.plot_cost_of_last_training()
-
-    y_hat = FFNN.feed_forward(X)
-    print('PREDICTED')
-    print(y_hat)
-    print('ACTUAL')
-    print(y)
 
 
 if __name__ == "__main__":
-    # main4()
-    # TODO: scaling the data
-    # Generate some data from the Franke Function
-    x_1, x_2, y = helper.generate_data(500, noise_multiplier=0.05)
+    x_1, x_2, y = helper.generate_data(300, noise_multiplier=0)
     X = np.array(list(zip(x_1, x_2)))
     y = y.reshape(-1, 1)
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
-    main3(X_train, X_test, y_train, y_test)
-
-    exit()
-    y_scalar = max(y)
-    y /= y_scalar
-    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
-
-    # Splitting the data in train and testing
-    main2(X_train, X_test, y_train, y_test)
-    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
-    main2(X_train, X_test, y_train, y_test)
+    main(X_train, X_test, y_train, y_test)
