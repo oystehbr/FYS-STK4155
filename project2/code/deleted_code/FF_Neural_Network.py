@@ -517,7 +517,7 @@ def main2(X_train, X_test, y_train, y_test, M=20, n_epochs=5000):
         batch_size=1,
         gamma=0.8)
 
-    FFNN.train_model(X, y)
+    FFNN.train_model(X, y, keep_cost_values=True)
     y_hat = FFNN.feed_forward(X)
     for _y, _y_hat in zip(y, y_hat):
         diff = abs(_y - _y_hat)
@@ -544,7 +544,7 @@ def main3(X_train, X_test, y_train, y_test, M=10, n_epochs=1000):
         n_epochs=n_epochs,
         batch_size=M,
         gamma=0.7)
-    FFNN.train_model(X_train, y_train)
+    FFNN.train_model(X_train, y_train, keep_cost_values=True)
     FFNN.plot_cost_of_last_training()
 
     y_hat_train = FFNN.feed_forward(X_train)
@@ -574,7 +574,7 @@ def main4():
     y_scalar = max(y)
     y = y / y_scalar
 
-    FFNN = Neural_Network(2, 1, 2, 1)
+    FFNN = Neural_Network(2, 1, 2, 3)
     FFNN.set_SGD_values(
         n_epochs=4000,
         batch_size=3,
@@ -582,7 +582,7 @@ def main4():
         gamma=0.7,
         lmbda=0)
     FFNN.set_cost_function(MSE)
-    FFNN.train_model(X, y)
+    FFNN.train_model(X, y, keep_cost_values=True)
     FFNN.plot_cost_of_last_training()
 
     y_hat = FFNN.feed_forward(X)
@@ -594,9 +594,10 @@ def main4():
 
 if __name__ == "__main__":
     # main4()
+    # exit()
     # TODO: scaling the data
     # Generate some data from the Franke Function
-    x_1, x_2, y = helper.generate_data(500, noise_multiplier=0.05)
+    x_1, x_2, y = helper.generate_data(300, noise_multiplier=0)
     X = np.array(list(zip(x_1, x_2)))
     y = y.reshape(-1, 1)
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)

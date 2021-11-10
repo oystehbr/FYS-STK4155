@@ -1,13 +1,13 @@
 """
 Setup for testing the results of project 2, feel free to change the
 different variables. Read docstrings inside the functions/ classes
-to know their functionality. 
+to know their functionality.
 
-We have provided some explanation of the different tests above the test, 
-you need to set the test you want to run to True. 
+We have provided some explanation of the different tests above the test,
+you need to set the test you want to run to True.
 
 So, if you wanna run TEST 1, change the variable test1:
-test1 = True 
+test1 = True
 
 To use this file efficiently:
 VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
@@ -15,7 +15,7 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
-from FF_Neural_Network import Neural_Network
+from FF_Neural_Network_new import Neural_Network
 from gradient_descent import SGD
 from cost_functions import logistic_cost, cost_logistic_regression, prob
 import time
@@ -78,7 +78,7 @@ TEST 2
 Analysis of the Neural Network class, with data from the
 Franke Function in project 1. Here you can set the parameters as
 preffered. You will be provided with the plot of the value of cost-function
-vs. the iteration number (of SGD) in the training of the model (if some keep-boolean is true). 
+vs. the iteration number (of SGD) in the training of the model (if some keep-boolean is true).
 You will also get the R2-score of the training and testing data.
 """
 test2 = False
@@ -93,13 +93,12 @@ if test2:
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Initializing the Neural Network
-    number_of_hidden_nodes = 5
-    number_of_hidden_layers = 2
+    node_list = [5]*2
+
     FFNN = Neural_Network(
         no_input_nodes=2,
         no_output_nodes=1,
-        no_hidden_nodes=number_of_hidden_nodes,
-        no_hidden_layers=number_of_hidden_layers,
+        node_list=node_list
     )
 
     # Setting the preffered activation functions for hidden layer
@@ -136,9 +135,9 @@ if test2:
 
 """
 TEST 3
-Testing the Neural Network, vs. OLS- and RIDGE-regression. It will 
-provide the results from the three different methods in R2-score. And the 
-time spent for creating these models. 
+Testing the Neural Network, vs. OLS- and RIDGE-regression. It will
+provide the results from the three different methods in R2-score. And the
+time spent for creating these models.
 """
 test3 = False
 if test3:
@@ -155,13 +154,12 @@ if test3:
     neural_start = time.time()
     number_of_input_nodes = 2
     number_of_output_nodes = 1
-    number_of_hidden_nodes = 10
-    number_of_hidden_layers = 2
+    node_list = [10]*2
+
     FFNN = Neural_Network(
-        no_input_nodes=number_of_input_nodes,
-        no_output_nodes=number_of_output_nodes,
-        no_hidden_nodes=number_of_hidden_nodes,
-        no_hidden_layers=number_of_hidden_layers,
+        no_input_nodes=2,
+        no_output_nodes=1,
+        node_list=node_list
     )
 
     # Setting the preffered activation functions (for hidden and output layer)
@@ -230,39 +228,41 @@ if test3:
 
 
 """
-TEST 4 
-Testing the regression case, analysis of the hyperparameter lambda
-and the learning rate. The result is shown in a seaborn plot. You get
-both the R2-score for training- and test-data. 
+TEST 4
+DATASET: FRANKE FUNCTION (regression case)
+
+Optimizing the hyperparameter lmbda and the learning rate by looking over 
+a seaborn plot. Will be measured in R2-score for both training and test-data. 
+
 """
-test4 = False
+test4 = True
 if test4:
     print('>> RUNNING TEST 4:')
     # Initializing some data
-    n = 200
-    noise = 0
+    n = 100
+    noise = 0.01
     x1, x2, y = helper.generate_data(n, noise)
     X = np.array(list(zip(x1, x2)))
     y = y.reshape(-1, 1)
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Initializing the Neural Network
-    number_of_hidden_nodes = 5
-    number_of_hidden_layers = 2
+    num_hidden_nodes = 40
+    num_hidden_layers = 3
+    node_list = [num_hidden_nodes]*num_hidden_layers
     FFNN = Neural_Network(
         no_input_nodes=2,
         no_output_nodes=1,
-        no_hidden_nodes=number_of_hidden_nodes,
-        no_hidden_layers=number_of_hidden_layers,
+        node_list=node_list
     )
 
     # Setting the preffered activation functions for hidden layer
     FFNN.set_activation_function_hidden_layers('sigmoid')
 
     # Set the preffered values of the gradient descent
-    n_epochs = 100
-    batch_size = 10
-    gamma = 0.3
+    n_epochs = 2000
+    batch_size = 16
+    gamma = 0.4
     FFNN.set_SGD_values(
         n_epochs=n_epochs,
         batch_size=batch_size,
@@ -274,12 +274,17 @@ if test4:
     # TODO: set those underneath optimal -> many times there will be predicting the same values
     # SO PROBABLY CANCEL THE EXIT()
     learning_rates = np.logspace(-2, -5, 4)
-    lmbda_values = np.logspace(-3, -6, 4)
+    lmbda_values = np.logspace(-2, -7, 6)
 
     train_R2_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_R2_score = np.zeros((len(learning_rates), len(lmbda_values)))
+
+    iter = 0
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
+            # Refreshing the weights and biases before testing new SGD_values
+            FFNN.initialize_the_biases()
+            FFNN.initialize_the_weights()
 
             # Setting the preffered SGD_values
             FFNN.set_SGD_values(
@@ -296,29 +301,33 @@ if test4:
             train_R2_score[i][j] = helper.r2_score(y_train, y_hat_train)
             test_R2_score[i][j] = helper.r2_score(y_test, y_hat_test)
 
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(learning_rates) * len(lmbda_values)}')
+
     # Creating the seaborn_plot
-    helper.seaborn_plot(
+    helper.seaborn_plot_lmbda_learning(
         score=train_R2_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name="Training R2-score",
-        save_name=f'plots/test4/test4_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_numdata_{n}_noise_{noise}_training.png'
+        save_name=f'plots/test4/test4_M_{batch_size}_gamma_{gamma}_hiddennodes{num_hidden_nodes}_hiddenlayers_{num_hidden_layers}_training_1.png'
     )
-    helper.seaborn_plot(
+    helper.seaborn_plot_lmbda_learning(
         score=test_R2_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name="Test R2-score",
-        save_name=f'plots/test4/test4_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_numdata_{n}_noise_{noise}_test.png'
+        save_name=f'plots/test4/test4_M_{batch_size}_gamma_{gamma}_hiddennodes{num_hidden_nodes}_hiddenlayers_{num_hidden_layers}_test_1.png'
     )
 
 
 """
 TEST 5:
-Classification Problem: here are you able to set different activation functions, 
-cost-functions, and different parameters for the Neural Network and SGD. It will, 
-also provide the accuracy_score of the training and testing data - and here we consider 
-the breast-cancer data from scikit learn. A plot will be provided, if not turned of 
+Classification Problem: here are you able to set different activation functions,
+cost-functions, and different parameters for the Neural Network and SGD. It will,
+also provide the accuracy_score of the training and testing data - and here we consider
+the breast-cancer data from scikit learn. A plot will be provided, if not turned of
 (set keep_accuracy = False). This will show the accuracy of the training vs. amount of
 iterations in the SGD.
 """
@@ -332,15 +341,13 @@ if test5:
         n_components)
 
     # Setting the architecture of the Neural Network
-    no_hidden_nodes = 2
-    no_hidden_layers = 1
+    node_list = [2]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
         no_input_nodes=n_components,
         no_output_nodes=1,
-        no_hidden_nodes=no_hidden_nodes,
-        no_hidden_layers=no_hidden_layers
+        node_list=node_list
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
@@ -374,8 +381,8 @@ if test5:
 """
 TEST 6:
 Classification problem: the same as in the last TESTING, but with a seaborn plot. The plot
-will show the accuracy with some combination of learning rates and the regularization 
-parameter lambda. All the other parameters are to be selected as preffered. 
+will show the accuracy with some combination of learning rates and the regularization
+parameter lambda. All the other parameters are to be selected as preffered.
 """
 
 test6 = False
@@ -389,13 +396,13 @@ if test6:
     # Setting the architecture of the Neural Network
     no_hidden_nodes = 5
     no_hidden_layers = 1
+    node_list = [no_hidden_nodes]*no_hidden_layers
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
         no_input_nodes=n_components,
         no_output_nodes=1,
-        no_hidden_nodes=no_hidden_nodes,
-        no_hidden_layers=no_hidden_layers
+        node_list=node_list
     )
 
     # Setting the preffered cost- and hidden_activation function
@@ -418,6 +425,7 @@ if test6:
         batch_size=batch_size,
         gamma=gamma)
 
+    iter = 0
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
             # Reinitializing the weights, biases and activation function
@@ -443,15 +451,20 @@ if test6:
             test_accuracy_score[i][j] = helper.accuracy_score(
                 y_cancer_test, FFNN.feed_forward(X_cancer_test))
 
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(learning_rates) * len(lmbda_values)}')
+
     # Creating the seaborn_plot
-    helper.seaborn_plot(
+    helper.seaborn_plot_lmbda_learning(
         score=train_accuracy_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Training Accuracy',
         save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_training.png'
     )
-    helper.seaborn_plot(
+
+    helper.seaborn_plot_lmbda_learning(
         score=test_accuracy_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
@@ -463,7 +476,7 @@ if test6:
 """
 TEST 7:
 Logistic regression: create a seaborn plot of the hyperparameter lambda
-and the learning rate. Other SGD values, will be easy to change in the test. 
+and the learning rate. Other SGD values, will be easy to change in the test.
 """
 test7 = False
 if test7:
@@ -482,6 +495,7 @@ if test7:
     n_epochs = 5
     batch_size = 30
     gamma = 0.4
+    iter = 0
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
             theta, num = SGD(
@@ -506,15 +520,19 @@ if test7:
             test_accuracy_score[i][j] = helper.accuracy_score(
                 y_cancer_test, predicted_values_test)
 
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(learning_rates) * len(lmbda_values)}')
+
     # Creating the seaborn_plot
-    helper.seaborn_plot(
+    helper.seaborn_plot_lmbda_learning(
         score=train_accuracy_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Training Accuracy',
         save_name=f'plots/test7/test7_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_training.png'
     )
-    helper.seaborn_plot(
+    helper.seaborn_plot_lmbda_learning(
         score=test_accuracy_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
@@ -524,9 +542,9 @@ if test7:
 
 
 """
-TEST 8: 
+TEST 8:
 Comparison: logistic regression vs classification with Neural Network. Comparing
-the R2-score on testing and training data, and the time spent on training the model. 
+the R2-score on testing and training data, and the time spent on training the model.
 """
 test8 = False
 if test8:
@@ -540,15 +558,13 @@ if test8:
 
     time_NN_start = time.time()
     # Setting the architecture of the Neural Network
-    no_hidden_nodes = 2
-    no_hidden_layers = 1
+    node_list = [2]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
         no_input_nodes=n_components,
         no_output_nodes=1,
-        no_hidden_nodes=no_hidden_nodes,
-        no_hidden_layers=no_hidden_layers
+        node_list=node_list,
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
@@ -598,3 +614,175 @@ if test8:
     print(
         f'ACCURACY_test => {helper.accuracy_score(predicted_values_test, y_cancer_test): .4f}')
     print(f'TIME SPENT: {time.time() - time_logistic_start: .3f}')
+
+
+"""
+TEST 9
+DATASET: FRANKE FUNCTION (regression case)
+
+Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
+by looking over a seaborn plot. Will be measured in R2-score for both training and test-data. 
+"""
+test9 = False
+if test9:
+    print('>> RUNNING TEST 9:')
+    # Initializing some data
+    n = 100
+    noise = 0.01
+    x1, x2, y = helper.generate_data(n, noise)
+    X = np.array(list(zip(x1, x2)))
+    y = y.reshape(-1, 1)
+    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
+
+    sns.set()
+
+    # Set the parameters used in the Neural Network
+    n_epochs = 300
+    batch_size = 10
+    gamma = 0
+    eta = 0.001
+    lmbda = 0.0001
+
+    nodes = np.arange(2, 52, 2)
+    layers = np.arange(1, 11, 1)
+    train_R2_score = np.zeros((len(nodes), len(layers)))
+    test_R2_score = np.zeros((len(nodes), len(layers)))
+    iter = 0
+    for i, node in enumerate(nodes):
+        for j, layer in enumerate(layers):
+
+            # Need to create new instance, to change the architecture
+            node_list = [node]*layer
+            FFNN = Neural_Network(
+                no_input_nodes=2,
+                no_output_nodes=1,
+                node_list=node_list
+            )
+
+            # Setting the preffered activation functions for hidden layer
+            FFNN.set_activation_function_hidden_layers('sigmoid')
+
+            # Set the preffered values of the gradient descent
+            FFNN.set_SGD_values(
+                n_epochs=n_epochs,
+                batch_size=batch_size,
+                gamma=gamma,
+                eta=eta,
+                lmbda=lmbda
+            )
+
+            FFNN.train_model(X_train, y_train)
+
+            # Finding the predicted values with our model
+            y_hat_train = FFNN.feed_forward(X_train)
+            y_hat_test = FFNN.feed_forward(X_test)
+
+            train_R2_score[i][j] = helper.r2_score(y_train, y_hat_train)
+            test_R2_score[i][j] = helper.r2_score(y_test, y_hat_test)
+
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(nodes) * len(layers)}')
+
+    # Creating the seaborn_plot
+    helper.seaborn_plot_architecture(
+        score=train_R2_score,
+        x_tics=layers,
+        y_tics=nodes,
+        score_name='Training R2-score',
+        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_training_1.png'
+    )
+    helper.seaborn_plot_architecture(
+        score=test_R2_score,
+        x_tics=layers,
+        y_tics=nodes,
+        score_name='Test R2-score',
+        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_test_1.png'
+    )
+
+"""
+TEST 10
+DATASET: FRANKE FUNCTION (regression case)
+
+Optimizing the batch_sizes and the momentum parameter gamma by looking over a seaborn plot. 
+Will be measured in R2-score for both training and test-data. 
+"""
+test10 = False
+if test10:
+    print('>> RUNNING TEST 10:')
+    # Initializing the data
+    n = 100
+    noise = 0.01
+    x1, x2, y = helper.generate_data(n, noise)
+    X = np.array(list(zip(x1, x2)))
+    y = y.reshape(-1, 1)
+    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
+
+    # Setting up the Neural Network
+    num_hidden_nodes = 40
+    num_hidden_layers = 3
+    node_list = [num_hidden_nodes]*num_hidden_layers
+    FFNN = Neural_Network(
+        no_input_nodes=2,
+        no_output_nodes=1,
+        node_list=node_list
+    )
+
+    # Set the parameters used in the Neural Network
+    n_epochs = 300
+    eta = 0.001
+    lmbda = 0.0001
+    FFNN.set_SGD_values(
+        n_epochs=n_epochs,
+        eta=eta,
+        lmbda=lmbda
+    )
+
+    batch_sizes = np.arange(2, 32, 2)
+    gammas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    train_R2_score = np.zeros((len(batch_sizes), len(gammas)))
+    test_R2_score = np.zeros((len(batch_sizes), len(gammas)))
+    iter = 0
+    for i, batch_size in enumerate(batch_sizes):
+        for j, gamma in enumerate(gammas):
+            # Refreshing the weights and biases before testing new SGD_values
+            FFNN.initialize_the_biases()
+            FFNN.initialize_the_weights()
+
+            # Setting the preffered activation functions for hidden layer
+            FFNN.set_activation_function_hidden_layers('sigmoid')
+
+            # Set the preffered values of the gradient descent
+            FFNN.set_SGD_values(
+                batch_size=batch_size,
+                gamma=gamma,
+            )
+
+            FFNN.train_model(X_train, y_train)
+
+            # Finding the predicted values with our model
+            y_hat_train = FFNN.feed_forward(X_train)
+            y_hat_test = FFNN.feed_forward(X_test)
+
+            train_R2_score[i][j] = helper.r2_score(y_train, y_hat_train)
+            test_R2_score[i][j] = helper.r2_score(y_test, y_hat_test)
+
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(batch_sizes) * len(gammas)}')
+
+    # Creating the seaborn_plot
+    helper.seaborn_plot_batchsize_gamma(
+        score=train_R2_score,
+        x_tics=gammas,
+        y_tics=batch_sizes,
+        score_name='Training R2-score',
+        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_hiddennodes_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_training_1.png'
+    )
+    helper.seaborn_plot_batchsize_gamma(
+        score=test_R2_score,
+        x_tics=gammas,
+        y_tics=batch_sizes,
+        score_name='Test R2-score',
+        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_test_1.png'
+    )
