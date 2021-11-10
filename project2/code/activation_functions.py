@@ -73,16 +73,10 @@ def soft_max(z, deriv: bool = False):
     """
 
     if not deriv:
-        print('NORMAL')
-        print('>>>>>> soft_max')
-        print(z)
-        print(np.exp(z)/np.sum(np.exp(z)))
         return np.exp(z)/np.sum(np.exp(z))
     else:
         # Link: https://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/
-        print('DERIVATE')
-        print(np.exp(z)/np.sum(np.exp(z)) *
-              (1 - np.exp(z)/np.sum(np.exp(z))))
+
         return np.exp(z)/np.sum(np.exp(z)) * \
             (1 - np.exp(z)/np.sum(np.exp(z)))
 
