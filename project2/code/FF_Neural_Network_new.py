@@ -7,7 +7,7 @@ The weights in the network will be initalizied by the normal distribution
 and the biases will be initialized to 0.01
 """
 
-from activation_functions import sigmoid, RELU, Leaky_RELU, soft_max, sigmoid_classification
+from activation_functions import sigmoid, RELU, Leaky_RELU, sigmoid_classification
 from autograd import elementwise_grad as egrad
 from cost_functions import MSE
 import autograd.numpy as np
@@ -356,7 +356,7 @@ class Neural_Network():
         Setting the activation function for the hidden layers.
 
         :param activation_name (str), default = 'sigmoid':
-            the preffered activation function: sigmoid, Leaky_RELU, RELU or softmax
+            the preffered activation function: sigmoid, Leaky_RELU or RELU
         """
 
         if activation_name.lower() == 'sigmoid'.lower():
@@ -365,8 +365,6 @@ class Neural_Network():
             self.activation_function_hidden = Leaky_RELU
         elif activation_name.lower() == 'RELU'.lower():
             self.activation_function_hidden = RELU
-        elif activation_name.lower() == 'softmax'.lower():
-            self.activation_function_hidden = soft_max
         else:
             print('Not a proper activation function')
 
@@ -375,7 +373,7 @@ class Neural_Network():
         Setting the activation function for the output layer.
 
         :param activation_name (str), default = '':
-            the preffered activation function: sigmoid, Leaky_RELU, RELU, softmax, sigmoid_classification
+            the preffered activation function: sigmoid, Leaky_RELU, RELU or sigmoid_classification
         """
 
         if activation_name.lower() == 'sigmoid'.lower():
@@ -384,8 +382,6 @@ class Neural_Network():
             self.activation_function_output = Leaky_RELU
         elif activation_name.lower() == 'RELU'.lower():
             self.activation_function_output = RELU
-        elif activation_name.lower() == 'softmax'.lower():
-            self.activation_function_output = soft_max
         elif activation_name.lower() == 'sigmoid_classification'.lower():
             self.activation_function_output = sigmoid_classification
         elif activation_name.lower() == '':

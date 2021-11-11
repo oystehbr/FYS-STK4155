@@ -808,14 +808,14 @@ if test11:
     sns.set()
 
     # Set the parameters used in the Neural Network (SGD)
-    n_epochs = 300
+    n_epochs = 30
     batch_size = 10
     gamma = 0
-    eta = 0.001
+    eta = 0.00001
     lmbda = 0.0001
 
     nodes = np.arange(2, 20, 2)
-    layers = np.arange(1, 5, 1)
+    layers = np.arange(1, 3, 1)
     train_accuracy_score = np.zeros((len(nodes), len(layers)))
     test_accuracy_score = np.zeros((len(nodes), len(layers)))
 
@@ -833,7 +833,7 @@ if test11:
 
             FFNN.set_cost_function(logistic_cost_NN)
 
-            hidden_activation = 'sigmoid'
+            hidden_activation = 'Leaky_RELU'
             output_activation = 'sigmoid'
             FFNN.set_activation_function_hidden_layers(hidden_activation)
             FFNN.set_activation_function_output_layer(output_activation)
