@@ -431,7 +431,7 @@ class Neural_Network():
         self.SGD(X, y)
 
 
-def main(X_train, X_test, y_train, y_test, M=50, n_epochs=1000):
+def main(X_train, X_test, y_train, y_test, M=15, n_epochs=1000):
     print("-----STARTING MAIN -----")
 
     node_list = [4]*2
@@ -473,15 +473,15 @@ def main3(X_train, X_test, y_train, y_test, M=10, n_epochs=1000):
 
     print("-----STARTING MAIN -----")
 
-    node_list = [30, 29, 28]
+    node_list = [20]*3
     FFNN = Neural_Network(2, 1, node_list)
-    FFNN.set_activation_function_hidden_layers('Sigmoid')
+    FFNN.set_activation_function_hidden_layers('Leaky_RELU')
     FFNN.set_SGD_values(
-        eta=0.01,
-        lmbda=0,
+        eta=1e-4,
+        lmbda=1e-1,
         n_epochs=n_epochs,
         batch_size=M,
-        gamma=0.7)
+        gamma=0.5)
     FFNN.train_model(X_train, y_train, keep_cost_values=True)
     FFNN.plot_cost_of_last_training()
 
@@ -532,12 +532,9 @@ def main4():
 
 
 if __name__ == "__main__":
-    # main4()
-    x_1, x_2, y = helper.generate_data(300, noise_multiplier=0)
+    x_1, x_2, y = helper.generate_data(100, noise_multiplier=0.01)
     X = np.array(list(zip(x_1, x_2)))
     y = y.reshape(-1, 1)
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     main3(X_train, X_test, y_train, y_test)
-    exit()
-    main(X_train, X_test, y_train, y_test)
