@@ -380,9 +380,10 @@ if test5:
 
 """
 TEST 6:
-Classification problem: the same as in the last TESTING, but with a seaborn plot. The plot
-will show the accuracy with some combination of learning rates and the regularization
-parameter lambda. All the other parameters are to be selected as preffered.
+DATASET: CANCER DATA (classification case)
+
+Optimizing the hyperparameter lmbda and the learning rate by looking over 
+a seaborn plot. Will be measured in accuracy-score for both training and test-data. 
 """
 
 test6 = False
@@ -710,6 +711,179 @@ Will be measured in R2-score for both training and test-data.
 test10 = False
 if test10:
     print('>> RUNNING TEST 10:')
+    # Initializing the data
+    n = 100
+    noise = 0.01
+    x1, x2, y = helper.generate_data(n, noise)
+    X = np.array(list(zip(x1, x2)))
+    y = y.reshape(-1, 1)
+    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
+
+    # Setting up the Neural Network
+    num_hidden_nodes = 40
+    num_hidden_layers = 3
+    node_list = [num_hidden_nodes]*num_hidden_layers
+    FFNN = Neural_Network(
+        no_input_nodes=2,
+        no_output_nodes=1,
+        node_list=node_list
+    )
+
+    # Set the parameters used in the Neural Network
+    n_epochs = 300
+    eta = 0.001
+    lmbda = 0.0001
+    FFNN.set_SGD_values(
+        n_epochs=n_epochs,
+        eta=eta,
+        lmbda=lmbda
+    )
+
+    batch_sizes = np.arange(2, 32, 2)
+    gammas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    train_R2_score = np.zeros((len(batch_sizes), len(gammas)))
+    test_R2_score = np.zeros((len(batch_sizes), len(gammas)))
+    iter = 0
+    for i, batch_size in enumerate(batch_sizes):
+        for j, gamma in enumerate(gammas):
+            # Refreshing the weights and biases before testing new SGD_values
+            FFNN.initialize_the_biases()
+            FFNN.initialize_the_weights()
+
+            # Setting the preffered activation functions for hidden layer
+            FFNN.set_activation_function_hidden_layers('sigmoid')
+
+            # Set the preffered values of the gradient descent
+            FFNN.set_SGD_values(
+                batch_size=batch_size,
+                gamma=gamma,
+            )
+
+            FFNN.train_model(X_train, y_train)
+
+            # Finding the predicted values with our model
+            y_hat_train = FFNN.feed_forward(X_train)
+            y_hat_test = FFNN.feed_forward(X_test)
+
+            train_R2_score[i][j] = helper.r2_score(y_train, y_hat_train)
+            test_R2_score[i][j] = helper.r2_score(y_test, y_hat_test)
+
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(batch_sizes) * len(gammas)}')
+
+    # Creating the seaborn_plot
+    helper.seaborn_plot_batchsize_gamma(
+        score=train_R2_score,
+        x_tics=gammas,
+        y_tics=batch_sizes,
+        score_name='Training R2-score',
+        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_hiddennodes_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_training_1.png'
+    )
+    helper.seaborn_plot_batchsize_gamma(
+        score=test_R2_score,
+        x_tics=gammas,
+        y_tics=batch_sizes,
+        score_name='Test R2-score',
+        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_test_1.png'
+    )
+
+
+"""
+TEST 11
+DATASET: CANCER DATA (classification case)
+
+Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
+by looking over a seaborn plot. Will be measured in accuracy-score for both training and test-data. 
+"""
+test11 = False
+if test11:
+    print('>> RUNNING TEST 11:')
+    # Initializing some data
+    n = 100
+    noise = 0.01
+    x1, x2, y = helper.generate_data(n, noise)
+    X = np.array(list(zip(x1, x2)))
+    y = y.reshape(-1, 1)
+    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
+
+    sns.set()
+
+    # Set the parameters used in the Neural Network
+    n_epochs = 300
+    batch_size = 10
+    gamma = 0
+    eta = 0.001
+    lmbda = 0.0001
+
+    nodes = np.arange(2, 52, 2)
+    layers = np.arange(1, 11, 1)
+    train_R2_score = np.zeros((len(nodes), len(layers)))
+    test_R2_score = np.zeros((len(nodes), len(layers)))
+    iter = 0
+    for i, node in enumerate(nodes):
+        for j, layer in enumerate(layers):
+
+            # Need to create new instance, to change the architecture
+            node_list = [node]*layer
+            FFNN = Neural_Network(
+                no_input_nodes=2,
+                no_output_nodes=1,
+                node_list=node_list
+            )
+
+            # Setting the preffered activation functions for hidden layer
+            FFNN.set_activation_function_hidden_layers('sigmoid')
+
+            # Set the preffered values of the gradient descent
+            FFNN.set_SGD_values(
+                n_epochs=n_epochs,
+                batch_size=batch_size,
+                gamma=gamma,
+                eta=eta,
+                lmbda=lmbda
+            )
+
+            FFNN.train_model(X_train, y_train)
+
+            # Finding the predicted values with our model
+            y_hat_train = FFNN.feed_forward(X_train)
+            y_hat_test = FFNN.feed_forward(X_test)
+
+            train_R2_score[i][j] = helper.r2_score(y_train, y_hat_train)
+            test_R2_score[i][j] = helper.r2_score(y_test, y_hat_test)
+
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(nodes) * len(layers)}')
+
+    # Creating the seaborn_plot
+    helper.seaborn_plot_architecture(
+        score=train_R2_score,
+        x_tics=layers,
+        y_tics=nodes,
+        score_name='Training R2-score',
+        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_training_1.png'
+    )
+    helper.seaborn_plot_architecture(
+        score=test_R2_score,
+        x_tics=layers,
+        y_tics=nodes,
+        score_name='Test R2-score',
+        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_test_1.png'
+    )
+
+
+"""
+TEST 12
+DATASET: CANCER DATA (classification case)
+
+Optimizing the batch_sizes and the momentum parameter gamma by looking over a seaborn plot. 
+Will be measured in accuracy-score for both training and test-data. 
+"""
+test12 = False
+if test12:
+    print('>> RUNNING TEST 12:')
     # Initializing the data
     n = 100
     noise = 0.01
