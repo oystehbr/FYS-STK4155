@@ -2,6 +2,7 @@
 This is a helper function. These functions are used in several
 exercises, and we chose to make this to improve structure
 """
+import pandas as pd
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
@@ -355,21 +356,11 @@ def load_cancer_data(n):
     pca = PCA(n_components=n)
     X_cancer_nD = pca.fit_transform(X_cancer)
 
-    # TODO: shall we have scaling of the data, or nah? -> maybe scale of mean value??
-    X_scalar = 1/np.max(X_cancer_nD)
-    X_cancer_nD = X_cancer_nD*X_scalar
+    X_cancer_nD = X_cancer_nD/(X_cancer_nD.max(axis=0))
 
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
         X_cancer_nD, y_cancer)
 
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
 
-    # TODO: delete this
-    print(pca.explained_variance_ratio_)
-    print(pca.components_)
-    print(pd.DataFrame(pca.components_,
-                       columns=X_cancer[0, :], index=['PC-1', 'PC-2']))
-
-    exit()
-    print("Eigenvector of largest eigenvalue")
-    print(pca.components_.T[:, 0])
+    # print(pca.explained_variance_ratio_)

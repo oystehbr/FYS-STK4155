@@ -1,7 +1,7 @@
 import autograd.numpy as np
 
 
-def logistic_cost(y_hat, y):
+def logistic_cost_NN(y_hat, y):
     """
     Finding the cost w.r.t. the logistic cost function,
     used to determine the cost in the Neural Network
