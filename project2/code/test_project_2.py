@@ -17,13 +17,12 @@ then this file will be very easy to read/ use
 
 from FF_Neural_Network_new import Neural_Network
 from gradient_descent import SGD
-from cost_functions import logistic_cost, cost_logistic_regression, prob
+from cost_functions import logistic_cost_NN, cost_logistic_regression, prob
 import time
 import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-
 
 """
 TEST 1
@@ -235,7 +234,7 @@ Optimizing the hyperparameter lmbda and the learning rate by looking over
 a seaborn plot. Will be measured in R2-score for both training and test-data. 
 
 """
-test4 = True
+test4 = False
 if test4:
     print('>> RUNNING TEST 4:')
     # Initializing some data
@@ -360,7 +359,7 @@ if test5:
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
-    FFNN.set_cost_function(logistic_cost)
+    FFNN.set_cost_function(logistic_cost_NN)
     # FFNN.set_activation_function_hidden_layers('sigmoid')
     FFNN.set_activation_function_output_layer('sigmoid')
 
@@ -396,7 +395,7 @@ if test6:
         n_components)
 
     # Setting the architecture of the Neural Network
-    no_hidden_nodes = 5
+    no_hidden_nodes = 20
     no_hidden_layers = 1
     node_list = [no_hidden_nodes]*no_hidden_layers
 
@@ -408,19 +407,19 @@ if test6:
     )
 
     # Setting the preffered cost- and hidden_activation function
-    FFNN.set_cost_function(logistic_cost)
+    FFNN.set_cost_function(logistic_cost_NN)
     FFNN.set_activation_function_hidden_layers('sigmoid')
 
     # Change the activation function to predict 0 or 1's.
-    learning_rates = np.logspace(-2, -5, 4)
-    lmbda_values = np.logspace(-3, -7, 5)
+    learning_rates = [0.0009, 0.0008, 0.0006, 0.0004, 0.0002, 0.0001, 0.00005]
+    lmbda_values = np.logspace(-2, -7, 6)
 
     train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
-    n_epochs = 30
-    batch_size = 10
-    gamma = 0.5
+    n_epochs = 200
+    batch_size = 14
+    gamma = 0.9
 
     FFNN.set_SGD_values(
         n_epochs=n_epochs,
@@ -463,7 +462,7 @@ if test6:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Training Accuracy',
-        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_training.png'
+        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_training_14.png'
     )
 
     helper.seaborn_plot_lmbda_learning(
@@ -471,7 +470,7 @@ if test6:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Test Accuracy',
-        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_test.png'
+        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_test_14.png'
     )
 
 
@@ -578,7 +577,7 @@ if test8:
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
-    FFNN.set_cost_function(logistic_cost)
+    FFNN.set_cost_function(logistic_cost_NN)
     # FFNN.set_activation_function_hidden_layers('sigmoid')
     FFNN.set_activation_function_output_layer('sigmoid')
     FFNN.train_model(X_cancer_train, y_cancer_train)
@@ -799,30 +798,27 @@ DATASET: CANCER DATA (classification case)
 Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
 by looking over a seaborn plot. Will be measured in accuracy-score for both training and test-data. 
 """
-test11 = False
+test11 = True
 if test11:
     print('>> RUNNING TEST 11:')
-    # Initializing some data
-    n = 100
-    noise = 0.01
-    x1, x2, y = helper.generate_data(n, noise)
-    X = np.array(list(zip(x1, x2)))
-    y = y.reshape(-1, 1)
-    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
-
+    # Loading the training and testing dataset
+    n_components = 2
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
+        n_components)
     sns.set()
 
-    # Set the parameters used in the Neural Network
+    # Set the parameters used in the Neural Network (SGD)
     n_epochs = 300
     batch_size = 10
     gamma = 0
     eta = 0.001
     lmbda = 0.0001
 
-    nodes = np.arange(2, 52, 2)
-    layers = np.arange(1, 11, 1)
-    train_R2_score = np.zeros((len(nodes), len(layers)))
-    test_R2_score = np.zeros((len(nodes), len(layers)))
+    nodes = np.arange(2, 20, 2)
+    layers = np.arange(1, 5, 1)
+    train_accuracy_score = np.zeros((len(nodes), len(layers)))
+    test_accuracy_score = np.zeros((len(nodes), len(layers)))
+
     iter = 0
     for i, node in enumerate(nodes):
         for j, layer in enumerate(layers):
@@ -830,31 +826,37 @@ if test11:
             # Need to create new instance, to change the architecture
             node_list = [node]*layer
             FFNN = Neural_Network(
-                no_input_nodes=2,
+                no_input_nodes=n_components,
                 no_output_nodes=1,
                 node_list=node_list
             )
 
-            # Setting the preffered activation functions for hidden layer
-            FFNN.set_activation_function_hidden_layers('sigmoid')
+            FFNN.set_cost_function(logistic_cost_NN)
 
-            # Set the preffered values of the gradient descent
+            hidden_activation = 'sigmoid'
+            output_activation = 'sigmoid'
+            FFNN.set_activation_function_hidden_layers(hidden_activation)
+            FFNN.set_activation_function_output_layer(output_activation)
+
+            # Changing some SGD values
             FFNN.set_SGD_values(
                 n_epochs=n_epochs,
                 batch_size=batch_size,
                 gamma=gamma,
                 eta=eta,
-                lmbda=lmbda
+                lmbda=lmbda,
             )
 
-            FFNN.train_model(X_train, y_train)
+            # Training the model
+            FFNN.train_model(X_cancer_train, y_cancer_train)
 
-            # Finding the predicted values with our model
-            y_hat_train = FFNN.feed_forward(X_train)
-            y_hat_test = FFNN.feed_forward(X_test)
-
-            train_R2_score[i][j] = helper.r2_score(y_train, y_hat_train)
-            test_R2_score[i][j] = helper.r2_score(y_test, y_hat_test)
+            # Testing the model against the target values, and store the results
+            FFNN.set_activation_function_output_layer(
+                'sigmoid_classification')
+            train_accuracy_score[i][j] = helper.accuracy_score(
+                y_cancer_train, FFNN.feed_forward(X_cancer_train))
+            test_accuracy_score[i][j] = helper.accuracy_score(
+                y_cancer_test, FFNN.feed_forward(X_cancer_test))
 
             iter += 1
             print(
@@ -862,18 +864,18 @@ if test11:
 
     # Creating the seaborn_plot
     helper.seaborn_plot_architecture(
-        score=train_R2_score,
+        score=train_accuracy_score,
         x_tics=layers,
         y_tics=nodes,
-        score_name='Training R2-score',
-        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_training_1.png'
+        score_name='Training Accuracy',
+        save_name=f'plots/test11/test11_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_outact_{output_activation}_training_7.png'
     )
     helper.seaborn_plot_architecture(
-        score=test_R2_score,
+        score=test_accuracy_score,
         x_tics=layers,
         y_tics=nodes,
-        score_name='Test R2-score',
-        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_test_1.png'
+        score_name='Test Accuracy',
+        save_name=f'plots/test11/test11_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_outact_{output_activation}_test_7.png'
     )
 
 
@@ -887,23 +889,23 @@ Will be measured in accuracy-score for both training and test-data.
 test12 = False
 if test12:
     print('>> RUNNING TEST 12:')
-    # Initializing the data
-    n = 100
-    noise = 0.01
-    x1, x2, y = helper.generate_data(n, noise)
-    X = np.array(list(zip(x1, x2)))
-    y = y.reshape(-1, 1)
-    X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
+    # Loading the training and testing dataset
+    n_components = 2
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
+        n_components)
 
     # Setting up the Neural Network
-    num_hidden_nodes = 40
-    num_hidden_layers = 3
+    num_hidden_nodes = 20
+    num_hidden_layers = 1
     node_list = [num_hidden_nodes]*num_hidden_layers
     FFNN = Neural_Network(
-        no_input_nodes=2,
+        no_input_nodes=n_components,
         no_output_nodes=1,
         node_list=node_list
     )
+
+    hidden_activation = 'sigmoid'
+    FFNN.set_activation_function_hidden_layers(hidden_activation)
 
     # Set the parameters used in the Neural Network
     n_epochs = 300
@@ -915,19 +917,21 @@ if test12:
         lmbda=lmbda
     )
 
-    batch_sizes = np.arange(2, 32, 2)
-    gammas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-    train_R2_score = np.zeros((len(batch_sizes), len(gammas)))
-    test_R2_score = np.zeros((len(batch_sizes), len(gammas)))
+    batch_sizes = np.arange(2, 32, 6)
+    gammas = [0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0]
+    train_accuracy_score = np.zeros((len(batch_sizes), len(gammas)))
+    test_accuracy_score = np.zeros((len(batch_sizes), len(gammas)))
     iter = 0
+
     for i, batch_size in enumerate(batch_sizes):
         for j, gamma in enumerate(gammas):
             # Refreshing the weights and biases before testing new SGD_values
             FFNN.initialize_the_biases()
             FFNN.initialize_the_weights()
 
-            # Setting the preffered activation functions for hidden layer
-            FFNN.set_activation_function_hidden_layers('sigmoid')
+            # Setting the preffered activation functions
+            output_activation = 'sigmoid'
+            FFNN.set_activation_function_output_layer(output_activation)
 
             # Set the preffered values of the gradient descent
             FFNN.set_SGD_values(
@@ -935,14 +939,20 @@ if test12:
                 gamma=gamma,
             )
 
-            FFNN.train_model(X_train, y_train)
+            FFNN.train_model(X_cancer_train, y_cancer_train)
+
+            # Testing the model against the target values, and store the results
+            FFNN.set_activation_function_output_layer(
+                'sigmoid_classification')
 
             # Finding the predicted values with our model
-            y_hat_train = FFNN.feed_forward(X_train)
-            y_hat_test = FFNN.feed_forward(X_test)
+            y_hat_train = FFNN.feed_forward(X_cancer_train)
+            y_hat_test = FFNN.feed_forward(X_cancer_test)
 
-            train_R2_score[i][j] = helper.r2_score(y_train, y_hat_train)
-            test_R2_score[i][j] = helper.r2_score(y_test, y_hat_test)
+            train_accuracy_score[i][j] = helper.accuracy_score(
+                y_cancer_train, y_hat_train)
+            test_accuracy_score[i][j] = helper.accuracy_score(
+                y_cancer_test, y_hat_test)
 
             iter += 1
             print(
@@ -950,16 +960,17 @@ if test12:
 
     # Creating the seaborn_plot
     helper.seaborn_plot_batchsize_gamma(
-        score=train_R2_score,
+        score=train_accuracy_score,
         x_tics=gammas,
         y_tics=batch_sizes,
-        score_name='Training R2-score',
-        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_hiddennodes_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_training_1.png'
+        score_name='Training Accuracy',
+        save_name=f'plots/test12/test12_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_outact_{output_activation}_training_3.png'
     )
+
     helper.seaborn_plot_batchsize_gamma(
-        score=test_R2_score,
+        score=test_accuracy_score,
         x_tics=gammas,
         y_tics=batch_sizes,
-        score_name='Test R2-score',
-        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_test_1.png'
+        score_name='Test Accuracy',
+        save_name=f'plots/test12/test12_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_outact_{output_activation}_test_3.png'
     )
