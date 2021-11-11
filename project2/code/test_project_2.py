@@ -247,8 +247,8 @@ if test4:
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Initializing the Neural Network
-    num_hidden_nodes = 40
-    num_hidden_layers = 3
+    num_hidden_nodes = 8
+    num_hidden_layers = 4
     node_list = [num_hidden_nodes]*num_hidden_layers
     FFNN = Neural_Network(
         no_input_nodes=2,
@@ -257,12 +257,13 @@ if test4:
     )
 
     # Setting the preffered activation functions for hidden layer
-    FFNN.set_activation_function_hidden_layers('sigmoid')
+    hidden_layer_name = "Leaky_RELU"
+    FFNN.set_activation_function_hidden_layers(hidden_layer_name)
 
     # Set the preffered values of the gradient descent
-    n_epochs = 2000
-    batch_size = 16
-    gamma = 0.4
+    n_epochs = 1000
+    batch_size = 5
+    gamma = 0.6
     FFNN.set_SGD_values(
         n_epochs=n_epochs,
         batch_size=batch_size,
@@ -273,8 +274,8 @@ if test4:
     sns.set()
     # TODO: set those underneath optimal -> many times there will be predicting the same values
     # SO PROBABLY CANCEL THE EXIT()
-    learning_rates = np.logspace(-2, -5, 4)
-    lmbda_values = np.logspace(-2, -7, 6)
+    learning_rates = np.logspace(-3, -6, 4)
+    lmbda_values = np.logspace(-3, -6, 4)
 
     train_R2_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_R2_score = np.zeros((len(learning_rates), len(lmbda_values)))
@@ -311,14 +312,14 @@ if test4:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name="Training R2-score",
-        save_name=f'plots/test4/test4_M_{batch_size}_gamma_{gamma}_hiddennodes{num_hidden_nodes}_hiddenlayers_{num_hidden_layers}_training_1.png'
+        save_name=f'plots/test4/test4_M_{batch_size}_gamma_{gamma}_hiddennodes{num_hidden_nodes}_hiddenlayers_{num_hidden_layers}_name_hidden_{hidden_layer_name}_training_2.png'
     )
     helper.seaborn_plot_lmbda_learning(
         score=test_R2_score,
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name="Test R2-score",
-        save_name=f'plots/test4/test4_M_{batch_size}_gamma_{gamma}_hiddennodes{num_hidden_nodes}_hiddenlayers_{num_hidden_layers}_test_1.png'
+        save_name=f'plots/test4/test4_M_{batch_size}_gamma_{gamma}_hiddennodes{num_hidden_nodes}_hiddenlayers_{num_hidden_layers}_name_hidden_{hidden_layer_name}_test_2.png'
     )
 
 
@@ -638,20 +639,20 @@ if test9:
     sns.set()
 
     # Set the parameters used in the Neural Network
-    n_epochs = 300
+    n_epochs = 1000
     batch_size = 10
     gamma = 0
-    eta = 0.001
+    eta = 1e-5
     lmbda = 0.0001
 
-    nodes = np.arange(2, 52, 2)
-    layers = np.arange(1, 11, 1)
+    nodes = np.arange(1, 13, 2)
+    layers = np.arange(2, 7, 2)
     train_R2_score = np.zeros((len(nodes), len(layers)))
     test_R2_score = np.zeros((len(nodes), len(layers)))
     iter = 0
     for i, node in enumerate(nodes):
         for j, layer in enumerate(layers):
-
+            print(node, layer)
             # Need to create new instance, to change the architecture
             node_list = [node]*layer
             FFNN = Neural_Network(
@@ -661,7 +662,8 @@ if test9:
             )
 
             # Setting the preffered activation functions for hidden layer
-            FFNN.set_activation_function_hidden_layers('sigmoid')
+            hidden_layer_name = 'Leaky_RELU'
+            FFNN.set_activation_function_hidden_layers(hidden_layer_name)
 
             # Set the preffered values of the gradient descent
             FFNN.set_SGD_values(
@@ -691,14 +693,14 @@ if test9:
         x_tics=layers,
         y_tics=nodes,
         score_name='Training R2-score',
-        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_training_1.png'
+        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_training_layerName{hidden_layer_name}_1.png'
     )
     helper.seaborn_plot_architecture(
         score=test_R2_score,
         x_tics=layers,
         y_tics=nodes,
         score_name='Test R2-score',
-        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_test_1.png'
+        save_name=f'plots/test9/test9_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_test_layerName{hidden_layer_name}_1.png'
     )
 
 """
@@ -720,8 +722,8 @@ if test10:
     X_train, X_test, y_train, y_test = helper.train_test_split(X, y)
 
     # Setting up the Neural Network
-    num_hidden_nodes = 40
-    num_hidden_layers = 3
+    num_hidden_nodes = 8
+    num_hidden_layers = 4
     node_list = [num_hidden_nodes]*num_hidden_layers
     FFNN = Neural_Network(
         no_input_nodes=2,
@@ -730,8 +732,8 @@ if test10:
     )
 
     # Set the parameters used in the Neural Network
-    n_epochs = 300
-    eta = 0.001
+    n_epochs = 800
+    eta = 0.0001
     lmbda = 0.0001
     FFNN.set_SGD_values(
         n_epochs=n_epochs,
@@ -739,8 +741,8 @@ if test10:
         lmbda=lmbda
     )
 
-    batch_sizes = np.arange(2, 32, 2)
-    gammas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    batch_sizes = np.arange(2, 10, 2)
+    gammas = [0.1, 0.2, 0.4, 0.6, 0.8] 
     train_R2_score = np.zeros((len(batch_sizes), len(gammas)))
     test_R2_score = np.zeros((len(batch_sizes), len(gammas)))
     iter = 0
@@ -751,7 +753,8 @@ if test10:
             FFNN.initialize_the_weights()
 
             # Setting the preffered activation functions for hidden layer
-            FFNN.set_activation_function_hidden_layers('sigmoid')
+            hidden_layer_name = 'Leaky_RELU'
+            FFNN.set_activation_function_hidden_layers(hidden_layer_name)
 
             # Set the preffered values of the gradient descent
             FFNN.set_SGD_values(
@@ -778,14 +781,14 @@ if test10:
         x_tics=gammas,
         y_tics=batch_sizes,
         score_name='Training R2-score',
-        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_hiddennodes_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_training_1.png'
+        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_hiddennodes_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_hidden_layer_name_{hidden_layer_name}_training_2.png'
     )
     helper.seaborn_plot_batchsize_gamma(
         score=test_R2_score,
         x_tics=gammas,
         y_tics=batch_sizes,
         score_name='Test R2-score',
-        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_test_1.png'
+        save_name=f'plots/test10/test10_lmbda_{lmbda}_eta_{eta}_{num_hidden_nodes}_hiddenlayer_{num_hidden_layers}_hidden_layer_name_{hidden_layer_name}_test_2.png'
     )
 
 

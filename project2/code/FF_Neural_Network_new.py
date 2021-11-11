@@ -434,7 +434,7 @@ class Neural_Network():
 def main(X_train, X_test, y_train, y_test, M=15, n_epochs=1000):
     print("-----STARTING MAIN -----")
 
-    node_list = [4]*2
+    node_list = [30]*4
     FFNN = Neural_Network(2, 1, node_list)
     FFNN.set_activation_function_hidden_layers('sigmoid')
     FFNN.set_SGD_values(
