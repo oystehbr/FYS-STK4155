@@ -10,7 +10,7 @@ def learning_schedule(t):
     return 5/(t+50)
 
 
-def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol=1e-14, lmbda=0):
+def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol=1e-14, lmbda=0, scale_learning = False):
     """
     Doing the stochastic gradient descent algorithm for updating 
     the initial values (theta) to give a model with better fit
@@ -69,7 +69,8 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
             v = gamma*v + eta*grad
             theta_next = theta_previous - v
 
-            # eta = learning_schedule(epoch*i*m)
+            if scale_learning:
+                eta = learning_schedule(epoch*i*m)
 
             j += 1
 
@@ -124,6 +125,32 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
         degree=degree, regression_method='OLS'
     )
 
+    #Testing scaling algoritm
+    print("Scaling learning rate alogrithm")
+    for i in range(5):
+        beta_SGD, num = SGD(
+                    X=X_train_scaled, y=z_train_scaled,
+                    theta_init=np.array(
+                        [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+                    eta=0.1, cost_function=cost_OLS,
+                    n_epochs=n_epochs, batch_size=10,
+                    gamma=0, scale_learning=True)
+        print(
+            f'Test {i+1}: MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f}')
+    
+    print("No algorithm")
+    for i in range(5):
+        beta_SGD, num = SGD(
+                    X=X_train_scaled, y=z_train_scaled,
+                    theta_init=np.array(
+                        [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+                    eta=0.1, cost_function=cost_OLS,
+                    n_epochs=n_epochs, batch_size=10,
+                    gamma=0, scale_learning=False)
+        print(
+            f'Test {i+1}: MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f}')
+
+    exit()
     # Looping through different learning rates
     learning_rates = np.logspace(1, -6, 8)
     for no_of_minibatches in list_no_of_minibatches:
@@ -163,7 +190,7 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
 # TODO: do we compare against project 1 (RIDGE)
 
 
-def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200, degree=1, gamma=0):
+def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200, degree=4, gamma=0):
     """
     Performing an analysis of the results for RIDGE regression, with 
     respect to the input: number of minibatches and epocs. 
@@ -207,6 +234,20 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     train_R2_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_R2_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
+    batch_sizes = [1, 5, 10, 30, 60, 100]
+    for batch_size in batch_sizes:
+        beta_SGD, num = SGD(
+            X=X_train_scaled, y=z_train_scaled,
+            theta_init=np.array(
+                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+            eta=1e-1, cost_function=cost_RIDGE,
+            n_epochs=batch_size, batch_size=batch_size,
+            gamma=0.5,lmbda=1e-3)
+
+        print(
+            f'MSE: {cost_RIDGE(beta_SGD, X_train_scaled, z_train, 1e-3):.6f} (NUMERICAL (batch size = {batch_size}))')
+    print('--------------------------------')
+    
     # TODO: do some cleaning inside here
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
@@ -217,7 +258,8 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
             )
 
             theta, num = SGD(
-                theta_init=np.array([0.0] + list(np.random.randn(2))),
+                theta_init=np.array(
+                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
                 eta=eta,
                 cost_function=cost_RIDGE,
                 n_epochs=n_epochs,
@@ -258,10 +300,11 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     plt.show()
 
 
+
 if __name__ == '__main__':
     n = 500
     noise = 0.1
     x_values, y_values, z_values = helper.generate_data(n, noise)
-    main_OLS(x_values, y_values, z_values)
 
-    # main_RIDGE()
+    main_OLS(x_values, y_values, z_values)
+    # main_RIDGE(x_values, y_values, z_values)
