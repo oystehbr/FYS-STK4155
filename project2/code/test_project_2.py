@@ -338,7 +338,7 @@ opportunity to look at the accuracy score over the training time (iterations of 
 SGD-algorithm).
 """
 
-test5 = True
+test5 = False
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
@@ -980,3 +980,27 @@ if test12:
         score_name='Test Accuracy',
         save_name=f'plots/test12/test12_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_outact_{output_activation}_test_3.png'
     )
+
+"""
+TEST 13
+DATASET: FRANKE FUNCTION (regression case)
+
+Analysis of the gradient descent algorithm, is scaling/ updating of
+the learning rate necessary?
+
+"""
+test13 = True
+if test13:
+    print('>> RUNNING TEST 13:')
+    n = 100
+    noise = 0.01
+    x_values, y_values, z_values = helper.generate_data(n, noise)
+
+    n_epochs = 200
+    degree = 5  # complexity of the model
+    gamma = 0
+    eta = 0.1
+    batch_size = 10
+
+    gradient_descent.main_OLS_scale_learning(
+        x_values, y_values, z_values, n_epochs, degree, gamma, eta, batch_size)
