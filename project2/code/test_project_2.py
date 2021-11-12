@@ -144,7 +144,7 @@ provide the results from the three different methods in R2-score. And the
 time spent for creating these models.
 """
 
-test3 = False
+test3 = True
 if test3:
     print('>> RUNNING TEST 3:')
     # Initializing some data
@@ -159,7 +159,7 @@ if test3:
     neural_start = time.time()
     number_of_input_nodes = 2
     number_of_output_nodes = 1
-    node_list = [10]*2
+    node_list = [40]*4
 
     FFNN = Neural_Network(
         no_input_nodes=2,
@@ -172,11 +172,11 @@ if test3:
 
     # Set the preffered values of the gradient descent
     FFNN.set_SGD_values(
-        eta=5e-4,
-        lmbda=1e-6,
-        n_epochs=4000,
-        batch_size=8,
-        gamma=0.6
+        eta=1e-4,
+        lmbda=1e-4,
+        n_epochs=5000,
+        batch_size=16,
+        gamma=0.5
     )
 
     # Now, we are ready to train the model
@@ -338,7 +338,7 @@ opportunity to look at the accuracy score over the training time (iterations of 
 SGD-algorithm).
 """
 
-test5 = True
+test5 = False
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
