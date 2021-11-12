@@ -482,6 +482,8 @@ if test6:
 
 """
 TEST 7:
+DATASET: CANCER DATA (classification case)
+
 Logistic regression: create a seaborn plot of the hyperparameter lambda
 and the learning rate. Other SGD values, will be easy to change in the test.
 """
@@ -550,6 +552,8 @@ if test7:
 
 """
 TEST 8:
+DATASET: CANCER DATA (classification case)
+
 Comparison: logistic regression vs classification with Neural Network. Comparing
 the R2-score on testing and training data, and the time spent on training the model.
 """
