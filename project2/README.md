@@ -5,16 +5,20 @@
 #### project_1_FYS_STK4155.pdf 📈📝
 
 ## Code - folder 🔐💬
-We have added # TODO files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
+We have added the python files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
 getting in the report. Two files for collecting all activation functions and cost-functions used in the project. Then we have our main-files, that is a file including the Neural Netork class and the gradient descent method. Last one is a "little" helper file, which contains several functions we are using often (copied from project1, and added some new ones).
 
+Please read the docstrings to the functions we are using, if something is unclear. 
+
 #### >> test_project_2.py 🎓🧪
-Function for testing results that we present in the report. The file contains an easy way to reproduce **test X**, with the preferred parameters. The preffered parameters may or may not be those we are refering to in the report. Some of the values may or may not need to be changed for the results to be the same as we are getting in the report. 
+Function for testing results that we present in the report. The file contains an easy way to reproduce **test X**, with the preferred parameters. The preffered parameters may or may not be those we are refering to in the report. Some of the values may or may not need to be changed for the results to be the same as we are getting in the report.
 
 ##### *How to use this file properly:*
-# TODO: write this better
-- Set the preffered parameters (all parameters are located in the beggining of the code)
-- To test an exercise, set the belonging if-statement to True
+- Close all if-statements (VSCODE: CTRL K + CTRL 0), to have a nice scrolling time.
+- Scroll to the test you want to run, set the testX parameter to True. 
+- Small description is provided before the testX boolean.
+- It is easier to look at one test at a time, therefore I recommend you to turn one test to True at a time.
+- If you want to test the code of some results in the report, you may need to change the parameters inside testX
 
 #### >> helper.py 🚑👮🏼‍♂️
 This is our helper function. The functions that are included in this file are used in several times in the project, and we chose to create this to improve code structure. 
@@ -22,20 +26,14 @@ This is our helper function. The functions that are included in this file are us
 #### >> activation_functions.py 🤼‍♂️🎚
 - As the filename highlights, collection of the different activation we are using in this project 
 
-#### >> classification_problem.py 0️⃣1️⃣
-- TODO: delete maybe -> just for testing, but this is also inside the test_project_2.py (it's just a case of the Neural Network)
-
 #### >> cost_functions.py 💰💸
 - As the filename highlights, collection of the different cost-functions we are using in this project
 
 #### >> gradient_descent.py 🏔📈
 Includes three functions:
 - **SGD**-function: do stochastic gradient descent and optimize against a cost-function that will be provided into the function.
-- **main_OLS**-function: function for comparing the gradient descent solution of the OLS-problem vs. the actual solution of the problem.
+- **main_OLS**-function: function for get result for finding the optimal learning rate and number of mini-batches, provides a R2-score (seaborn) plot.
 - **main_RIDGE**-function: using stochastic gradient descent to find optimal hyperparameter lambda and learning rate, by looking at some seaborn plot.
-
-#### >> logistic_regression.py 🚜🚚
-- TODO: maybe delete -> move stuff to activation-funciton.py -> maybe double. I don't know
 
 #### >> FF_Neural_Network.py 🔗🕸
 Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers. 

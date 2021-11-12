@@ -980,4 +980,3 @@ if test12:
         score_name='Test Accuracy',
         save_name=f'plots/test12/test12_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_outact_{output_activation}_test_3.png'
     )
-
