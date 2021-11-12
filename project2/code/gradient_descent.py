@@ -10,7 +10,7 @@ def learning_schedule(t):
     return 5/(t+50)
 
 
-def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol=1e-14, lmbda=0, scale_learning = False):
+def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol=1e-14, lmbda=0, scale_learning=False):
     """
     Doing the stochastic gradient descent algorithm for updating 
     the initial values (theta) to give a model with better fit
@@ -48,8 +48,6 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
     n = X.shape[0]
     m = int(n/batch_size)
 
-    # TODO: delete either
-    # v = eta*grad_C(theta_init, X, y, lmbda)
     v = 0
 
     theta_previous = theta_init
@@ -82,8 +80,9 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
 
     return theta_previous, j
 
+
 def main_OLS1(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs=200, degree=1, gamma=0):
-    #TODO:change despription
+    # TODO:change despription
     """
     Performing an analysis of the results for OLS regression, with 
     respect to the input: number of minibatches and epocs. Will check the results
@@ -124,28 +123,28 @@ def main_OLS1(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epoch
         degree=degree, regression_method='OLS'
     )
 
-    #Testing scaling algoritm
+    # Testing scaling algoritm
     print("Scaling learning rate alogrithm")
     for i in range(5):
         beta_SGD, num = SGD(
-                    X=X_train_scaled, y=z_train_scaled,
-                    theta_init=np.array(
-                        [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
-                    eta=0.1, cost_function=cost_OLS,
-                    n_epochs=n_epochs, batch_size=10,
-                    gamma=0, scale_learning=True)
+            X=X_train_scaled, y=z_train_scaled,
+            theta_init=np.array(
+                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+            eta=0.1, cost_function=cost_OLS,
+            n_epochs=n_epochs, batch_size=10,
+            gamma=0, scale_learning=True)
         print(
             f'Test {i+1}: MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f}')
-    
+
     print("No algorithm")
     for i in range(5):
         beta_SGD, num = SGD(
-                    X=X_train_scaled, y=z_train_scaled,
-                    theta_init=np.array(
-                        [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
-                    eta=0.1, cost_function=cost_OLS,
-                    n_epochs=n_epochs, batch_size=10,
-                    gamma=0, scale_learning=False)
+            X=X_train_scaled, y=z_train_scaled,
+            theta_init=np.array(
+                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+            eta=0.1, cost_function=cost_OLS,
+            n_epochs=n_epochs, batch_size=10,
+            gamma=0, scale_learning=False)
         print(
             f'Test {i+1}: MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f}')
 
@@ -227,7 +226,7 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
             test_R2_score[i][j] = helper.r2_score(
                 z_pred_test, z_test)
 
-    helper.seaborn_plot_batchsize_eta(
+    helper.seaborn_plot_no_minibatches_eta(
         score=train_R2_score,
         x_tics=learning_rates,
         y_tics=list_no_of_minibatches,
@@ -235,7 +234,7 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
         save_name=f'plots/test1/test1_OLS_gamma_{gamma}_epochs_{n_epochs}_training_12.png'
     )
 
-    helper.seaborn_plot_batchsize_eta(
+    helper.seaborn_plot_no_minibatches_eta(
         score=test_R2_score,
         x_tics=learning_rates,
         y_tics=list_no_of_minibatches,
@@ -296,13 +295,12 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
                 [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
             eta=1e-1, cost_function=cost_RIDGE,
             n_epochs=batch_size, batch_size=batch_size,
-            gamma=0.5,lmbda=1e-3)
+            gamma=0.5, lmbda=1e-3)
 
         print(
             f'MSE: {cost_RIDGE(beta_SGD, X_train_scaled, z_train, 1e-3):.6f} (NUMERICAL (batch size = {batch_size}))')
     print('--------------------------------')
-    
-    # TODO: do some cleaning inside here
+
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
             _, _, beta_RIDGE = helper.predict_output(
@@ -313,7 +311,7 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
 
             theta, num = SGD(
                 theta_init=np.array(
-                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+                    [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
                 eta=eta,
                 cost_function=cost_RIDGE,
                 n_epochs=n_epochs,
@@ -351,7 +349,6 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     plt.savefig(
         f"plots/test1/test1_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_numdata_{len(x_values)}_noOfMinibatches_{no_of_minibatches}_degree_{degree}_test_1.png")
     plt.show()
-
 
 
 if __name__ == '__main__':

@@ -244,7 +244,6 @@ class Neural_Network():
 
                 # Is able to save us from local minimum, but commented out (not used anymore)
                 # if sum(abs(self.y_hat[0] - self.y_hat) < tol) == len(self.y_hat) and self.y_hat[0] != 0 and not self.keep_accuracy_score:
-                #     # TODO: something wrong if accuracy score is applied
                 #     print('>> Predicting all same values, unstable values')
                 #     self.initialize_the_biases()
                 #     self.initialize_the_weights()

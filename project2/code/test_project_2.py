@@ -39,7 +39,7 @@ if test1:
     noise = 0.01
     x_values, y_values, z_values = helper.generate_data(n, noise)
     number_of_epochs = 10
-    # TODO: Doesn't work for more degrees
+
     degree = 5  # complexity of the model
     gamma = 0.7  # the momentum of the stochastic gradient decent
 
@@ -277,7 +277,7 @@ if test4:
 
     # Starting up a seaborn plot
     sns.set()
-    # TODO: set those underneath optimal -> many times there will be predicting the same values
+
     # SO PROBABLY CANCEL THE EXIT()
     learning_rates = np.logspace(-3, -6, 4)
     lmbda_values = np.logspace(-3, -6, 4)
