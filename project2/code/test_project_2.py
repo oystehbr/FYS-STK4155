@@ -17,7 +17,7 @@ then this file will be very easy to read/ use
 
 from FF_Neural_Network_new import Neural_Network
 from gradient_descent import SGD
-from cost_functions import logistic_cost_NN, cost_logistic_regression, prob
+from cost_functions import MSE, logistic_cost_NN, cost_logistic_regression, prob
 import time
 import numpy as np
 import gradient_descent
@@ -31,7 +31,7 @@ against the results of project 1. For the Ridge case, it will provide
 a seaborn visualization with hyperparameter lambda and the learning rate
 """
 
-test1 = True
+test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Generating some data (Franke Function)
@@ -358,15 +358,15 @@ if test5:
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=20,
+        n_epochs=60,
         batch_size=14,
-        gamma=0.8,
-        eta=0.001,
+        gamma=0.5,
+        eta=8e-4,
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN)
-    # FFNN.set_activation_function_hidden_layers('sigmoid')
+    FFNN.set_activation_function_hidden_layers('Leaky_RELU')
     FFNN.set_activation_function_output_layer('sigmoid')
 
     # Set keep_accuracy to True, if you wanna see accuracy vs. time (in the training)
