@@ -38,7 +38,7 @@ Includes three functions:
 - TODO: maybe delete -> move stuff to activation-funciton.py -> maybe double. I don't know
 
 #### >> FF_Neural_Network.py 🔗🕸
-Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here.
+Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers.
 
 **Neural_Network**-class:
 

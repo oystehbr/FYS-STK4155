@@ -30,25 +30,25 @@ Analysis of the gradient descent algorithm, and comparing it
 against the results of project 1. For the Ridge case, it will provide
 a seaborn visualization with hyperparameter lambda and the learning rate
 """
-test1 = False
+test1 = True
 if test1:
     print('>> RUNNING TEST 1:')
     # Generating some data (Franke Function)
     n = 100
-    noise = 0
+    noise = 0.01
     x_values, y_values, z_values = helper.generate_data(n, noise)
-    number_of_epochs = 50
+    number_of_epochs = 10
     # TODO: Doesn't work for more degrees
-    degree = 1  # complexity of the model
-    gamma = 0.1  # the momentum of the stochastic gradient decent
+    degree = 5  # complexity of the model
+    gamma = 0.7  # the momentum of the stochastic gradient decent
 
     "Set to true, stochastic gradient decent testing with OLS"
-    run_main_OLS = False
+    run_main_OLS = True
     if run_main_OLS:
         print('> Analysing the gradient descent algorithm with OLS')
 
         # Set the number of minibatches you want to analyse
-        list_number_of_minibatches = [1, n*0.8]
+        list_number_of_minibatches = [1, 5, 8, 10, 16, 20, 40, n*0.8]
         gradient_descent.main_OLS(
             x_values=x_values, y_values=y_values, z_values=z_values,
             list_no_of_minibatches=list_number_of_minibatches,
@@ -58,7 +58,7 @@ if test1:
 
     no_of_minibatches = 20
     "Set to true, stochastic gradient decent testing with RIDGE"
-    run_main_RIDGE = True
+    run_main_RIDGE = False
     if run_main_RIDGE:
         print('> Analysing the gradient descent algorithm with RIDGE')
         gradient_descent.main_RIDGE(
@@ -741,7 +741,7 @@ if test10:
     )
 
     batch_sizes = np.arange(2, 10, 2)
-    gammas = [0.1, 0.2, 0.4, 0.6, 0.8] 
+    gammas = [0.1, 0.2, 0.4, 0.6, 0.8]
     train_R2_score = np.zeros((len(batch_sizes), len(gammas)))
     test_R2_score = np.zeros((len(batch_sizes), len(gammas)))
     iter = 0
@@ -798,7 +798,7 @@ DATASET: CANCER DATA (classification case)
 Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
 by looking over a seaborn plot. Will be measured in accuracy-score for both training and test-data. 
 """
-test11 = True
+test11 = False
 if test11:
     print('>> RUNNING TEST 11:')
     # Loading the training and testing dataset
