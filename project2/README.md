@@ -9,7 +9,7 @@ We have added the python files to this folder. One for testing all the features 
 getting in the report. Two files for collecting all activation functions and cost-functions used in the project. Then we have our main-files, that is a file including the Neural Netork class and the gradient descent method. Last one is a "little" helper file, which contains several functions we are using often (copied from project1, and added some new ones).
 
 #### >> test_project_2.py 🎓🧪
-Function for testing results that we present in the report. The file contains an easy way to reproduce **test X**, with the preferred parameters. The preffered parameters may or may not be those we are refering to in the report. Some of the values may or may not need to be changed for the results to be the same as we are getting in the report. The
+Function for testing results that we present in the report. The file contains an easy way to reproduce **test X**, with the preferred parameters. The preffered parameters may or may not be those we are refering to in the report. Some of the values may or may not need to be changed for the results to be the same as we are getting in the report.
 
 ##### *How to use this file properly:*
 - Close all if-statements (VSCODE: CTRL K + CTRL 0), to have a nice scrolling time.
