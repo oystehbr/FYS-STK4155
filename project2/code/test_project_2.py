@@ -39,7 +39,7 @@ if test1:
     noise = 0.01
     x_values, y_values, z_values = helper.generate_data(n, noise)
     number_of_epochs = 10
-    # TODO: Doesn't work for more degrees
+
     degree = 5  # complexity of the model
     gamma = 0.7  # the momentum of the stochastic gradient decent
 
@@ -277,7 +277,7 @@ if test4:
 
     # Starting up a seaborn plot
     sns.set()
-    # TODO: set those underneath optimal -> many times there will be predicting the same values
+
     # SO PROBABLY CANCEL THE EXIT()
     learning_rates = np.logspace(-3, -6, 4)
     lmbda_values = np.logspace(-3, -6, 4)
@@ -980,3 +980,27 @@ if test12:
         score_name='Test Accuracy',
         save_name=f'plots/test12/test12_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_outact_{output_activation}_test_3.png'
     )
+
+"""
+TEST 13
+DATASET: FRANKE FUNCTION (regression case)
+
+Analysis of the gradient descent algorithm, is scaling/ updating of
+the learning rate necessary?
+
+"""
+test13 = True
+if test13:
+    print('>> RUNNING TEST 13:')
+    n = 100
+    noise = 0.01
+    x_values, y_values, z_values = helper.generate_data(n, noise)
+
+    n_epochs = 200
+    degree = 5  # complexity of the model
+    gamma = 0
+    eta = 0.1
+    batch_size = 10
+
+    gradient_descent.main_OLS_scale_learning(
+        x_values, y_values, z_values, n_epochs, degree, gamma, eta, batch_size)

@@ -229,10 +229,9 @@ def predict_output(x_train, y_train, z_train, x_test, y_test, degree: int, regre
 
 
 def seaborn_plot_lmbda_learning(score, x_tics, y_tics, score_name, save_name=None):
-    # TODO: change description and name
     """
     Seaborn plot of the combination of lambda and eta values will be 
-    showned and saved if save_name is provided.
+    shown and saved if save_name is provided.
 
     :param score (list[list]):
         the scores of lambda and eta values
@@ -241,10 +240,9 @@ def seaborn_plot_lmbda_learning(score, x_tics, y_tics, score_name, save_name=Non
     :param y_tics (np.ndarray):
         the eta values that were used
     :param score_name (str):
-        name of the score-evaluation, for plotting. 
-        e.g. Accuray (training)
+        name of the score-evaluation, for plotting title. 
     :param save_name (str), default = None:
-        the name, the plot will be saved in
+        the name of the plot, for saving (including .png)
     """
 
     sns.set()
@@ -263,21 +261,19 @@ def seaborn_plot_lmbda_learning(score, x_tics, y_tics, score_name, save_name=Non
 
 def seaborn_plot_architecture(score, x_tics, y_tics, score_name, save_name=None):
     """
-    # TODO: change description
-    Seaborn plot of the combination of lambda and eta values will be 
-    showned and saved if save_name is provided.
+    Seaborn plot of the combination of hidden layers and nodes as the architecture of
+    the neural network will be shown and saved if save_name is provided.
 
     :param score (list[list]):
         the scores of lambda and eta values
     :param x_tics (np.ndarray):
-        the lmbda values that were used
+        the hidden layers values used
     :param y_tics (np.ndarray):
-        the eta values that were used
+        the hidden nodes values used
     :param score_name (str):
-        name of the score-evaluation, for plotting. 
-        e.g. Accuray (training)
+        name of the score-evaluation, for plotting title. 
     :param save_name (str), default = None:
-        the name, the plot will be saved in
+        the name of the plot, for saving (including .png)
     """
     sns.set()
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -295,21 +291,19 @@ def seaborn_plot_architecture(score, x_tics, y_tics, score_name, save_name=None)
 
 def seaborn_plot_batchsize_gamma(score, x_tics, y_tics, score_name, save_name=None):
     """
-    # TODO: change description, ,and docs
-    Seaborn plot of the combination of lambda and eta values will be 
-    showned and saved if save_name is provided.
+    Seaborn plot of the combination of batch size and the momentum parameter
+    gamma will be shown and saved if save_name is provided.
 
     :param score (list[list]):
         the scores of lambda and eta values
     :param x_tics (np.ndarray):
-        the lmbda values that were used
+        the gamma values that were used 
     :param y_tics (np.ndarray):
-        the eta values that were used
+        the batchsize values that were used
     :param score_name (str):
-        name of the score-evaluation, for plotting. 
-        e.g. Accuray (training)
+        name of the score-evaluation, for plotting title. 
     :param save_name (str), default = None:
-        the name, the plot will be saved in
+        the name of the plot, for saving (including .png)
     """
 
     sns.set()
@@ -326,10 +320,9 @@ def seaborn_plot_batchsize_gamma(score, x_tics, y_tics, score_name, save_name=No
     plt.show()
 
 
-def seaborn_plot_batchsize_eta(score, x_tics, y_tics, score_name, save_name=None):
+def seaborn_plot_no_minibatches_eta(score, x_tics, y_tics, score_name, save_name=None):
     """
-    # TODO: change description, ,and docs
-    Seaborn plot of the combination of lambda and eta values will be 
+    Seaborn plot of the combination of the number of minibatches and eta values will be 
     showned and saved if save_name is provided.
 
     :param score (list[list]):
@@ -339,10 +332,9 @@ def seaborn_plot_batchsize_eta(score, x_tics, y_tics, score_name, save_name=None
     :param y_tics (np.ndarray):
         number of minibatches
     :param score_name (str):
-        name of the score-evaluation, for plotting. 
-        e.g. R2_score
+        name of the score-evaluation, for plotting title. 
     :param save_name (str), default = None:
-        the name, the plot will be saved in
+        the name of the plot, for saving (including .png)
     """
 
     sns.set()

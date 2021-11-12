@@ -10,15 +10,15 @@ def learning_schedule(t):
     return 5/(t+50)
 
 
-def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol=1e-14, lmbda=0, scale_learning = False):
+def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol=1e-14, lmbda=0, scale_learning=False):
     """
-    Doing the stochastic gradient descent algorithm for updating 
+    Doing the stochastic gradient descent algorithm for updating
     the initial values (theta) to give a model with better fit
     according to the given cost-function
 
-    :param X (np.ndarray): 
+    :param X (np.ndarray):
         the input values
-    :param y (np.ndarray): 
+    :param y (np.ndarray):
         the target values (output values)
     :param theta_init (np.ndarray):
         the initial guess of our parameters
@@ -33,8 +33,12 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
         descent. If gamma is 0, then we will have no momentum. If gamma is 1, then
         we will use "full" momentum instead.
     :param tol (float):
-        stop the iteration if the distance in the previous theta values 
+        stop the iteration if the distance in the previous theta values
         is less than this tolerance
+    :param lmbda (number):
+        the lmbda to the ridge regression
+    :param scale_learning (boolean):
+        if we want to scale the learning rate
 
     :return tuple(np.ndarray, int):
         - better estimate of theta, according to the cost-function
@@ -48,8 +52,6 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
     n = X.shape[0]
     m = int(n/batch_size)
 
-    # TODO: delete either
-    # v = eta*grad_C(theta_init, X, y, lmbda)
     v = 0
 
     theta_previous = theta_init
@@ -72,7 +74,7 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
             if scale_learning:
                 eta = learning_schedule(epoch*i*m)
 
-            # Check if we have reached the tolerance
+            # Check if the changes are less than the given tolerance
             if np.sum(np.abs(theta_next - theta_previous)) < tol:
                 print('local')
                 return theta_next, j
@@ -82,12 +84,10 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
 
     return theta_previous, j
 
-def main_OLS1(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs=200, degree=1, gamma=0):
-    #TODO:change despription
+
+def main_OLS_scale_learning(x_values, y_values, z_values, n_epochs=200, degree=1, gamma=0, eta=0.1, batch_size=10):
     """
-    Performing an analysis of the results for OLS regression, with 
-    respect to the input: number of minibatches and epocs. Will check the results
-    for learning rates from 10^0, 10^-1, ..., 10^-6.
+    Checking if scaling of the learning rate will be better than without
 
     :param x_values (np.ndarray):
         dependent variable
@@ -95,8 +95,6 @@ def main_OLS1(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epoch
         dependent variable
     :param z_values (np.ndarray):
         response variable
-    :param list_no_of_minibatches (list):
-        list of number of minibatches that we want to run through
     :param n_epochs (int), default = 200:
         the number of epochs that the SGD will be running through
     :param degree (int), default = 1:
@@ -105,6 +103,11 @@ def main_OLS1(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epoch
         the amount of momentum we will be using in the gradient descent
         descent. If gamma is 0, then we will have no momentum. If gamma is 1, then
         we will use "full" momentum instead.
+    :param eta (number):
+        the learning rate
+    :param batch_size (int):
+        the batch size used in SGD
+
     """
 
     # Preparing the data
@@ -117,44 +120,37 @@ def main_OLS1(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epoch
     z_train_scale = np.mean(z_train, axis=0)
     z_train_scaled = z_train - z_train_scale
 
-    # Analytical betas
-    _, _, beta_OLS = helper.predict_output(
-        x_train=x_train, y_train=y_train, z_train=z_train,
-        x_test=x_test, y_test=y_test,
-        degree=degree, regression_method='OLS'
-    )
-
-    #Testing scaling algoritm
-    print("Scaling learning rate alogrithm")
+    # Testing scaling algoritm
+    print("With Scaling learning rate algorithm ")
     for i in range(5):
         beta_SGD, num = SGD(
-                    X=X_train_scaled, y=z_train_scaled,
-                    theta_init=np.array(
-                        [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
-                    eta=0.1, cost_function=cost_OLS,
-                    n_epochs=n_epochs, batch_size=10,
-                    gamma=0, scale_learning=True)
+            X=X_train_scaled, y=z_train_scaled,
+            theta_init=np.array(
+                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+            eta=eta, cost_function=cost_OLS,
+            n_epochs=n_epochs, batch_size=batch_size,
+            gamma=gamma, scale_learning=True)
         print(
             f'Test {i+1}: MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f}')
-    
-    print("No algorithm")
+
+    print("Without Scaling learning rate algorithm")
     for i in range(5):
         beta_SGD, num = SGD(
-                    X=X_train_scaled, y=z_train_scaled,
-                    theta_init=np.array(
-                        [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
-                    eta=0.1, cost_function=cost_OLS,
-                    n_epochs=n_epochs, batch_size=10,
-                    gamma=0, scale_learning=False)
+            X=X_train_scaled, y=z_train_scaled,
+            theta_init=np.array(
+                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+            eta=eta, cost_function=cost_OLS,
+            n_epochs=n_epochs, batch_size=batch_size,
+            gamma=gamma, scale_learning=False)
         print(
             f'Test {i+1}: MSE: {cost_OLS(beta_SGD, X_train_scaled, z_train):.6f}')
 
 
 def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs=200, degree=1, gamma=0):
     """
-    Performing an analysis of the results for OLS regression, with 
-    respect to the input: number of minibatches and epocs. Will check the results
-    for learning rates from 10^0, 10^-1, ..., 10^-6.
+    Performing an analysis of the results for OLS regression. We want to optimize the
+    learning rate used in the SGD-algorithm and the number of minibatches used. This function
+    will provide a seaborn plot of exactly that. 
 
     :param x_values (np.ndarray):
         dependent variable
@@ -227,7 +223,7 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
             test_R2_score[i][j] = helper.r2_score(
                 z_pred_test, z_test)
 
-    helper.seaborn_plot_batchsize_eta(
+    helper.seaborn_plot_no_minibatches_eta(
         score=train_R2_score,
         x_tics=learning_rates,
         y_tics=list_no_of_minibatches,
@@ -235,7 +231,7 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
         save_name=f'plots/test1/test1_OLS_gamma_{gamma}_epochs_{n_epochs}_training_12.png'
     )
 
-    helper.seaborn_plot_batchsize_eta(
+    helper.seaborn_plot_no_minibatches_eta(
         score=test_R2_score,
         x_tics=learning_rates,
         y_tics=list_no_of_minibatches,
@@ -246,8 +242,8 @@ def main_OLS(x_values, y_values, z_values, list_no_of_minibatches=[10], n_epochs
 
 def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200, degree=4, gamma=0):
     """
-    Performing an analysis of the results for RIDGE regression, with 
-    respect to the input: number of minibatches and epocs. 
+    Performing an analysis of the results for RIDGE regression, with
+    respect to the input: number of minibatches and epocs.
 
     :param x_values (np.ndarray):
         dependent variable
@@ -267,8 +263,6 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
         we will use "full" momentum instead.
     """
 
-    # TODO: input variables for lmbda values, eta values
-    # TODO: ridge cost-function do not work properly (maybe)
     sns.set()
 
     # Preparing the data
@@ -296,13 +290,12 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
                 [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
             eta=1e-1, cost_function=cost_RIDGE,
             n_epochs=batch_size, batch_size=batch_size,
-            gamma=0.5,lmbda=1e-3)
+            gamma=0.5, lmbda=1e-3)
 
         print(
             f'MSE: {cost_RIDGE(beta_SGD, X_train_scaled, z_train, 1e-3):.6f} (NUMERICAL (batch size = {batch_size}))')
     print('--------------------------------')
-    
-    # TODO: do some cleaning inside here
+
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
             _, _, beta_RIDGE = helper.predict_output(
@@ -313,7 +306,7 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
 
             theta, num = SGD(
                 theta_init=np.array(
-                [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
+                    [0.0] + [0.1]*(X_train_scaled.shape[1] - 1)),
                 eta=eta,
                 cost_function=cost_RIDGE,
                 n_epochs=n_epochs,
@@ -334,7 +327,6 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     heat = sns.heatmap(train_R2_score, annot=True, ax=ax, cmap="viridis",
                        xticklabels=lmbda_values, yticklabels=learning_rates)
 
-    # TODO: remove the save fig
     ax.set_title("Training R2-score")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
@@ -353,11 +345,12 @@ def main_RIDGE(x_values, y_values, z_values, no_of_minibatches=10, n_epochs=200,
     plt.show()
 
 
-
 if __name__ == '__main__':
     n = 500
     noise = 0.1
     x_values, y_values, z_values = helper.generate_data(n, noise)
 
+    main_OLS_scale_learning(x_values, y_values, z_values)
+    exit()
     main_OLS(x_values, y_values, z_values)
     # main_RIDGE(x_values, y_values, z_values)
