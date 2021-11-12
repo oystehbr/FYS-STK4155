@@ -8,8 +8,8 @@
 We have added # TODO files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
 getting in the report. Two files for collecting all activation functions and cost-functions used in the project. Then we have our main-files, that is a file including the Neural Netork class and the gradient descent method. Last one is a "little" helper file, which contains several functions we are using often (copied from project1, and added some new ones).
 
-#### >> test_project_1.py 🎓🧪
-Function for testing the different exercises. The file contains an easy way to reproduce **exerciseX.py**, with the preferred parameters. We have created the exercises chronologically, so hopefully there will be no surprises. 
+#### >> test_project_2.py 🎓🧪
+Function for testing results that we present in the report. The file contains an easy way to reproduce **test X**, with the preferred parameters. The preffered parameters may or may not be those we are refering to in the report. Some of the values may or may not need to be changed for the results to be the same as we are getting in the report. 
 
 ##### *How to use this file properly:*
 # TODO: write this better
@@ -38,7 +38,7 @@ Includes three functions:
 - TODO: maybe delete -> move stuff to activation-funciton.py -> maybe double. I don't know
 
 #### >> FF_Neural_Network.py 🔗🕸
-Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers.
+Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers. 
 
 **Neural_Network**-class:
 
