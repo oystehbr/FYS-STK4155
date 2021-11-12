@@ -30,25 +30,26 @@ Analysis of the gradient descent algorithm, and comparing it
 against the results of project 1. For the Ridge case, it will provide
 a seaborn visualization with hyperparameter lambda and the learning rate
 """
-test1 = False
+
+test1 = True
 if test1:
     print('>> RUNNING TEST 1:')
     # Generating some data (Franke Function)
     n = 100
-    noise = 0
+    noise = 0.01
     x_values, y_values, z_values = helper.generate_data(n, noise)
-    number_of_epochs = 50
+    number_of_epochs = 10
     # TODO: Doesn't work for more degrees
-    degree = 1  # complexity of the model
-    gamma = 0.1  # the momentum of the stochastic gradient decent
+    degree = 5  # complexity of the model
+    gamma = 0.7  # the momentum of the stochastic gradient decent
 
     "Set to true, stochastic gradient decent testing with OLS"
-    run_main_OLS = False
+    run_main_OLS = True
     if run_main_OLS:
         print('> Analysing the gradient descent algorithm with OLS')
 
         # Set the number of minibatches you want to analyse
-        list_number_of_minibatches = [1, n*0.8]
+        list_number_of_minibatches = [1, 5, 8, 10, 16, 20, 40, n*0.8]
         gradient_descent.main_OLS(
             x_values=x_values, y_values=y_values, z_values=z_values,
             list_no_of_minibatches=list_number_of_minibatches,
@@ -58,7 +59,7 @@ if test1:
 
     no_of_minibatches = 20
     "Set to true, stochastic gradient decent testing with RIDGE"
-    run_main_RIDGE = True
+    run_main_RIDGE = False
     if run_main_RIDGE:
         print('> Analysing the gradient descent algorithm with RIDGE')
         gradient_descent.main_RIDGE(
@@ -74,18 +75,20 @@ if test1:
 
 """
 TEST 2
-Analysis of the Neural Network class, with data from the
-Franke Function in project 1. Here you can set the parameters as
-preffered. You will be provided with the plot of the value of cost-function
-vs. the iteration number (of SGD) in the training of the model (if some keep-boolean is true).
-You will also get the R2-score of the training and testing data.
+DATASET: FRANKE FUNCTION (regression case)
+
+Here you are able to try out the neural network and see the result in the form of 
+R2-score (of both training and test data). We have also provided the 
+opportunity to look at the cost-value over the training time (iterations of the 
+SGD-algorithm).
 """
+
 test2 = False
 if test2:
     print('>> RUNNING TEST 2:')
     # Initializing some data
-    n = 200
-    noise = 0
+    n = 100
+    noise = 0.01
     x1, x2, y = helper.generate_data(n, noise)
     X = np.array(list(zip(x1, x2)))
     y = y.reshape(-1, 1)
@@ -134,16 +137,19 @@ if test2:
 
 """
 TEST 3
+DATASET: FRANKE FUNCTION (regression case)
+
 Testing the Neural Network, vs. OLS- and RIDGE-regression. It will
 provide the results from the three different methods in R2-score. And the
 time spent for creating these models.
 """
+
 test3 = False
 if test3:
     print('>> RUNNING TEST 3:')
     # Initializing some data
-    n = 200
-    noise = 0
+    n = 100
+    noise = 0.01
     x1, x2, y = helper.generate_data(n, noise)
     X = np.array(list(zip(x1, x2)))
     y = y.reshape(-1, 1)
@@ -232,8 +238,8 @@ DATASET: FRANKE FUNCTION (regression case)
 
 Optimizing the hyperparameter lmbda and the learning rate by looking over 
 a seaborn plot. Will be measured in R2-score for both training and test-data. 
-
 """
+
 test4 = False
 if test4:
     print('>> RUNNING TEST 4:')
@@ -324,15 +330,15 @@ if test4:
 
 """
 TEST 5:
-Classification Problem: here are you able to set different activation functions,
-cost-functions, and different parameters for the Neural Network and SGD. It will,
-also provide the accuracy_score of the training and testing data - and here we consider
-the breast-cancer data from scikit learn. A plot will be provided, if not turned of
-(set keep_accuracy = False). This will show the accuracy of the training vs. amount of
-iterations in the SGD.
+DATASET: CANCER DATA (classification case)
+
+Here you are able to try out the neural network and see the result in the form of 
+an accuracy score (of both training and test data). We have also provided the 
+opportunity to look at the accuracy score over the training time (iterations of the 
+SGD-algorithm).
 """
 
-test5 = False
+test5 = True
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
@@ -341,7 +347,7 @@ if test5:
         n_components)
 
     # Setting the architecture of the Neural Network
-    node_list = [2]*1
+    node_list = [20]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -353,9 +359,9 @@ if test5:
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
         n_epochs=20,
-        batch_size=10,
+        batch_size=14,
         gamma=0.8,
-        eta=0.01,
+        eta=0.001,
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
@@ -741,7 +747,7 @@ if test10:
     )
 
     batch_sizes = np.arange(2, 10, 2)
-    gammas = [0.1, 0.2, 0.4, 0.6, 0.8] 
+    gammas = [0.1, 0.2, 0.4, 0.6, 0.8]
     train_R2_score = np.zeros((len(batch_sizes), len(gammas)))
     test_R2_score = np.zeros((len(batch_sizes), len(gammas)))
     iter = 0
@@ -798,7 +804,7 @@ DATASET: CANCER DATA (classification case)
 Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
 by looking over a seaborn plot. Will be measured in accuracy-score for both training and test-data. 
 """
-test11 = True
+test11 = False
 if test11:
     print('>> RUNNING TEST 11:')
     # Loading the training and testing dataset

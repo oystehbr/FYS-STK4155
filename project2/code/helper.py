@@ -326,6 +326,39 @@ def seaborn_plot_batchsize_gamma(score, x_tics, y_tics, score_name, save_name=No
     plt.show()
 
 
+def seaborn_plot_batchsize_eta(score, x_tics, y_tics, score_name, save_name=None):
+    """
+    # TODO: change description, ,and docs
+    Seaborn plot of the combination of lambda and eta values will be 
+    showned and saved if save_name is provided.
+
+    :param score (list[list]):
+        the scores of lambda and eta values
+    :param x_tics (np.ndarray):
+        learning rates, eta
+    :param y_tics (np.ndarray):
+        number of minibatches
+    :param score_name (str):
+        name of the score-evaluation, for plotting. 
+        e.g. R2_score
+    :param save_name (str), default = None:
+        the name, the plot will be saved in
+    """
+
+    sns.set()
+    fig, ax = plt.subplots(figsize=(8, 8))
+    sns.heatmap(score, annot=True, ax=ax, cmap="viridis",
+                xticklabels=x_tics, yticklabels=y_tics)
+
+    ax.set_title(f'{score_name}')
+    ax.set_xlabel("$\eta$")
+    ax.set_ylabel("number of minibatches")
+
+    if save_name != None:
+        plt.savefig(save_name)
+    plt.show()
+
+
 def load_cancer_data(n):
     """
     Loading the cancer_data from scikit-learn. Selecting the 
