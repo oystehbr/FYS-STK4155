@@ -35,7 +35,7 @@ def gradient_descent(theta_init, eta, C, N, x, y, gamma=0, tol=1e-14):
     M = 10  # size of minibatch
     m = int(n/M)
 
-    # If we want the general gradient decent -> two functions in class tho
+    # If we want the general gradient descent -> two functions in class tho
     # TODO: maybe update eta value
     v = eta*grad_C(theta_init, x, y)
 

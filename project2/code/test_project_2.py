@@ -26,6 +26,8 @@ import seaborn as sns
 
 """
 TEST 1
+DATASET: FRANKE FUNCTION (regression case)
+
 Analysis of the gradient descent algorithm, and comparing it
 against the results of project 1. For the Ridge case, it will provide
 a seaborn visualization with hyperparameter lambda and the learning rate
@@ -43,7 +45,7 @@ if test1:
     degree = 5  # complexity of the model
     gamma = 0.7  # the momentum of the stochastic gradient decent
 
-    "Set to true, stochastic gradient decent testing with OLS"
+    "Set to true, stochastic gradient descent testing with OLS"
     run_main_OLS = True
     if run_main_OLS:
         print('> Analysing the gradient descent algorithm with OLS')
@@ -58,7 +60,7 @@ if test1:
         )
 
     no_of_minibatches = 20
-    "Set to true, stochastic gradient decent testing with RIDGE"
+    "Set to true, stochastic gradient descent testing with RIDGE"
     run_main_RIDGE = False
     if run_main_RIDGE:
         print('> Analysing the gradient descent algorithm with RIDGE')
@@ -144,7 +146,7 @@ provide the results from the three different methods in R2-score. And the
 time spent for creating these models.
 """
 
-test3 = True
+test3 = False
 if test3:
     print('>> RUNNING TEST 3:')
     # Initializing some data
@@ -491,7 +493,7 @@ test7 = False
 if test7:
     print('>> RUNNING TEST 7:')
     # Loading the training and testing dataset
-    n_components = 10
+    n_components = 2
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
@@ -569,7 +571,7 @@ if test8:
 
     time_NN_start = time.time()
     # Setting the architecture of the Neural Network
-    node_list = [2]*1
+    node_list = [20]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -991,9 +993,8 @@ DATASET: FRANKE FUNCTION (regression case)
 
 Analysis of the gradient descent algorithm, is scaling/ updating of
 the learning rate necessary?
-
 """
-test13 = True
+test13 = False
 if test13:
     print('>> RUNNING TEST 13:')
     n = 100
