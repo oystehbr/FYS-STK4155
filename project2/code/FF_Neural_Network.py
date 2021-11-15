@@ -242,7 +242,7 @@ class Neural_Network():
                     # Reset the activation function output layer
                     self.activation_function_output = the_activation_function_output
 
-                # Is able to save us from local minimum, but commented out (not used anymore)
+                # # Is able to save us from local minimum, but commented out (not used anymore)
                 # if sum(abs(self.y_hat[0] - self.y_hat) < tol) == len(self.y_hat) and self.y_hat[0] != 0 and not self.keep_accuracy_score:
                 #     print('>> Predicting all same values, unstable values')
                 #     self.initialize_the_biases()

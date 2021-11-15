@@ -15,9 +15,9 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
-from FF_Neural_Network_new import Neural_Network
+from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
-from cost_functions import MSE, logistic_cost_NN, cost_logistic_regression, prob
+from cost_functions import logistic_cost_NN, cost_logistic_regression, prob
 import time
 import numpy as np
 import gradient_descent
