@@ -26,6 +26,8 @@ import seaborn as sns
 
 """
 TEST 1
+DATASET: FRANKE FUNCTION (regression case)
+
 Analysis of the gradient descent algorithm, and comparing it
 against the results of project 1. For the Ridge case, it will provide
 a seaborn visualization with hyperparameter lambda and the learning rate
@@ -991,7 +993,6 @@ DATASET: FRANKE FUNCTION (regression case)
 
 Analysis of the gradient descent algorithm, is scaling/ updating of
 the learning rate necessary?
-
 """
 test13 = False
 if test13:
