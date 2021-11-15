@@ -31,20 +31,20 @@ against the results of project 1. For the Ridge case, it will provide
 a seaborn visualization with hyperparameter lambda and the learning rate
 """
 
-test1 = False
+test1 = True
 if test1:
     print('>> RUNNING TEST 1:')
     # Generating some data (Franke Function)
-    n = 100
+    n = 500
     noise = 0.01
     x_values, y_values, z_values = helper.generate_data(n, noise)
-    number_of_epochs = 10
+    number_of_epochs = 200
 
-    degree = 5  # complexity of the model
+    degree = 4  # complexity of the model
     gamma = 0.7  # the momentum of the stochastic gradient decent
 
     "Set to true, stochastic gradient decent testing with OLS"
-    run_main_OLS = True
+    run_main_OLS = False
     if run_main_OLS:
         print('> Analysing the gradient descent algorithm with OLS')
 
@@ -59,7 +59,7 @@ if test1:
 
     no_of_minibatches = 20
     "Set to true, stochastic gradient decent testing with RIDGE"
-    run_main_RIDGE = False
+    run_main_RIDGE = True
     if run_main_RIDGE:
         print('> Analysing the gradient descent algorithm with RIDGE')
         gradient_descent.main_RIDGE(
@@ -144,7 +144,7 @@ provide the results from the three different methods in R2-score. And the
 time spent for creating these models.
 """
 
-test3 = True
+test3 = False
 if test3:
     print('>> RUNNING TEST 3:')
     # Initializing some data
@@ -491,19 +491,19 @@ test7 = False
 if test7:
     print('>> RUNNING TEST 7:')
     # Loading the training and testing dataset
-    n_components = 10
+    n_components = 2
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = helper.load_cancer_data(
         n_components)
 
-    learning_rates = np.logspace(0, -4, 5)
+    learning_rates = np.logspace(1, -3, 5)
     lmbda_values = np.logspace(-1, -7, 7)
 
     train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
-    n_epochs = 5
-    batch_size = 30
-    gamma = 0.4
+    n_epochs = 40
+    batch_size = 14
+    gamma = 0.8
     iter = 0
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
@@ -557,7 +557,7 @@ DATASET: CANCER DATA (classification case)
 Comparison: logistic regression vs classification with Neural Network. Comparing
 the R2-score on testing and training data, and the time spent on training the model.
 """
-test8 = False
+test8 = True
 if test8:
     print('>> RUNNING TEST 8:')
     "First, setting up the Neural Network and finding the results"
@@ -569,7 +569,7 @@ if test8:
 
     time_NN_start = time.time()
     # Setting the architecture of the Neural Network
-    node_list = [2]*1
+    node_list = [20]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -580,21 +580,21 @@ if test8:
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=20,
-        batch_size=10,
-        gamma=0.8,
-        eta=0.01,
+        n_epochs=4,
+        batch_size=14,
+        gamma=0.5,
+        eta=0.001,
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN)
-    # FFNN.set_activation_function_hidden_layers('sigmoid')
+    FFNN.set_activation_function_hidden_layers('RELU')
     FFNN.set_activation_function_output_layer('sigmoid')
     FFNN.train_model(X_cancer_train, y_cancer_train)
 
     # Change the activation function to predict 0 or 1's.
     FFNN.set_activation_function_output_layer('sigmoid_classification')
-    print('>>>>> Results of classification problem with Neural Network <<<<<')
+    print('>>> Results of classification problem with Neural Network <<<')
     print(
         f'ACCURACY_train = {helper.accuracy_score(FFNN.feed_forward(X_cancer_train),  y_cancer_train): .4f}')
     print(
@@ -608,18 +608,18 @@ if test8:
         X=X_cancer_train, y=y_cancer_train,
         # initial guess of the betas
         theta_init=np.array([0.1]*(X_cancer_train.shape[1] + 1)),
-        eta=0.01,
+        eta=0.1,
         cost_function=cost_logistic_regression,
-        n_epochs=30, batch_size=10,
+        n_epochs=3, batch_size=14,
         gamma=0.8,
-        lmbda=1e-4
+        lmbda=1e-3
     )
 
     # Finding the predicted values
     predicted_values_train = np.where(prob(theta, X_cancer_train) >= 0.5, 1, 0)
     predicted_values_test = np.where(prob(theta, X_cancer_test) >= 0.5, 1, 0)
 
-    print('\n>>>>> Results of logistic regression, with SGD <<<<<')
+    print('\n>>> Results of logistic regression, with SGD <<<')
     print(
         f'ACCURACY_train => {helper.accuracy_score(predicted_values_train, y_cancer_train): .4f}')
     print(
@@ -993,7 +993,7 @@ Analysis of the gradient descent algorithm, is scaling/ updating of
 the learning rate necessary?
 
 """
-test13 = True
+test13 = False
 if test13:
     print('>> RUNNING TEST 13:')
     n = 100
