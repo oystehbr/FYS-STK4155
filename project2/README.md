@@ -29,7 +29,7 @@ This is our helper function. The functions that are included in this file are us
 #### >> cost_functions.py 💰💸
 - As the filename highlights, collection of the different cost-functions we are using in this project
 
-#### >> gradient_descent.py 🏔📈
+#### >> gradient_descent.py 🏔📉
 Includes three functions:
 - **SGD**-function: do stochastic gradient descent and optimize against a cost-function that will be provided into the function.
 - **main_OLS**-function: function for get result for finding the optimal learning rate and number of mini-batches, provides a R2-score (seaborn) plot.
@@ -53,8 +53,6 @@ Inside this file, we have created a Neural Network class. We have provided great
 - **set_activation_function_output_layers**-method: method for setting the activation function for the output layer
 - **set_cost_function**-method: method for setting the cost function for the Neural Network to optimize against. It will try to train the model to achieve as low cost as possible.
 - **train_model**-method: fancy name for calling the SGD method. 
-
-
 
 
 
