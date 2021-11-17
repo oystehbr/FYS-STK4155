@@ -2,7 +2,7 @@
 
 ## Report - folder 📒📖
 
-#### project_1_FYS_STK4155.pdf 📈📝
+#### project_2_FYS_STK4155.pdf 📈📝
 
 ## Code - folder 🔐💬
 We have added the python files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
