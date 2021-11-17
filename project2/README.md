@@ -36,7 +36,7 @@ Includes three functions:
 - **main_RIDGE**-function: using stochastic gradient descent to find optimal hyperparameter lambda and learning rate, by looking at some seaborn plot.
 
 #### >> FF_Neural_Network.py 🔗🕸
-Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers. 
+Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers. The class will not scale the data for you, so if you want a scaled data set, you need to do this in advance of the training.
 
 You can initialize an instance of the Neural_Network class by the following code:
 ```
