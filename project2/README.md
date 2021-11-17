@@ -38,6 +38,16 @@ Includes three functions:
 #### >> FF_Neural_Network.py 🔗🕸
 Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers. 
 
+You can initialize an instance of the Neural_Network class by the following code:
+```
+FFNN = Neural_Network(
+        no_input_nodes=2,
+        no_output_nodes=1,
+        node_list=[3, 5, 6]
+    )
+```
+where in this case, the number of input nodes are 2, the number of output nodes is 1 and the number of nodes in the three hidden layers are 3, 5 and 6 (respectively).
+
 **Neural_Network**-class:
 
 - **\_\_init__**-method: initialize the Neural Network, initializes the weights according to the standard normal distribution and the biases with a value of 0.01 for every node. It will also set some default activation function for the hidden- and outputlayer, which can be reinitialized with a call on a different method inside the class. 
