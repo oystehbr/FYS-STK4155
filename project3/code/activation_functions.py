@@ -74,6 +74,10 @@ def sigmoid(z, deriv=False):
         return 1/(1 + np.exp(-z))
 
 
+def softmax(z):
+    return np.exp(z) / sum(np.exp(z))
+
+
 def sigmoid_classification(z, deriv=False):
     """
     Apply the sigmoid activation function to

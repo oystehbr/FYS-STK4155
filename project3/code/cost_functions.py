@@ -18,6 +18,11 @@ def logistic_cost_NN(y_hat, y):
     return -np.sum(y*np.log(y_hat) + (1-y)*np.log(1 - y_hat))
 
 
+def logistic_cost_NN_multi(y_hat, y):
+
+    return "https://www.analyticsvidhya.com/blog/2021/02/cost-function-is-no-rocket-science/"
+
+
 def cost_logistic_regression(beta, X, y, lmbda=0):
     """
     The cost function of the logistic regression, calculates the 

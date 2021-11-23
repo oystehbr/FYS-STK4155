@@ -230,7 +230,7 @@ def predict_output(x_train, y_train, z_train, x_test, y_test, degree: int, regre
 
 def seaborn_plot_lmbda_learning(score, x_tics, y_tics, score_name, save_name=None):
     """
-    Seaborn plot of the combination of lambda and eta values will be 
+    Seaborn plot of the combination of lambda and eta values will be
     shown and saved if save_name is provided.
 
     :param score (list[list]):
@@ -240,7 +240,7 @@ def seaborn_plot_lmbda_learning(score, x_tics, y_tics, score_name, save_name=Non
     :param y_tics (np.ndarray):
         the eta values that were used
     :param score_name (str):
-        name of the score-evaluation, for plotting title. 
+        name of the score-evaluation, for plotting title.
     :param save_name (str), default = None:
         the name of the plot, for saving (including .png)
     """
@@ -271,7 +271,7 @@ def seaborn_plot_architecture(score, x_tics, y_tics, score_name, save_name=None)
     :param y_tics (np.ndarray):
         the hidden nodes values used
     :param score_name (str):
-        name of the score-evaluation, for plotting title. 
+        name of the score-evaluation, for plotting title.
     :param save_name (str), default = None:
         the name of the plot, for saving (including .png)
     """
@@ -297,11 +297,11 @@ def seaborn_plot_batchsize_gamma(score, x_tics, y_tics, score_name, save_name=No
     :param score (list[list]):
         the scores of lambda and eta values
     :param x_tics (np.ndarray):
-        the gamma values that were used 
+        the gamma values that were used
     :param y_tics (np.ndarray):
         the batchsize values that were used
     :param score_name (str):
-        name of the score-evaluation, for plotting title. 
+        name of the score-evaluation, for plotting title.
     :param save_name (str), default = None:
         the name of the plot, for saving (including .png)
     """
@@ -322,7 +322,7 @@ def seaborn_plot_batchsize_gamma(score, x_tics, y_tics, score_name, save_name=No
 
 def seaborn_plot_no_minibatches_eta(score, x_tics, y_tics, score_name, save_name=None):
     """
-    Seaborn plot of the combination of the number of minibatches and eta values will be 
+    Seaborn plot of the combination of the number of minibatches and eta values will be
     showned and saved if save_name is provided.
 
     :param score (list[list]):
@@ -332,7 +332,7 @@ def seaborn_plot_no_minibatches_eta(score, x_tics, y_tics, score_name, save_name
     :param y_tics (np.ndarray):
         number of minibatches
     :param score_name (str):
-        name of the score-evaluation, for plotting title. 
+        name of the score-evaluation, for plotting title.
     :param save_name (str), default = None:
         the name of the plot, for saving (including .png)
     """
@@ -351,25 +351,56 @@ def seaborn_plot_no_minibatches_eta(score, x_tics, y_tics, score_name, save_name
     plt.show()
 
 
+def seaborn_plot_max_depth_and_min_sample_leaf(score, x_tics, y_tics, score_name, save_name=None):
+    """
+    Seaborn plot of the combination of lambda and eta values will be
+    shown and saved if save_name is provided.
+
+    :param score (list[list]):
+        the scores of lambda and eta values
+    :param x_tics (np.ndarray):
+        the min_sample_leaf values that were used
+    :param y_tics (np.ndarray):
+        the max_depth values that were used
+    :param score_name (str):
+        name of the score-evaluation, for plotting title.
+    :param save_name (str), default = None:
+        the name of the plot, for saving (including .png)
+    """
+
+    sns.set()
+    fig, ax = plt.subplots(figsize=(8, 8))
+    sns.heatmap(score, annot=True, ax=ax, cmap="viridis",
+                xticklabels=x_tics, yticklabels=y_tics)
+
+    ax.set_title(f'{score_name}')
+    ax.set_xlabel("min sample leaf")
+    ax.set_ylabel("max depth")
+
+    if save_name != None:
+        plt.savefig(save_name)
+    plt.show()
+
+
 def load_cancer_data(n):
     """
-    Loading the cancer_data from scikit-learn. Selecting the 
-    features with the highest explained variance ratio (the first 
-    #n) and returning those
+    Loading the cancer_data from scikit-learn. Selecting the
+    features with the highest explained variance ratio (the first
+    # n) and returning those
 
     :param n (int):
-        amount of components we want to return 
+        amount of components we want to return
 
     :return tuple(np.ndarray):
         - Input data, training
-        - Input data, testing 
-        - Target data, training  
+        - Input data, testing
+        - Target data, training
         - Target data, testing
     """
 
     # Loading cancer data
     cancer = load_breast_cancer()
-
+    print(type(cancer))
     # Parameter labels (if you want, not used)
     labels = cancer.feature_names[0:30]
 
@@ -388,23 +419,40 @@ def load_cancer_data(n):
 
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
 
-    # print(pca.explained_variance_ratio_)
+    print(pca.explained_variance_ratio_)
 
 
-def load_diabetes_data(n):
+def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=False):
+    """
+    # TODO: docstrings
+    """
 
     path = "data/diabetes_012_health_indicators_BRFSS2015.csv"
-
+    # Loading the data into pandas
     df = pd.read_csv(
         path,
         sep=","
     )
 
-    # TODO: shuffle data
-    #TODO: PCA
-    # TODO: maybe remove rows
+    diabetes_values = df.values
 
-    print(df.values)
+    # Shuffle the data
+    np.random.shuffle(diabetes_values)
 
+    X_input = diabetes_values[:m_observations, 1:]
+    y_target = diabetes_values[:m_observations, 0].reshape(-1, 1)
 
-load_diabetes_data(2)
+    pca = PCA(n_components)
+
+    # Only include the "n_components" most important features
+    X_input_PCA = pca.fit_transform(X_input)
+
+    if show_explained_ratio:
+        print(pca.explained_variance_ratio_)
+
+    X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
+
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+        X_input_PCA, y_target)
+
+    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
