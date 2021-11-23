@@ -1,6 +1,0 @@
-- much plots, and results?
-- how do we comment on choice of parameters?
-    - can we just say the plot is nicer / easier to comment?
-- do we need to scale data anywhere?
-- comment each package we used? how to import etc.?
-

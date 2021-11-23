@@ -2,7 +2,7 @@
 
 ## Report - folder 📒📖
 
-#### project_1_FYS_STK4155.pdf 📈📝
+#### project_2_FYS_STK4155.pdf 📈📝
 
 ## Code - folder 🔐💬
 We have added the python files to this folder. One for testing all the features of our code, and to be able to verify the results we are 
@@ -29,14 +29,24 @@ This is our helper function. The functions that are included in this file are us
 #### >> cost_functions.py 💰💸
 - As the filename highlights, collection of the different cost-functions we are using in this project
 
-#### >> gradient_descent.py 🏔📈
+#### >> gradient_descent.py 🏔📉
 Includes three functions:
 - **SGD**-function: do stochastic gradient descent and optimize against a cost-function that will be provided into the function.
 - **main_OLS**-function: function for get result for finding the optimal learning rate and number of mini-batches, provides a R2-score (seaborn) plot.
 - **main_RIDGE**-function: using stochastic gradient descent to find optimal hyperparameter lambda and learning rate, by looking at some seaborn plot.
 
 #### >> FF_Neural_Network.py 🔗🕸
-Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers. 
+Inside this file, we have created a Neural Network class. We have provided great docstrings to the different methods in the class, but we will give out some short information of them here. The class is able to create a neural network with various input nodes, hidden nodes and hidden layers. The class will not scale the data for you, so if you want a scaled data set, you need to do this in advance of the training.
+
+You can initialize an instance of the Neural_Network class by the following code:
+```
+FFNN = Neural_Network(
+        no_input_nodes=2,
+        no_output_nodes=1,
+        node_list=[3, 5, 6]
+    )
+```
+where in this case, the number of input nodes are 2, the number of output nodes is 1 and the number of nodes in the three hidden layers are 3, 5 and 6 (respectively).
 
 **Neural_Network**-class:
 
@@ -53,8 +63,6 @@ Inside this file, we have created a Neural Network class. We have provided great
 - **set_activation_function_output_layers**-method: method for setting the activation function for the output layer
 - **set_cost_function**-method: method for setting the cost function for the Neural Network to optimize against. It will try to train the model to achieve as low cost as possible.
 - **train_model**-method: fancy name for calling the SGD method. 
-
-
 
 
 
