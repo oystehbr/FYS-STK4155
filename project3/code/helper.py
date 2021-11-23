@@ -389,3 +389,22 @@ def load_cancer_data(n):
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
 
     # print(pca.explained_variance_ratio_)
+
+
+def load_diabetes_data(n):
+
+    path = "data/diabetes_012_health_indicators_BRFSS2015.csv"
+
+    df = pd.read_csv(
+        path,
+        sep=","
+    )
+
+    # TODO: shuffle data
+    #TODO: PCA
+    # TODO: maybe remove rows
+
+    print(df.values)
+
+
+load_diabetes_data(2)
