@@ -2,4 +2,8 @@ Kan man få trekk for få metoder?
 Decision tree and Random forest
     - Kombinere med PCA?
     - Predikerer bare 0 for det meste - klarer ikke å lage så mye bedre modell for testing data (har mye dataset som predikerer 0)
-    
+
+
+We are working with "Imbalanced Data", approaches to fix this?
+- https://www.analyticsvidhya.com/blog/2017/03/imbalanced-data-classification/
+- https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb

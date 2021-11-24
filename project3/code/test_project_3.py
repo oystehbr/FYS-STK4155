@@ -21,7 +21,8 @@ from gradient_descent import SGD
 from cost_functions import logistic_cost_NN, logistic_cost_NN_multi, cost_logistic_regression, prob, \
     cost_logistic_regression_multi, prob_multi
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier, BaggingRegressor
+from sklearn.svm import SVC
 from sklearn import tree
 import time
 import numpy as np
@@ -561,7 +562,7 @@ if test8:
 """
 TEST 9:
 DATASET: DIABETES DATA (classification case)
-METHOD: Bagging
+METHOD: Gradient Boosting
 
 Use scikitlearn's decision tree, testing
 """
@@ -576,7 +577,8 @@ if test9:
         n_components, m_observations)
 
     # Create randomforest instance, with amount of max_depth
-    clf = BaggingClassifier(base_estimator=SVC(), n_estimators=10)
+    clf = GradientBoostingClassifier(
+        n_estimators=10, learning_rate=0.1, max_depth=1)
 
     # Fit the data to the model we have created
     clf.fit(X_train, y_train)
@@ -608,15 +610,15 @@ if test10:
     X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
         n_components, m_observations)
 
-    max_depths = np.arange(1, 40, 1)
+    max_depths = np.arange(1, 21, 1)
 
     train_accuracy_score = np.zeros(len(max_depths))
     test_accuracy_score = np.zeros(len(max_depths))
 
     iter = 0
     for i, max_depth in enumerate(max_depths):
-        clf = RandomForestClassifier(
-            max_depth=max_depth)
+        clf = GradientBoostingClassifier(
+            n_estimators=3, learning_rate=0.1, max_depth=max_depth, random_state=100)
 
         # Fit the data to the model we have created
         clf.fit(X_train, y_train)
