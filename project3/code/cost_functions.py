@@ -19,8 +19,9 @@ def logistic_cost_NN(y_hat, y):
 
 
 def logistic_cost_NN_multi(y_hat, y):
+    "https://www.analyticsvidhya.com/blog/2021/02/cost-function-is-no-rocket-science/"
 
-    return "https://www.analyticsvidhya.com/blog/2021/02/cost-function-is-no-rocket-science/"
+    return -np.sum(np.dot(y, np.log(y_hat)))
 
 
 def cost_logistic_regression(beta, X, y, lmbda=0):
@@ -45,6 +46,27 @@ def cost_logistic_regression(beta, X, y, lmbda=0):
     return -np.sum(y*np.log(prob(beta, X)) + (1-y)
                    * np.log(1 - prob(beta, X))) + lmbda*np.sum(beta**2)
 
+def cost_logistic_regression_multi(beta, X, y, lmbda=0):
+    """
+    The cost function of the logistic regression, calculates the 
+    predicted values w.r.t. the given betas and X.
+
+    :param beta (np.ndarray):
+        the regression parameters
+    :param X (np.ndarray):
+        input values (dependent variables)
+    :param y (np.ndarray):
+        actual output values
+    :param lmbda (float):
+        do not think about this, it will not be used. Just for simplicity of
+        the code structure of the SGD
+
+    :return (float):
+        the value of the cost function
+    """
+
+    return -np.sum(np.dot(y, np.log(prob_multi(beta, X)))) + lmbda*np.sum(beta**2)
+
 
 def prob(beta, X):
     """
@@ -62,6 +84,10 @@ def prob(beta, X):
     """
 
     return (np.exp(beta[0] + X @ beta[1:]) / (1 + np.exp(beta[0] + X @ beta[1:]))).reshape(-1, 1)
+
+def prob_multi(beta, X):
+    print(np.exp(X @ beta[1:]) /  np.sum(np.exp(X @ beta)))
+    return np.exp(X @ beta[1:]) /  np.sum(np.exp(X @ beta))
 
 
 def MSE(y_hat, y):

@@ -717,7 +717,6 @@ if test7:
         save_name=f'plots/test7/test7_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_test.png'
     )
 
-
 """
 TEST 8:
 DATASET: CANCER DATA (classification case)
