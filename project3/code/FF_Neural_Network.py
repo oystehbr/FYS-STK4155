@@ -7,7 +7,7 @@ The weights in the network will be initalizied by the normal distribution
 and the biases will be initialized to 0.01
 """
 
-from activation_functions import sigmoid, RELU, Leaky_RELU, sigmoid_classification
+from activation_functions import sigmoid, RELU, Leaky_RELU, sigmoid_classification, softmax
 from autograd import elementwise_grad as egrad
 from cost_functions import MSE
 import autograd.numpy as np
@@ -372,7 +372,7 @@ class Neural_Network():
         Setting the activation function for the output layer.
 
         :param activation_name (str), default = '':
-            the preffered activation function: sigmoid, Leaky_RELU, RELU or sigmoid_classification
+            the preffered activation function: sigmoid, Leaky_RELU, RELU, sigmoid_classification or softmax
         """
 
         if activation_name.lower() == 'sigmoid'.lower():
@@ -383,6 +383,8 @@ class Neural_Network():
             self.activation_function_output = RELU
         elif activation_name.lower() == 'sigmoid_classification'.lower():
             self.activation_function_output = sigmoid_classification
+        elif activation_name.lower() == 'softmax'.lower():
+            self.activation_function_output = softmax
         elif activation_name.lower() == '':
             self.activation_function_output = None
         else:

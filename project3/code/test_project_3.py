@@ -18,7 +18,8 @@ then this file will be very easy to read/ use
 import matplotlib.pyplot as plt
 from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
-from cost_functions import logistic_cost_NN, cost_logistic_regression, prob
+from cost_functions import logistic_cost_NN, logistic_cost_NN_multi, cost_logistic_regression, prob, \
+    cost_logistic_regression_multi, prob_multi
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
 from sklearn import tree
@@ -37,9 +38,9 @@ METHOD: Neural Network
 Here you are able to try out the neural network and see the result in the form of
 an accuracy score (of both training and test data). We have also provided the
 opportunity to look at the accuracy score over the training time (iterations of the
-SGD-algorithm).
+SGD-algorithm)
 """
-test1 = False
+test1 = True
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
@@ -48,12 +49,12 @@ if test1:
         n_components)
 
     # Setting the architecture of the Neural Network
-    node_list = [20]*1
+    node_list = [4]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
         no_input_nodes=n_components,
-        no_output_nodes=1,
+        no_output_nodes=3,
         node_list=node_list
     )
 
@@ -62,28 +63,33 @@ if test1:
         n_epochs=60,
         batch_size=14,
         gamma=0.5,
-        eta=8e-4,
+        eta=8e-5,
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
-    FFNN.set_cost_function(logistic_cost_NN)
-    FFNN.set_activation_function_hidden_layers('Leaky_RELU')
-    FFNN.set_activation_function_output_layer('sigmoid')
+    FFNN.set_cost_function(logistic_cost_NN_multi)
+    FFNN.set_activation_function_hidden_layers('sigmoid')
+    FFNN.set_activation_function_output_layer('softmax')
 
     # Set keep_accuracy to True, if you wanna see accuracy vs. time (in the training)
-    keep_accuracy = True
-    FFNN.train_model(X_train, y_train,
-                     keep_accuracy_score=keep_accuracy)
+    FFNN.train_model(X_train, y_train)
+
+
+    for i, j in zip(y_train, FFNN.feed_forward(X_train)):
+        if j[2] > 0.3 or j[1]> 0.3:
+            print('------')
+            print(i)
+            print(j)
+            print('------')
+
 
     # Change the activation function to predict 0 or 1's.
-    FFNN.set_activation_function_output_layer('sigmoid_classification')
-    print(
-        f'Accuracy_train = {helper.accuracy_score(FFNN.feed_forward(X_train),  y_train)}')
-    print(
-        f'Accuracy_test = {helper.accuracy_score(FFNN.feed_forward(X_test),  y_test)}')
+    # FFNN.set_activation_function_output_layer('sigmoid_classification')
+    # print(
+    #     f'Accuracy_train = {helper.accuracy_score(FFNN.feed_forward(X_train),  y_train)}')
+    # print(
+    #     f'Accuracy_test = {helper.accuracy_score(FFNN.feed_forward(X_test),  y_test)}')
 
-    if keep_accuracy:
-        FFNN.plot_accuracy_score_last_training()
 
 
 """
@@ -505,7 +511,7 @@ Training and test data vs. complexity of the tree
 Use scikitlearn's decision tree
 """
 
-test8 = True
+test8 = False
 if test8:
     print('>> RUNNING TEST 8:')
     # Loading the training and testing dataset
@@ -593,7 +599,7 @@ Training and test data vs. complexity of the tree
 Use scikitlearn's decision tree
 """
 
-test10 = True
+test10 = False
 if test10:
     print('>> RUNNING TEST 10:')
     # Loading the training and testing dataset
@@ -639,10 +645,54 @@ if test10:
 
     plt.show()
 
+"""
+TEST 11:
+DATASET: DIABETES
+METHOD: Logistic regression
+
+Test if log reg works
+"""
+test11 = False
+if test11:
+    print(">> RUNNING TEST 11 <<")
+    n_components = 4
+    m_observations = 100
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data(n_components, m_observations)
+    n_classes = 3
+
+    n_epochs = 100
+    batch_size = 14
+    gamma = 0.8
+    iter = 0
+    eta=1
+    lmbda=0
+
+    theta, num = SGD(
+        X=X_train, y=y_train,
+        # theta_init=np.array([0.1]*(X_train.shape[1] + 1))
+        theta_init = 0.1 + np.zeros((n_classes, X_train.shape[1] + 1)),
+        eta=eta,
+        cost_function=cost_logistic_regression_multi,
+        n_epochs=n_epochs, batch_size=batch_size,
+        gamma=gamma,
+        lmbda=lmbda
+    )
+
+    softi = prob_multi(theta, X_train)
+    print(softi)
+
+    for i in range(len(softi[:, 2])):
+        if softi[i, 2] > 0.3:
+            print('-------')
+            print(softi[i])
+            print(y_train[i])
+            print('--------')
+
+
+
+
 
 exit()
-
-
 """
 TEST 8:
 DATASET: CANCER DATA (classification case)

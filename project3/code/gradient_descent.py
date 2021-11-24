@@ -53,7 +53,6 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
     m = int(n/batch_size)
 
     v = 0
-
     theta_previous = theta_init
     j = 0
     for epoch in range(n_epochs):
@@ -64,7 +63,7 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
             # Finding the k-th batch
             Xk_batch = X[k*batch_size:(k+1)*batch_size]
             yk_batch = y[k*batch_size:(k+1)*batch_size]
-
+            
             grad = grad_C(theta_previous, Xk_batch, yk_batch, lmbda)
 
             # Using the gradients and stochastic to update the theta
