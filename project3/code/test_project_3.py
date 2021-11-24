@@ -20,7 +20,7 @@ from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
 from cost_functions import logistic_cost_NN, cost_logistic_regression, prob
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
 from sklearn import tree
 import time
 import numpy as np
@@ -383,21 +383,21 @@ if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
     n_components = 5
-    m_observations = 10000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
+    m_observations = 300000
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
         n_components, m_observations)
 
     # Function to perform training with Entropy
     clf = DecisionTreeClassifier(
-        criterion='entropy', max_depth=50)
+        criterion='entropy', max_depth=1)
 
     # Fit the data to the model we have created
     clf.fit(X_train, y_train)
 
     # Look at the three
-    # text_representation = tree.export_text(clf_entropy)
-    # print(text_representation)
-    # print(clf_entropy.tree_.max_depth)
+    text_representation = tree.export_text(clf)
+    print(text_representation)
+    print(clf.tree_.max_depth)
 
     # Make predictions for
     y_pred_train = clf.predict(X_train)
@@ -413,7 +413,7 @@ TEST 6:
 DATASET: DIABETES DATA (classification case)
 METHOD: Decision tree
 
-Seaborn plot of max_depth vs. min_samples_leaf
+Training and test data vs. complexity of the tree
 Use scikitlearn's decision tree, testing
 """
 
@@ -422,11 +422,11 @@ if test6:
     print('>> RUNNING TEST 6:')
     # Loading the training and testing dataset
     n_components = 2
-    m_observations = 10000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
+    m_observations = 300000
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
         n_components, m_observations)
 
-    max_depths = np.arange(1, 40, 1)
+    max_depths = np.arange(1, 14, 1)
 
     train_accuracy_score = np.zeros(len(max_depths))
     test_accuracy_score = np.zeros(len(max_depths))
@@ -501,8 +501,8 @@ TEST 8:
 DATASET: DIABETES DATA (classification case)
 METHOD: Random forest
 
-Seaborn plot of max_depth vs. min_samples_leaf
-Use scikitlearn's decision tree, testing
+Training and test data vs. complexity of the tree
+Use scikitlearn's decision tree
 """
 
 test8 = True
@@ -510,8 +510,8 @@ if test8:
     print('>> RUNNING TEST 8:')
     # Loading the training and testing dataset
     n_components = 2
-    m_observations = 10000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
+    m_observations = 300000
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
         n_components, m_observations)
 
     max_depths = np.arange(1, 40, 1)
@@ -553,170 +553,94 @@ if test8:
 
 
 """
-TEST 6:
-DATASET: CANCER DATA (classification case)
+TEST 9:
+DATASET: DIABETES DATA (classification case)
+METHOD: Bagging
 
-Optimizing the hyperparameter lmbda and the learning rate by looking over
-a seaborn plot. Will be measured in accuracy-score for both training and test-data.
+Use scikitlearn's decision tree, testing
 """
 
-test6 = False
-if test6:
-    print('>> RUNNING TEST 6:')
+test9 = False
+if test9:
+    print('>> RUNNING TEST 9:')
+    # Loading the training and testing dataset
+    n_components = 5
+    m_observations = 10000
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
+        n_components, m_observations)
+
+    # Create randomforest instance, with amount of max_depth
+    clf = BaggingClassifier(base_estimator=SVC(), n_estimators=10)
+
+    # Fit the data to the model we have created
+    clf.fit(X_train, y_train)
+
+    # Make predictions for
+    y_pred_train = clf.predict(X_train)
+    y_pred_test = clf.predict(X_test)
+
+    print(
+        f'Accuracy_train = {helper.accuracy_score(y_pred_train, y_train)}')
+    print(
+        f'Accuracy_test = {helper.accuracy_score(y_pred_test,  y_test)}')
+
+"""
+TEST 10:
+DATASET: DIABETES DATA (classification case)
+METHOD: Bagging 
+
+Training and test data vs. complexity of the tree
+Use scikitlearn's decision tree
+"""
+
+test10 = True
+if test10:
+    print('>> RUNNING TEST 10:')
     # Loading the training and testing dataset
     n_components = 2
-    X_train, X_test, y_train, y_test = helper.load_cancer_data(
-        n_components)
+    m_observations = 300000
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
+        n_components, m_observations)
 
-    # Setting the architecture of the Neural Network
-    no_hidden_nodes = 20
-    no_hidden_layers = 1
-    node_list = [no_hidden_nodes]*no_hidden_layers
+    max_depths = np.arange(1, 40, 1)
 
-    # Initializing the Neural Network
-    FFNN = Neural_Network(
-        no_input_nodes=n_components,
-        no_output_nodes=1,
-        node_list=node_list
-    )
-
-    # Setting the preffered cost- and hidden_activation function
-    FFNN.set_cost_function(logistic_cost_NN)
-    FFNN.set_activation_function_hidden_layers('sigmoid')
-
-    # Change the activation function to predict 0 or 1's.
-    max_depths = [0.0009, 0.0008, 0.0006, 0.0004, 0.0002, 0.0001, 0.00005]
-    min_samples_leafs = np.logspace(-2, -7, 6)
-
-    train_accuracy_score = np.zeros((len(max_depths), len(min_samples_leafs)))
-    test_accuracy_score = np.zeros((len(max_depths), len(min_samples_leafs)))
-
-    n_epochs = 200
-    batch_size = 14
-    gamma = 0.9
-
-    FFNN.set_SGD_values(
-        n_epochs=n_epochs,
-        batch_size=batch_size,
-        gamma=gamma)
+    train_accuracy_score = np.zeros(len(max_depths))
+    test_accuracy_score = np.zeros(len(max_depths))
 
     iter = 0
-    for i, eta in enumerate(max_depths):
-        for j, lmbda in enumerate(min_samples_leafs):
-            # Reinitializing the weights, biases and activation function
-            output_activation = 'sigmoid'
-            FFNN.set_activation_function_output_layer(output_activation)
-            FFNN.initialize_the_weights()
-            FFNN.initialize_the_biases()
+    for i, max_depth in enumerate(max_depths):
+        clf = RandomForestClassifier(
+            max_depth=max_depth)
 
-            # Changing some SGD values
-            FFNN.set_SGD_values(
-                eta=eta,
-                lmbda=lmbda,
-            )
+        # Fit the data to the model we have created
+        clf.fit(X_train, y_train)
 
-            # Training the model
-            FFNN.train_model(X_train, y_train)
+        # Make predictions
+        y_pred_train = clf.predict(X_train)
+        y_pred_test = clf.predict(X_test)
 
-            # Testing the model against the target values, and store the results
-            FFNN.set_activation_function_output_layer(
-                'sigmoid_classification')
-            train_accuracy_score[i][j] = helper.accuracy_score(
-                y_train, FFNN.feed_forward(X_train))
-            test_accuracy_score[i][j] = helper.accuracy_score(
-                y_test, FFNN.feed_forward(X_test))
+        train_accuracy_score[i] = helper.accuracy_score(y_pred_train, y_train)
+        test_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_test)
 
-            iter += 1
-            print(
-                f'Progress: {iter:2.0f}/{len(max_depths) * len(min_samples_leafs)}')
+        iter += 1
+        print(
+            f'Progress: {iter:2.0f}/{len(max_depths)}')
 
-    # Creating the seaborn_plot
-    helper.seaborn_plot_lmbda_learning(
-        score=train_accuracy_score,
-        x_tics=min_samples_leafs,
-        y_tics=max_depths,
-        score_name='Training Accuracy',
-        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_training_14.png'
-    )
+    plt.plot(max_depths,
+             train_accuracy_score, label="Train accuracy score ")
+    plt.plot(max_depths,
+             test_accuracy_score, label="Test accuracy score ")
 
-    helper.seaborn_plot_lmbda_learning(
-        score=test_accuracy_score,
-        x_tics=min_samples_leafs,
-        y_tics=max_depths,
-        score_name='Test Accuracy',
-        save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_test_14.png'
-    )
+    plt.xlabel("Model Complexity (max depth of random forest)")
+    plt.ylabel("Accuracy score")
+    plt.legend()
+    plt.title(
+        f"Accuracy vs max depth used in the decision tree algorithm")
+
+    plt.show()
 
 
-"""
-TEST 7:
-DATASET: CANCER DATA (classification case)
-
-Logistic regression: create a seaborn plot of the hyperparameter lambda
-and the learning rate. Other SGD values, will be easy to change in the test.
-"""
-test7 = False
-if test7:
-    print('>> RUNNING TEST 7:')
-    # Loading the training and testing dataset
-    n_components = 2
-    X_train, X_test, y_train, y_test = helper.load_cancer_data(
-        n_components)
-
-    max_depths = np.logspace(1, -3, 5)
-    min_samples_leafs = np.logspace(-1, -7, 7)
-
-    train_accuracy_score = np.zeros((len(max_depths), len(min_samples_leafs)))
-    test_accuracy_score = np.zeros((len(max_depths), len(min_samples_leafs)))
-
-    n_epochs = 40
-    batch_size = 14
-    gamma = 0.8
-    iter = 0
-    for i, eta in enumerate(max_depths):
-        for j, lmbda in enumerate(min_samples_leafs):
-            theta, num = SGD(
-                X=X_train, y=y_train,
-                theta_init=np.array([0.1]*(X_train.shape[1] + 1)),
-                eta=eta,
-                cost_function=cost_logistic_regression,
-                n_epochs=n_epochs, batch_size=batch_size,
-                gamma=gamma,
-                lmbda=lmbda
-            )
-
-            # Finding the predicted values
-            predicted_values_train = np.where(
-                prob(theta, X_train) >= 0.5, 1, 0)
-            predicted_values_test = np.where(
-                prob(theta, X_test) >= 0.5, 1, 0)
-
-            # Applying the model against the target values, and store the results
-            train_accuracy_score[i][j] = helper.accuracy_score(
-                y_train, predicted_values_train)
-            test_accuracy_score[i][j] = helper.accuracy_score(
-                y_test, predicted_values_test)
-
-            iter += 1
-            print(
-                f'Progress: {iter:2.0f}/{len(max_depths) * len(min_samples_leafs)}')
-
-    # Creating the seaborn_plot
-    helper.seaborn_plot_lmbda_learning(
-        score=train_accuracy_score,
-        x_tics=min_samples_leafs,
-        y_tics=max_depths,
-        score_name='Training Accuracy',
-        save_name=f'plots/test7/test7_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_training.png'
-    )
-    helper.seaborn_plot_lmbda_learning(
-        score=test_accuracy_score,
-        x_tics=min_samples_leafs,
-        y_tics=max_depths,
-        score_name='Test Accuracy',
-        save_name=f'plots/test7/test7_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_test.png'
-    )
-
+exit()
 
 """
 TEST 8:
