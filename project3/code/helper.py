@@ -440,7 +440,7 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
     np.random.shuffle(diabetes_values)
 
     X_input = diabetes_values[:m_observations, 1:]
-    y_target = diabetes_values[:m_observations, 0].reshape(-1, 1)
+    y_target = diabetes_values[:m_observations, 0]
 
     pca = PCA(n_components)
 
@@ -454,5 +454,31 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
 
     X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
         X_input_PCA, y_target)
+
+    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+
+
+def load_diabetes_data_without_PCA(n_components, m_observations=1000):
+    """
+    # TODO: docstrings
+    """
+
+    path = "data/diabetes_012_health_indicators_BRFSS2015.csv"
+    # Loading the data into pandas
+    df = pd.read_csv(
+        path,
+        sep=","
+    )
+
+    diabetes_values = df.values
+
+    # Shuffle the data
+    np.random.shuffle(diabetes_values)
+
+    X_input = diabetes_values[:m_observations, 1:]
+    y_target = diabetes_values[:m_observations, 0]
+
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+        X_input, y_target)
 
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
