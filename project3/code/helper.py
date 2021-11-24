@@ -452,15 +452,16 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
 
     X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
 
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+    X_train, X_test, y_train, y_test = train_test_split(
         X_input_PCA, y_target)
 
-    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+    return X_train, X_test, y_train, y_test
 
 
 def load_diabetes_data_without_PCA(n_components, m_observations=1000):
     """
     # TODO: docstrings
+    https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
     """
 
     path = "data/diabetes_012_health_indicators_BRFSS2015.csv"
@@ -478,7 +479,35 @@ def load_diabetes_data_without_PCA(n_components, m_observations=1000):
     X_input = diabetes_values[:m_observations, 1:]
     y_target = diabetes_values[:m_observations, 0]
 
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+    X_train, X_test, y_train, y_test = train_test_split(
         X_input, y_target)
 
-    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+    # Doing the imbalanced data approach, oversampling
+    pd_X_org = pd.DataFrame(X_train)
+    pd_y_org = pd.DataFrame(y_train)
+
+    pd_X_duplicates_1 = pd_X_org[y_train == 1]
+    pd_y_duplicates_1 = pd_y_org[y_train == 1]
+
+    pd_X_duplicates_2 = pd_X_org[y_train == 2]
+    pd_y_duplicates_2 = pd_y_org[y_train == 2]
+
+    pd_X = pd.concat([pd_X_org, pd_X_duplicates_1, pd_X_duplicates_2])
+    pd_y = pd.concat([pd_y_org, pd_y_duplicates_1, pd_y_duplicates_2])
+
+    X_train = pd_X.values
+    y_train = pd_y.values
+    print('--------------------------------')
+
+    # TODO: After splitted in training and testing, then fix the training data,
+    # SO that the testing data, will be as untouched as possible
+
+    print(y_train)
+    print(sum(y_train == 0))
+    print(sum(y_train == 1))
+    print(sum(y_train == 2))
+
+    return X_train, X_test, y_train, y_test
+
+
+load_diabetes_data_without_PCA(2)
