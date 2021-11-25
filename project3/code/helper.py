@@ -501,17 +501,13 @@ def load_diabetes_data_without_PCA(n_components, m_observations=1000):
     # TODO: After splitted in training and testing, then fix the training data,
     # SO that the testing data, will be as untouched as possible
 
-
     return X_train, X_test, y_train, y_test
-
-
-load_diabetes_data_without_PCA(2)
 
 
 def convert_num_to_vec(y, dim):
     """
     # TODO:
-    
+
     Dimensional of the converter
     """
 
@@ -539,9 +535,85 @@ def convert_vec_to_num(y):
             if num > leader_amount:
                 leader = j
                 leader_amount = num
-        
+
         y_list[i] = leader
 
     return np.array(y_list).reshape(-1, 1)
 
 
+def oversampling_of_training_data(X_train, y_train):
+    """
+
+    https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
+    """
+
+    # Doing the imbalanced data approach, oversampling
+    pd_train = pd.DataFrame(X_train)
+    y_col = len(pd_train.columns)
+    pd_train.insert(y_col, y_col, y_train, True)
+
+    pd_train_duplicates_0 = pd_train[y_train == 0]
+    pd_train_duplicates_1 = pd_train[y_train == 1]
+    pd_train_duplicates_2 = pd_train[y_train == 2]
+
+    # Finding the maximum amount similar observations on target value
+    max_amount = len(pd_train_duplicates_0)
+    if len(pd_train_duplicates_1) > max_amount:
+        max_amount = len(pd_train_duplicates_1)
+
+    if len(pd_train_duplicates_2) > max_amount:
+        max_amount = len(pd_train_duplicates_2)
+
+    # Reproducing the occurances that are few
+    for i in range(int(max_amount/len(pd_train_duplicates_0)) - 1):
+        pd_train = pd.concat([pd_train, pd_train_duplicates_0])
+
+    for i in range(int(max_amount / len(pd_train_duplicates_1)) - 1):
+        pd_train = pd.concat([pd_train, pd_train_duplicates_1])
+
+    for i in range(int(max_amount / len(pd_train_duplicates_2)) - 1):
+        pd_train = pd.concat([pd_train, pd_train_duplicates_2])
+
+    pd_train_values = pd_train.values
+    np.random.shuffle(pd_train_values)
+
+    X_train = pd_train_values[:, :-1]
+    y_train = pd_train_values[:, -1]
+
+    return X_train, y_train
+
+
+def undersampling_of_training_data(X_train, y_train):
+    """[summary]
+    Given that class 0 has most data
+    """
+
+    # Doing the imbalanced data approach, oversampling
+    pd_train = pd.DataFrame(X_train)
+    y_col = len(pd_train.columns)
+    pd_train.insert(y_col, y_col, y_train, True)
+
+    pd_train_duplicates_0 = pd_train[y_train == 0]
+    pd_train_duplicates_1 = pd_train[y_train == 1]
+    pd_train_duplicates_2 = pd_train[y_train == 2]
+
+    if len(pd_train_duplicates_1) > len(pd_train_duplicates_2):
+        pd_train_new_0 = pd_train_duplicates_0.sample(
+            n=int(len(pd_train_duplicates_1)))
+    else:
+        pd_train_new_0 = pd_train_duplicates_0.sample(
+            n=int(len(pd_train_duplicates_2)))
+
+    pd_train = pd.concat(
+        [pd_train_new_0, pd_train_duplicates_1, pd_train_duplicates_2])
+
+    pd_train_values = pd_train.values
+    np.random.shuffle(pd_train_values)
+
+    X_train = pd_train_values[:, :-1]
+    y_train = pd_train_values[:, -1]
+
+    return X_train, y_train
+
+
+load_diabetes_data_without_PCA(2)
