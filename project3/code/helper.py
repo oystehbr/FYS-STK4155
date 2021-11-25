@@ -454,6 +454,8 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
 
     X_train, X_test, y_train, y_test = train_test_split(
         X_input_PCA, y_target)
+    
+    X_train, y_train = oversampling_of_training_data(X_train, y_train)
 
     return X_train, X_test, y_train, y_test
 
@@ -482,24 +484,7 @@ def load_diabetes_data_without_PCA(n_components, m_observations=1000):
     X_train, X_test, y_train, y_test = train_test_split(
         X_input, y_target)
 
-    # Doing the imbalanced data approach, oversampling
-    pd_X_org = pd.DataFrame(X_train)
-    pd_y_org = pd.DataFrame(y_train)
-
-    pd_X_duplicates_1 = pd_X_org[y_train == 1]
-    pd_y_duplicates_1 = pd_y_org[y_train == 1]
-
-    pd_X_duplicates_2 = pd_X_org[y_train == 2]
-    pd_y_duplicates_2 = pd_y_org[y_train == 2]
-
-    pd_X = pd.concat([pd_X_org, pd_X_duplicates_1, pd_X_duplicates_2])
-    pd_y = pd.concat([pd_y_org, pd_y_duplicates_1, pd_y_duplicates_2])
-
-    X_train = pd_X.values
-    y_train = pd_y.values
-
-    # TODO: After splitted in training and testing, then fix the training data,
-    # SO that the testing data, will be as untouched as possible
+    X_train, y_train = undersampling_of_training_data(X_train, y_train)
 
     return X_train, X_test, y_train, y_test
 

@@ -41,46 +41,48 @@ an accuracy score (of both training and test data). We have also provided the
 opportunity to look at the accuracy score over the training time (iterations of the
 SGD-algorithm)
 """
-test1 = False
+test1 = True
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
     n_components = 2
+    m_observations = 1000
     # X_train, X_test, y_train, y_test = helper.load_diabetes_data(
     #     n_components)
     
-    X_train, X_test, y_train, y_test = helper.load_cancer_data(
-        n_components)
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
+        n_components, m_observations)
 
     # Setting the architecture of the Neural Network
-    node_list = [50]*1
+    node_list = [7]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
         no_input_nodes=n_components,
-        no_output_nodes=2,
+        no_output_nodes=3,
         node_list=node_list
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=60,
+        n_epochs=100,
         batch_size=14,
         gamma=0.5,
-        eta=1e-3,
+        eta=1e-4,
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN_multi)
-    FFNN.set_activation_function_hidden_layers('sigmoid')
+    FFNN.set_activation_function_hidden_layers('leaky_RELU')
     FFNN.set_activation_function_output_layer('softmax')
 
     FFNN.train_model(X_train, y_train)
     
     y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
+    y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
 
-    
     print(helper.accuracy_score(y_train, y_pred_train))
+    print(helper.accuracy_score(y_test, y_pred_test))
 
     # Change the activation function to predict 0 or 1's.
     # FFNN.set_activation_function_output_layer('sigmoid_classification')
@@ -652,25 +654,26 @@ METHOD: Logistic regression
 
 Test if log reg works
 """
-test11 = True
+test11 = False
 if test11:
     print(">> RUNNING TEST 11 <<")
     n_components = 4
     m_observations = 1000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(n_components)
+    # X_train, X_test, y_train, y_test = helper.load_diabetes_data(n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data(n_components, m_observations)
     n_classes = 3
 
-    n_epochs = 200
-    batch_size = 14
-    gamma = 0.8
+    n_epochs = 400
+    batch_size = 50
+    gamma = 0.5
     iter = 0
-    eta=1
+    eta=1e-4
     lmbda=0
 
     theta, num = SGD(
         X=X_train, y=y_train,
         # theta_init=np.array([0.1]*(X_train.shape[1] + 1))
-        theta_init = 0.1 + np.zeros((n_classes, X_train.shape[1] + 1)),
+        theta_init = 0.01 + np.zeros((n_classes, X_train.shape[1] + 1)),
         eta=eta,
         cost_function=cost_logistic_regression_multi,
         n_epochs=n_epochs, batch_size=batch_size,
@@ -678,11 +681,12 @@ if test11:
         lmbda=lmbda
     )
 
-    softi = prob_multi(theta, X_train)
-    print(softi)
-    y_pred_train = helper.convert_vec_to_num(softi)
+    y_pred_train = helper.convert_vec_to_num(prob_multi(theta, X_train))
+    y_pred_test = helper.convert_vec_to_num(prob_multi(theta, X_test))
 
-    print(helper.accuracy_score(y_train, y_pred_train))
+    print(f'Training accuracy: {helper.accuracy_score(y_train, y_pred_train)}')
+    print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
+    
 
     # for i in range(len(softi[:, 2])):
     #     if softi[i, ] > 0.3:

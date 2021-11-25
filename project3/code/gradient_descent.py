@@ -4,6 +4,7 @@ import autograd.numpy as np
 import matplotlib.pyplot as plt
 import helper
 import seaborn as sns
+from cost_functions import prob_multi
 
 
 def learning_schedule(t):
@@ -75,6 +76,8 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
             if scale_learning:
                 eta = learning_schedule(epoch*i*m)
 
+            print(cost_function(theta_next, X, y))
+            
             # Check if the changes are less than the given tolerance
             if np.sum(np.abs(theta_next - theta_previous)) < tol:
                 print('local')
@@ -82,6 +85,7 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
 
             # Updating the thetas
             theta_previous = theta_next
+            
 
     return theta_previous, j
 
