@@ -12,7 +12,7 @@ from autograd import elementwise_grad as egrad
 from cost_functions import MSE
 import autograd.numpy as np
 import matplotlib.pyplot as plt
-import helper
+import helper, cost_functions
 
 
 class Neural_Network():
@@ -112,21 +112,20 @@ class Neural_Network():
 
         output_weights_grad = self.a[-1].T @ output_delta
         output_bias_grad = np.mean(output_delta, axis=0)
-        # hidden_bias_grad = np.zeros(
-        #     (self.number_of_hidden_layers, self.no_hidden_nodes))
+
         hidden_bias_grad = []
         for nodes in self.node_list:
             hidden_bias_grad.append(np.zeros(nodes))
         number_of_hidden_layers = len(self.node_list)
 
         if number_of_hidden_layers > 1:
-            # hidden_weights_grad = np.zeros(
-            #     (self.number_of_hidden_layers - 1, self.no_hidden_nodes, self.no_hidden_nodes))
             hidden_weights_grad = [0] * (number_of_hidden_layers - 1)
             hidden_error = output_delta @ self.output_weights.T
             hidden_delta = self.activation_function_hidden(
                 self.z[-1], deriv=True) * hidden_error
-            hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
+
+
+            hidden_weights_grad[-1] = - self.a[-2].T @ hidden_delta
 
             for i in range(number_of_hidden_layers - 2):
                 hidden_error = hidden_delta @ self.hidden_weights[-(i+1)].T
@@ -152,11 +151,13 @@ class Neural_Network():
             input_weights_grad += self.lmbda*self.input_weights
             output_weights_grad += self.lmbda*self.output_weights
 
-            # If have more than one hidden layer, then we have hidden_weights too
-            if number_of_hidden_layers > 1:
-                #hidden_weights_grad += self.lmbda*self.hidden_weights
-                hidden_weights_grad = [hidden_weights_grad[k] + self.lmbda *
-                                       weight for k, weight in enumerate(self.hidden_weights)]
+        # If have more than one hidden layer, then we have hidden_weights too
+        if number_of_hidden_layers > 1:
+            # TODO: fix
+            #hidden_weights_grad += self.lmbda*self.hidden_weights
+           
+            hidden_weights_grad = [hidden_weights_grad[k] + self.lmbda *
+                                    weight for k, weight in enumerate(self.hidden_weights)]
 
         return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
@@ -223,9 +224,12 @@ class Neural_Network():
                 # self.hidden_bias -= v_hidden_bias
                 self.hidden_bias = [bias - v for bias,
                                     v in zip(self.hidden_bias, v_hidden_bias)]
+                
                 self.output_bias -= v_output_bias
 
                 iter += 1
+                y_hat = self.feed_forward(X)
+                print(cost_functions.logistic_cost_NN_multi(y_hat, y))
 
                 # If we want to save the error's according to the costfunction
                 if self.keep_cost_values:
@@ -241,13 +245,6 @@ class Neural_Network():
                         helper.accuracy_score(self.feed_forward(X), y))
                     # Reset the activation function output layer
                     self.activation_function_output = the_activation_function_output
-
-                # # Is able to save us from local minimum, but commented out (not used anymore)
-                # if sum(abs(self.y_hat[0] - self.y_hat) < tol) == len(self.y_hat) and self.y_hat[0] != 0 and not self.keep_accuracy_score:
-                #     print('>> Predicting all same values, unstable values')
-                #     self.initialize_the_biases()
-                #     self.initialize_the_weights()
-                # #     exit()
 
         self.error_list = error_list
         self.accuracy_list = accuracy_list
@@ -425,6 +422,9 @@ class Neural_Network():
 
         self.keep_cost_values = keep_cost_values
         self.keep_accuracy_score = keep_accuracy_score
+        
+        # Convert the output to a dimensional based target
+        y = helper.convert_num_to_vec(y, self.no_output_nodes)
 
         # Calling the SGD-function to help us train the model
         self.SGD(X, y)

@@ -497,17 +497,51 @@ def load_diabetes_data_without_PCA(n_components, m_observations=1000):
 
     X_train = pd_X.values
     y_train = pd_y.values
-    print('--------------------------------')
 
     # TODO: After splitted in training and testing, then fix the training data,
     # SO that the testing data, will be as untouched as possible
 
-    print(y_train)
-    print(sum(y_train == 0))
-    print(sum(y_train == 1))
-    print(sum(y_train == 2))
 
     return X_train, X_test, y_train, y_test
 
 
 load_diabetes_data_without_PCA(2)
+
+
+def convert_num_to_vec(y, dim):
+    """
+    # TODO:
+    
+    Dimensional of the converter
+    """
+
+    y_list = []
+    for i, _y in enumerate(y):
+        for j in range(dim):
+            if _y == j:
+                new_list = [0]*dim
+                new_list[j] = 1
+                y_list.append(new_list)
+
+    return np.array(y_list)
+
+
+def convert_vec_to_num(y):
+    """
+    # TODO:
+    """
+
+    y_list = list(y)
+    for i, liste in enumerate(y_list):
+        leader_amount = 0
+        leader = 0
+        for j, num in enumerate(liste):
+            if num > leader_amount:
+                leader = j
+                leader_amount = num
+        
+        y_list[i] = leader
+
+    return np.array(y_list).reshape(-1, 1)
+
+

@@ -1,4 +1,7 @@
 import autograd.numpy as np
+import numpy
+from activation_functions import softmax
+import helper
 
 
 def logistic_cost_NN(y_hat, y):
@@ -19,25 +22,13 @@ def logistic_cost_NN(y_hat, y):
 
 
 def logistic_cost_NN_multi(y_hat, y):
-    "https://www.analyticsvidhya.com/blog/2021/02/cost-function-is-no-rocket-science/"
+    """
+    # TODO: docs
+    https://www.analyticsvidhya.com/blog/2021/02/cost-function-is-no-rocket-science/
+    """
 
-    y_list = list(y)
-    for i in range(len(y_list)):
-        if y_list[i] == 0:
-            y_list[i] = [1,0,0]
-        elif y_list[i] == 1:
-            y_list[i] = [0,1,0]
-        elif y_list[i] == 2:
-            y_list[i] = [0,0,1]
-    
-    y = np.array(y_list)
-
-    # TODO: ?? y_hat shape
-    sum_ = 0
-    for i in range(y.shape[0]):
-        sum_ -= np.dot(y[i], np.log(y_hat)[i])
-
-    return sum_
+    # Row-wise dot product, then summation
+    return - np.sum(np.sum(np.log(y_hat)*y, axis=1))
 
 
 def cost_logistic_regression(beta, X, y, lmbda=0):
@@ -80,31 +71,11 @@ def cost_logistic_regression_multi(beta, X, y, lmbda=0):
     :return (float):
         the value of the cost function
     """
-    # Maybe do this when returning the dataset
-    # y = 0 -> y = [1,0,0]
-    # y = 1 -> y = [0,1,0]
-    # y = 2 -> y = [0,0,1]
     
-    # TODO: vectorize
-    y_list = list(y)
-    for i in range(len(y_list)):
-        if y_list[i] == 0:
-            y_list[i] = [1,0,0]
-        elif y_list[i] == 1:
-            y_list[i] = [0,1,0]
-        elif y_list[i] == 2:
-            y_list[i] = [0,0,1]
-    
-    y = np.array(y_list)
-  
-    # sum(y[0] cdot prob_multi(beta, X)[0])
-    sum_ = 0
-    for i in range(y.shape[0]):
-        sum_ -= np.dot(y[i], np.log(prob_multi(beta, X))[i])
-    # a = y @ prob_multi(beta, X).T
-
     # TODO: add this underneath
-    return sum_ #+ lmbda*np.sum(beta**2)
+    # Row-wise dot product, then summation
+    return - np.sum(np.sum(np.log(prob_multi(beta, X))*y, axis=1)) #+ lmbda*np.sum(beta**2)
+
 
 
 def prob(beta, X):
@@ -124,23 +95,16 @@ def prob(beta, X):
 
     return (np.exp(beta[0] + X @ beta[1:]) / (1 + np.exp(beta[0] + X @ beta[1:]))).reshape(-1, 1)
 
+
 def prob_multi(beta, X):
-    # print(X.shape)
-    # print((X @ beta[1:]).shape)
-    # print(np.exp(X @ beta[1:]) /  np.sum(np.exp(X @ beta[1:])))
-
-    # print(X)
-    num = 0
-    # TODO: range -> change to some shape value
-    for i in range(3):
-        num += np.exp(beta[i,0] + X @ beta[i,1:])
+    """
+    # TODO: 
+    """
     
-
-    probs = []
-    for i in range(3):
-        probs.append(np.exp(beta[i,0] + X @ beta[i,1:]) / num)
-
-    probs = np.array(probs).T
+    z = beta[:,0].T + X @ beta[:,1:].T
+    
+    probs = softmax(z)
+    
     return probs
 
 

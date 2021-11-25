@@ -1,4 +1,5 @@
-import numpy as np
+import autograd.numpy as np
+
 np.seterr(all='warn')
 np.seterr(over='raise')
 
@@ -77,9 +78,14 @@ def sigmoid(z, deriv=False):
 def softmax(z, deriv=False):
 
     if deriv:
-        return ((np.exp(z))**2 + np.exp(z)*np.sum(np.exp(z), axis=1)[:, None])/(np.sum(np.exp(z), axis=1)**2)[:, None]
+
+        return (np.exp(z) * (np.sum(np.exp(z), axis=1)[:, None] - np.exp(z)))/ (np.sum(np.exp(z), axis=1)[:, None]**2)
+
+        # return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None] * (1 - np.exp(z) / np.sum(np.exp(z), axis=1)[:, None])
+        # return ((np.exp(z))**2 - np.exp(z)*np.sum(np.exp(z), axis=1)[:, None])/(np.sum(np.exp(z), axis=1)**2)[:, None]
     else:
         return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None]
+
 
 
 def sigmoid_classification(z, deriv=False):

@@ -33,7 +33,7 @@ against the results of project 1. For the Ridge case, it will provide
 a seaborn visualization with hyperparameter lambda and the learning rate
 """
 
-test1 = True
+test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Generating some data (Franke Function)
@@ -118,7 +118,7 @@ if test2:
     )
 
     # Now, we are ready to train the model
-    keep_cost_values = True
+    keep_cost_values = False
     FFNN.train_model(X_train, y_train, keep_cost_values)
 
     if keep_cost_values:
@@ -128,6 +128,9 @@ if test2:
     # Finding the predicted values with our model
     y_hat_train = FFNN.feed_forward(X_train)
     y_hat_test = FFNN.feed_forward(X_test)
+
+    # for k in range(10):
+
 
     # Checking the result
     print('\n\n>>> CHECKING THE MODEL:')
@@ -340,7 +343,7 @@ opportunity to look at the accuracy score over the training time (iterations of 
 SGD-algorithm).
 """
 
-test5 = False
+test5 = True
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
@@ -349,7 +352,7 @@ if test5:
         n_components)
 
     # Setting the architecture of the Neural Network
-    node_list = [20]*1
+    node_list = [20]*3
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -363,18 +366,24 @@ if test5:
         n_epochs=60,
         batch_size=14,
         gamma=0.5,
-        eta=8e-4,
+        eta=1e-3,
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN)
-    FFNN.set_activation_function_hidden_layers('Leaky_RELU')
+    FFNN.set_activation_function_hidden_layers('sigmoid')
     FFNN.set_activation_function_output_layer('sigmoid')
 
     # Set keep_accuracy to True, if you wanna see accuracy vs. time (in the training)
     keep_accuracy = True
     FFNN.train_model(X_cancer_train, y_cancer_train,
                      keep_accuracy_score=keep_accuracy)
+
+    y_hat = FFNN.feed_forward(X_cancer_train)
+
+    for k in range(10):
+        print(y_cancer_train[k])
+        print(y_hat[k])
 
     # Change the activation function to predict 0 or 1's.
     FFNN.set_activation_function_output_layer('sigmoid_classification')
@@ -559,7 +568,7 @@ DATASET: CANCER DATA (classification case)
 Comparison: logistic regression vs classification with Neural Network. Comparing
 the R2-score on testing and training data, and the time spent on training the model.
 """
-test8 = True
+test8 = False
 if test8:
     print('>> RUNNING TEST 8:')
     "First, setting up the Neural Network and finding the results"

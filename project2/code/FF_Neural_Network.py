@@ -126,7 +126,7 @@ class Neural_Network():
             hidden_error = output_delta @ self.output_weights.T
             hidden_delta = self.activation_function_hidden(
                 self.z[-1], deriv=True) * hidden_error
-            hidden_weights_grad[-1] = - self.a[-2].T @ output_delta
+            hidden_weights_grad[-1] = - self.a[-2].T @ hidden_delta
 
             for i in range(number_of_hidden_layers - 2):
                 hidden_error = hidden_delta @ self.hidden_weights[-(i+1)].T

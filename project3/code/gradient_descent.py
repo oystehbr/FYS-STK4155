@@ -52,6 +52,8 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
     n = X.shape[0]
     m = int(n/batch_size)
 
+    y = helper.convert_num_to_vec(y, theta_init.shape[0])
+    
     v = 0
     theta_previous = theta_init
     j = 0
