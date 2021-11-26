@@ -124,8 +124,7 @@ class Neural_Network():
             hidden_delta = self.activation_function_hidden(
                 self.z[-1], deriv=True) * hidden_error
 
-
-            hidden_weights_grad[-1] = - self.a[-2].T @ hidden_delta
+            hidden_weights_grad[-1] = self.a[-2].T @ hidden_delta
 
             for i in range(number_of_hidden_layers - 2):
                 hidden_error = hidden_delta @ self.hidden_weights[-(i+1)].T
@@ -151,13 +150,13 @@ class Neural_Network():
             input_weights_grad += self.lmbda*self.input_weights
             output_weights_grad += self.lmbda*self.output_weights
 
-        # If have more than one hidden layer, then we have hidden_weights too
-        if number_of_hidden_layers > 1:
-            # TODO: fix
-            #hidden_weights_grad += self.lmbda*self.hidden_weights
-           
-            hidden_weights_grad = [hidden_weights_grad[k] + self.lmbda *
-                                    weight for k, weight in enumerate(self.hidden_weights)]
+            # If have more than one hidden layer, then we have hidden_weights too
+            if number_of_hidden_layers > 1:
+                # TODO: fix
+                #hidden_weights_grad += self.lmbda*self.hidden_weights
+            
+                hidden_weights_grad = [hidden_weights_grad[k] + self.lmbda *
+                                        weight for k, weight in enumerate(self.hidden_weights)]
 
         return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
@@ -228,8 +227,9 @@ class Neural_Network():
                 self.output_bias -= v_output_bias
 
                 iter += 1
-                y_hat = self.feed_forward(X)
-                print(cost_functions.logistic_cost_NN_multi(y_hat, y))
+                # TODO: look at cost-values
+                # y_hat = self.feed_forward(X)
+                # print(cost_functions.logistic_cost_NN_multi(y_hat, y))
 
                 # If we want to save the error's according to the costfunction
                 if self.keep_cost_values:

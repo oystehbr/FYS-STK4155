@@ -81,8 +81,8 @@ def softmax(z, deriv=False):
 
         return (np.exp(z) * (np.sum(np.exp(z), axis=1)[:, None] - np.exp(z)))/ (np.sum(np.exp(z), axis=1)[:, None]**2)
 
-        # return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None] * (1 - np.exp(z) / np.sum(np.exp(z), axis=1)[:, None])
-        # return ((np.exp(z))**2 - np.exp(z)*np.sum(np.exp(z), axis=1)[:, None])/(np.sum(np.exp(z), axis=1)**2)[:, None]
+        return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None] * (1 - np.exp(z) / np.sum(np.exp(z), axis=1)[:, None])
+        return -((np.exp(z))**2 - np.exp(z)*np.sum(np.exp(z), axis=1)[:, None])/(np.sum(np.exp(z), axis=1)**2)[:, None]
     else:
         return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None]
 

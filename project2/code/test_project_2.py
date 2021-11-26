@@ -343,7 +343,7 @@ opportunity to look at the accuracy score over the training time (iterations of 
 SGD-algorithm).
 """
 
-test5 = True
+test5 = False
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
@@ -645,7 +645,7 @@ DATASET: FRANKE FUNCTION (regression case)
 Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
 by looking over a seaborn plot. Will be measured in R2-score for both training and test-data. 
 """
-test9 = False
+test9 = True
 if test9:
     print('>> RUNNING TEST 9:')
     # Initializing some data
@@ -659,14 +659,14 @@ if test9:
     sns.set()
 
     # Set the parameters used in the Neural Network
-    n_epochs = 1000
+    n_epochs = 300
     batch_size = 10
     gamma = 0
-    eta = 1e-5
+    eta = 1e-3
     lmbda = 0.0001
 
-    nodes = np.arange(1, 13, 2)
-    layers = np.arange(2, 7, 2)
+    nodes = np.arange(12, 52, 2)
+    layers = np.arange(1, 6, 1)
     train_R2_score = np.zeros((len(nodes), len(layers)))
     test_R2_score = np.zeros((len(nodes), len(layers)))
     iter = 0
@@ -682,7 +682,7 @@ if test9:
             )
 
             # Setting the preffered activation functions for hidden layer
-            hidden_layer_name = 'Leaky_RELU'
+            hidden_layer_name = 'sigmoid'
             FFNN.set_activation_function_hidden_layers(hidden_layer_name)
 
             # Set the preffered values of the gradient descent
@@ -829,7 +829,7 @@ if test11:
     sns.set()
 
     # Set the parameters used in the Neural Network (SGD)
-    n_epochs = 30
+    n_epochs = 300
     batch_size = 10
     gamma = 0
     eta = 0.00001
@@ -854,7 +854,7 @@ if test11:
 
             FFNN.set_cost_function(logistic_cost_NN)
 
-            hidden_activation = 'Leaky_RELU'
+            hidden_activation = 'sigmoid'
             output_activation = 'sigmoid'
             FFNN.set_activation_function_hidden_layers(hidden_activation)
             FFNN.set_activation_function_output_layer(output_activation)

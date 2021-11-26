@@ -41,7 +41,7 @@ an accuracy score (of both training and test data). We have also provided the
 opportunity to look at the accuracy score over the training time (iterations of the
 SGD-algorithm)
 """
-test1 = True
+test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
@@ -52,34 +52,42 @@ if test1:
     
     X_train, X_test, y_train, y_test = helper.load_diabetes_data(
         n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_cancer_data(
+        n_components)
 
     # Setting the architecture of the Neural Network
-    node_list = [7]*1
+    node_list = [3]*1
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
         no_input_nodes=n_components,
-        no_output_nodes=3,
+        no_output_nodes=2,
         node_list=node_list
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=100,
+        n_epochs=300,
         batch_size=14,
-        gamma=0.5,
+        gamma=0.7,
         eta=1e-4,
         lmbda=1e-5)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN_multi)
-    FFNN.set_activation_function_hidden_layers('leaky_RELU')
+    FFNN.set_activation_function_hidden_layers('Leaky-RELU')
     FFNN.set_activation_function_output_layer('softmax')
 
     FFNN.train_model(X_train, y_train)
+    y_hat = FFNN.feed_forward(X_train)
     
     y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
     y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+
+    for k in range(10):
+        print(y_hat[k])
+        print(y_train[k])
+        print("---")
 
     print(helper.accuracy_score(y_train, y_pred_train))
     print(helper.accuracy_score(y_test, y_pred_test))
@@ -101,20 +109,24 @@ METHOD: Neural Network
 Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
 by looking over a seaborn plot. Will be measured in accuracy-score for both training and test-data.
 """
-test2 = False
+test2 = True
 if test2:
     print('>> RUNNING TEST 2:')
     # Loading the training and testing dataset
-    n_components = 2
+    n_components = 5
     X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-        n_components)
+        n_components, m_observations = 200)
+    
+
+    # X_train, X_test, y_train, y_test = helper.load_cancer_data(
+    #     n_components)
     sns.set()
 
     # Set the parameters used in the Neural Network (SGD)
-    n_epochs = 30
+    n_epochs = 50
     batch_size = 10
-    gamma = 0
-    eta = 0.00001
+    gamma = 0.6
+    eta = 1e-3
     lmbda = 0.0001
 
     nodes = np.arange(2, 20, 2)
@@ -125,19 +137,19 @@ if test2:
     iter = 0
     for i, node in enumerate(nodes):
         for j, layer in enumerate(layers):
-
+            print(node, layer)
             # Need to create new instance, to change the architecture
             node_list = [node]*layer
             FFNN = Neural_Network(
                 no_input_nodes=n_components,
-                no_output_nodes=1,
+                no_output_nodes=3,
                 node_list=node_list
             )
 
-            FFNN.set_cost_function(logistic_cost_NN)
+            FFNN.set_cost_function(logistic_cost_NN_multi)
 
-            hidden_activation = 'Leaky_RELU'
-            output_activation = 'sigmoid'
+            hidden_activation = 'sigmoid'
+            output_activation = 'softmax'
             FFNN.set_activation_function_hidden_layers(hidden_activation)
             FFNN.set_activation_function_output_layer(output_activation)
 
@@ -154,12 +166,13 @@ if test2:
             FFNN.train_model(X_train, y_train)
 
             # Testing the model against the target values, and store the results
-            FFNN.set_activation_function_output_layer(
-                'sigmoid_classification')
+            y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
+            y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+            
             train_accuracy_score[i][j] = helper.accuracy_score(
-                y_train, FFNN.feed_forward(X_train))
+                y_train, y_pred_train)
             test_accuracy_score[i][j] = helper.accuracy_score(
-                y_test, FFNN.feed_forward(X_test))
+                y_test, y_pred_test)
 
             iter += 1
             print(
@@ -667,7 +680,7 @@ if test11:
     batch_size = 50
     gamma = 0.5
     iter = 0
-    eta=1e-4
+    eta=1e-5
     lmbda=0
 
     theta, num = SGD(
