@@ -454,7 +454,7 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
 
     X_train, X_test, y_train, y_test = train_test_split(
         X_input_PCA, y_target)
-    
+
     X_train, y_train = oversampling_of_training_data(X_train, y_train)
 
     return X_train, X_test, y_train, y_test
@@ -484,7 +484,7 @@ def load_diabetes_data_without_PCA(n_components, m_observations=1000):
     X_train, X_test, y_train, y_test = train_test_split(
         X_input, y_target)
 
-    X_train, y_train = undersampling_of_training_data(X_train, y_train)
+    X_train, y_train = oversampling_of_training_data(X_train, y_train)
 
     return X_train, X_test, y_train, y_test
 
@@ -601,4 +601,15 @@ def undersampling_of_training_data(X_train, y_train):
     return X_train, y_train
 
 
-load_diabetes_data_without_PCA(2)
+def main():
+    a = np.array([[0.33992657, 0.34396532, 0.31610811]])
+    b = np.array([[0.3238535,  0.33098534, 0.34516116]])
+
+    res = convert_vec_to_num(a)
+    print(res)
+
+    # load_diabetes_data_without_PCA(2)
+
+
+if __name__ == '__main__':
+    main()
