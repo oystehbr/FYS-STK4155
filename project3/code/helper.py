@@ -601,4 +601,4 @@ def undersampling_of_training_data(X_train, y_train):
     return X_train, y_train
 
 
-load_diabetes_data_without_PCA(2)
+# load_diabetes_data_without_PCA(2)

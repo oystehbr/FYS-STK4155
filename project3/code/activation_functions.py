@@ -76,17 +76,14 @@ def sigmoid(z, deriv=False):
 
 
 def softmax(z, deriv=False):
-
     if deriv:
-
-        return (np.exp(z) * (np.sum(np.exp(z), axis=1)[:, None] - np.exp(z)))/ (np.sum(np.exp(z), axis=1)[:, None]**2)
-
+        return softmax(z) * (1 - softmax(z))
         return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None] * (1 - np.exp(z) / np.sum(np.exp(z), axis=1)[:, None])
-        return -((np.exp(z))**2 - np.exp(z)*np.sum(np.exp(z), axis=1)[:, None])/(np.sum(np.exp(z), axis=1)**2)[:, None]
+        return (np.exp(z) * (np.sum(np.exp(z), axis=1)[:, None] - np.exp(z)))/ (np.sum(np.exp(z), axis=1)[:, None]**2)
     else:
         return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None]
 
-
+print(softmax(np.array([[1,2,3]]), deriv = True))
 
 def sigmoid_classification(z, deriv=False):
     """

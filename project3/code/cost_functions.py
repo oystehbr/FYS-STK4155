@@ -28,8 +28,8 @@ def logistic_cost_NN_multi(y_hat, y):
     """
 
     # Row-wise dot product, then summation
-    return - np.sum(np.sum(np.log(y_hat)*y, axis=1))
 
+    return - np.sum(np.sum(np.log(y_hat)*y, axis=1))
 
 def cost_logistic_regression(beta, X, y, lmbda=0):
     """
