@@ -12,7 +12,8 @@ from autograd import elementwise_grad as egrad
 from cost_functions import MSE
 import autograd.numpy as np
 import matplotlib.pyplot as plt
-import helper, cost_functions
+import helper
+import cost_functions
 
 
 class Neural_Network():
@@ -154,9 +155,9 @@ class Neural_Network():
             if number_of_hidden_layers > 1:
                 # TODO: fix
                 #hidden_weights_grad += self.lmbda*self.hidden_weights
-            
+
                 hidden_weights_grad = [hidden_weights_grad[k] + self.lmbda *
-                                        weight for k, weight in enumerate(self.hidden_weights)]
+                                       weight for k, weight in enumerate(self.hidden_weights)]
 
         return input_weights_grad, hidden_weights_grad, output_weights_grad, hidden_bias_grad, output_bias_grad
 
@@ -223,13 +224,14 @@ class Neural_Network():
                 # self.hidden_bias -= v_hidden_bias
                 self.hidden_bias = [bias - v for bias,
                                     v in zip(self.hidden_bias, v_hidden_bias)]
-                
+
                 self.output_bias -= v_output_bias
 
                 iter += 1
                 # TODO: look at cost-values
-                # y_hat = self.feed_forward(X)
-                # print(cost_functions.logistic_cost_NN_multi(y_hat, y))
+                # y_hat = helper.convert_vec_to_num(self.feed_forward(X))
+                # y_ = helper.convert_vec_to_num(y)
+                # print(helper.accuracy_score(y_hat, y_))
 
                 # If we want to save the error's according to the costfunction
                 if self.keep_cost_values:
@@ -238,13 +240,12 @@ class Neural_Network():
 
                 # If we want to save the accuracy score of our model
                 if self.keep_accuracy_score:
-                    the_activation_function_output = self.activation_function_output
-                    self.set_activation_function_output_layer(
-                        'sigmoid_classification')
                     accuracy_list.append(
-                        helper.accuracy_score(self.feed_forward(X), y))
+                        helper.accuracy_score(helper.convert_vec_to_num(self.feed_forward(X)), helper.convert_vec_to_num(y)))
                     # Reset the activation function output layer
-                    self.activation_function_output = the_activation_function_output
+
+            # TODO: delte
+            # print(f'>>> SGD: {epoch + 1} / {self.n_epochs}')
 
         self.error_list = error_list
         self.accuracy_list = accuracy_list
@@ -354,7 +355,6 @@ class Neural_Network():
         :param activation_name (str), default = 'sigmoid':
             the preffered activation function: sigmoid, Leaky_RELU or RELU
         """
-
         if activation_name.lower() == 'sigmoid'.lower():
             self.activation_function_hidden = sigmoid
         elif activation_name.lower() == 'Leaky_RELU'.lower():
@@ -422,7 +422,7 @@ class Neural_Network():
 
         self.keep_cost_values = keep_cost_values
         self.keep_accuracy_score = keep_accuracy_score
-        
+
         # Convert the output to a dimensional based target
         y = helper.convert_num_to_vec(y, self.no_output_nodes)
 
