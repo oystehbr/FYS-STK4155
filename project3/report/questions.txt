@@ -1,7 +1,9 @@
-Kan man få trekk for få metoder?
 Decision tree and Random forest
     - Kombinere med PCA?
     - Predikerer bare 0 for det meste - klarer ikke å lage så mye bedre modell for testing data (har mye dataset som predikerer 0)
+
+Unngå veldig store tall som ødelegger
+Predikerer bare null om flere hidden layers
 
 
 We are working with "Imbalanced Data", approaches to fix this?

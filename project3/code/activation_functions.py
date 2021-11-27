@@ -76,6 +76,7 @@ def sigmoid(z, deriv=False):
 
 
 def softmax(z, deriv=False):
+    
     if deriv:
         return softmax(z) * (1 - softmax(z))
         return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None] * (1 - np.exp(z) / np.sum(np.exp(z), axis=1)[:, None])

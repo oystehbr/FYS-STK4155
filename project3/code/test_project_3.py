@@ -29,6 +29,7 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
+from  activation_functions import sigmoid_classification
 
 
 """
@@ -45,16 +46,23 @@ test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
-    n_components = 12
-    m_observations = 200
+    n_components = 21
+    m_observations = 2000
     # X_train, X_test, y_train, y_test = helper.load_diabetes_data(
     #     n_components)
 
+    
     X_train, X_test, y_train, y_test = helper.load_diabetes_data(
         n_components, m_observations)
-
+    # X_train, X_test, y_train, y_test = helper.load_cancer_data(
+    #     n_components)
+    
+    print(sum(y_train==0))
+    print(sum(y_train==1))
+    print(sum(y_train==2))
+    
     # Setting the architecture of the Neural Network
-    node_list = [10]*1
+    node_list = [20]*10
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -65,15 +73,15 @@ if test1:
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=400,
-        batch_size=10,
-        gamma=0,
-        eta=1e-5,
+        n_epochs=200,
+        batch_size=16,
+        gamma=0.3,
+        eta=1e-4,
         lmbda=0)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN_multi)
-    FFNN.set_activation_function_hidden_layers('RELU')
+    FFNN.set_activation_function_hidden_layers('sigmoid')
     FFNN.set_activation_function_output_layer('softmax')
 
     FFNN.train_model(X_train, y_train, keep_cost_values=True,
@@ -81,18 +89,17 @@ if test1:
     FFNN.plot_cost_of_last_training()
     FFNN.plot_accuracy_score_last_training()
 
-    y_hat = FFNN.feed_forward(X_train)
-
     y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
     y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+ 
 
-    for k in range(len(y_hat)):
-        if y_train[k] == 2:
+    for k in range(len(y_pred_test)):
+        if y_train[k] == 0:
             print(
-                f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
+                f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
         if y_train[k] == 1:
             print(
-                f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
+                f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
 
     print(helper.accuracy_score(y_train, y_pred_train))
     print(helper.accuracy_score(y_test, y_pred_test))
@@ -117,22 +124,22 @@ test2 = False
 if test2:
     print('>> RUNNING TEST 2:')
     # Loading the training and testing dataset
-    n_components = 12
+    n_components = 21
     X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-        n_components, m_observations=100)
+        n_components, m_observations=1000)
 
     # X_train, X_test, y_train, y_test = helper.load_cancer_data(
     #     n_components)
     sns.set()
 
     # Set the parameters used in the Neural Network (SGD)
-    n_epochs = 200
-    batch_size = 10
-    gamma = 0.1
-    eta = 1e-5
+    n_epochs = 300
+    batch_size = 50
+    gamma = 0.4 
+    eta = 4e-4
     lmbda = 0
 
-    nodes = np.arange(2, 24, 2)
+    nodes = np.arange(2, 30, 2)
     layers = np.arange(1, 2, 1)
     train_accuracy_score = np.zeros((len(nodes), len(layers)))
     test_accuracy_score = np.zeros((len(nodes), len(layers)))
@@ -151,7 +158,7 @@ if test2:
 
             FFNN.set_cost_function(logistic_cost_NN_multi)
 
-            hidden_activation = 'RELU'
+            hidden_activation = 'sigmoid'
             output_activation = 'softmax'
             FFNN.set_activation_function_hidden_layers(hidden_activation)
             FFNN.set_activation_function_output_layer(output_activation)
@@ -313,7 +320,7 @@ Optimizing the hyperparameter lmbda and the learning rate by looking over
 a seaborn plot. Will be measured in accuracy-score for both training and test-data.
 """
 
-test4 = True
+test4 = False
 if test4:
     print('>> RUNNING TEST 4:')
     # Loading the training and testing dataset
@@ -373,12 +380,12 @@ if test4:
             FFNN.train_model(X_train, y_train)
 
             # Testing the model against the target values, and store the results
-            y_pred_train = helper.convert_vec_to_num(
+            y_pred_test = helper.convert_vec_to_num(
                 FFNN.feed_forward(X_train))
             y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
 
             train_accuracy_score[i][j] = helper.accuracy_score(
-                y_train, y_pred_train)
+                y_train, y_pred_test)
             test_accuracy_score[i][j] = helper.accuracy_score(
                 y_test, y_pred_test)
 
@@ -412,18 +419,18 @@ METHOD: Decision tree
 Use scikitlearn's decision tree, testing
 """
 
-test5 = False
+test5 = True
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
-    n_components = 5
+    n_components = 21
     m_observations = 300000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
+    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
         n_components, m_observations)
 
     # Function to perform training with Entropy
     clf = DecisionTreeClassifier(
-        criterion='entropy', max_depth=1)
+        criterion='entropy', max_depth=14)
 
     # Fit the data to the model we have created
     clf.fit(X_train, y_train)
@@ -474,10 +481,10 @@ if test6:
         clf.fit(X_train, y_train)
 
         # Make predictions
-        y_pred_train = clf.predict(X_train)
+        y_pred_test = clf.predict(X_train)
         y_pred_test = clf.predict(X_test)
 
-        train_accuracy_score[i] = helper.accuracy_score(y_pred_train, y_train)
+        train_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_train)
         test_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_test)
 
         iter += 1
@@ -522,11 +529,11 @@ if test7:
     clf.fit(X_train, y_train)
 
     # Make predictions for
-    y_pred_train = clf.predict(X_train)
+    y_pred_test = clf.predict(X_train)
     y_pred_test = clf.predict(X_test)
 
     print(
-        f'Accuracy_train = {helper.accuracy_score(y_pred_train, y_train)}')
+        f'Accuracy_train = {helper.accuracy_score(y_pred_test, y_train)}')
     print(
         f'Accuracy_test = {helper.accuracy_score(y_pred_test,  y_test)}')
 
@@ -562,10 +569,10 @@ if test8:
         clf.fit(X_train, y_train)
 
         # Make predictions
-        y_pred_train = clf.predict(X_train)
+        y_pred_test = clf.predict(X_train)
         y_pred_test = clf.predict(X_test)
 
-        train_accuracy_score[i] = helper.accuracy_score(y_pred_train, y_train)
+        train_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_train)
         test_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_test)
 
         iter += 1
@@ -611,11 +618,11 @@ if test9:
     clf.fit(X_train, y_train)
 
     # Make predictions for
-    y_pred_train = clf.predict(X_train)
+    y_pred_test = clf.predict(X_train)
     y_pred_test = clf.predict(X_test)
 
     print(
-        f'Accuracy_train = {helper.accuracy_score(y_pred_train, y_train)}')
+        f'Accuracy_train = {helper.accuracy_score(y_pred_test, y_train)}')
     print(
         f'Accuracy_test = {helper.accuracy_score(y_pred_test,  y_test)}')
 
@@ -651,10 +658,10 @@ if test10:
         clf.fit(X_train, y_train)
 
         # Make predictions
-        y_pred_train = clf.predict(X_train)
+        y_pred_test = clf.predict(X_train)
         y_pred_test = clf.predict(X_test)
 
-        train_accuracy_score[i] = helper.accuracy_score(y_pred_train, y_train)
+        train_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_train)
         test_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_test)
 
         iter += 1
@@ -684,18 +691,21 @@ Test if log reg works
 test11 = False
 if test11:
     print(">> RUNNING TEST 11 <<")
-    n_components = 4
+    n_components = 21
     m_observations = 1000
     # X_train, X_test, y_train, y_test = helper.load_diabetes_data(n_components, m_observations)
     X_train, X_test, y_train, y_test = helper.load_diabetes_data(
         n_components, m_observations)
+    # X_train, X_test, y_train, y_test = helper.load_cancer_data(
+    #     n_components)
     n_classes = 3
 
-    n_epochs = 400
-    batch_size = 50
-    gamma = 0.5
+
+    n_epochs = 1000
+    batch_size = 10
+    gamma = 0.8
     iter = 0
-    eta = 1e-5
+    eta = 1e-4
     lmbda = 0
 
     theta, num = SGD(
@@ -712,6 +722,17 @@ if test11:
     y_pred_train = helper.convert_vec_to_num(prob_multi(theta, X_train))
     y_pred_test = helper.convert_vec_to_num(prob_multi(theta, X_test))
 
+    for k in range(len(y_pred_test)):
+        print(f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
+        
+        # if y_train[k] == 2:
+        #     print(
+        #         f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
+        # if y_train[k] == 1:
+        #     print(
+        #         f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
+    
+    
     print(f'Training accuracy: {helper.accuracy_score(y_train, y_pred_train)}')
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
 

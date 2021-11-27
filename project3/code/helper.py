@@ -405,6 +405,7 @@ def load_cancer_data(n):
     labels = cancer.feature_names[0:30]
 
     X_cancer = cancer.data
+    print(X_cancer)
     y_cancer = cancer.target    # 0 for benign and 1 for malignant
     y_cancer = y_cancer.reshape(-1, 1)
 
@@ -455,7 +456,59 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
     X_train, X_test, y_train, y_test = train_test_split(
         X_input_PCA, y_target)
 
-    X_train, y_train = oversampling_of_training_data(X_train, y_train)
+    X_train, y_train = midsampling_of_training_data(X_train, y_train)
+
+    return X_train, X_test, y_train, y_test
+
+def load_muscle_data(n_components, m_observations=1000, show_explained_ratio=False):
+    """
+    # TODO: docstrings
+    """
+
+    path_0 = "data/muscle_data/0.csv"
+    path_1 = "data/muscle_data/1.csv"
+    path_2 = "data/muscle_data/2.csv"
+    path_3 = "data/muscle_data/3.csv"
+    # Loading the data into pandas
+    df_0 = pd.read_csv(
+        path_0,
+        sep=","
+    )
+    df_1 = pd.read_csv(
+        path_1,
+        sep=","
+    )
+    df_2 = pd.read_csv(
+        path_2,
+        sep=","
+    )
+    df_3 = pd.read_csv(
+        path_3,
+        sep=","
+    )
+
+    diabetes_values = df.values
+
+    # Shuffle the data
+    np.random.shuffle(diabetes_values)
+
+    X_input = diabetes_values[:m_observations, 1:]
+    y_target = diabetes_values[:m_observations, 0]
+
+    pca = PCA(n_components)
+
+    # Only include the "n_components" most important features
+    X_input_PCA = pca.fit_transform(X_input)
+
+    if show_explained_ratio:
+        print(pca.explained_variance_ratio_)
+
+    X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_input_PCA, y_target)
+
+    X_train, y_train = midsampling_of_training_data(X_train, y_train)
 
     return X_train, X_test, y_train, y_test
 
@@ -560,6 +613,7 @@ def oversampling_of_training_data(X_train, y_train):
         pd_train = pd.concat([pd_train, pd_train_duplicates_2])
 
     pd_train_values = pd_train.values
+    # TODO: check if shuffling row-wise
     np.random.shuffle(pd_train_values)
 
     X_train = pd_train_values[:, :-1]
@@ -592,6 +646,7 @@ def undersampling_of_training_data(X_train, y_train):
     pd_train = pd.concat(
         [pd_train_new_0, pd_train_duplicates_1, pd_train_duplicates_2])
 
+
     pd_train_values = pd_train.values
     np.random.shuffle(pd_train_values)
 
@@ -600,6 +655,41 @@ def undersampling_of_training_data(X_train, y_train):
 
     return X_train, y_train
 
+
+def midsampling_of_training_data(X_train, y_train):
+    """
+    # TODO: docstrings
+    """
+    
+    
+    
+    pd_train = pd.DataFrame(X_train)
+    y_col = len(pd_train.columns)
+    pd_train.insert(y_col, y_col, y_train, True)
+
+    pd_train_duplicates_0 = pd_train[y_train == 0]
+    pd_train_duplicates_1 = pd_train[y_train == 1]
+    pd_train_duplicates_2 = pd_train[y_train == 2]
+
+    
+    # Undersampling of 0 (double of 2)
+    pd_train_new_0 = pd_train_duplicates_0.sample(
+        n=int(2 * len(pd_train_duplicates_2)))
+
+    pd_train = pd.concat(
+        [pd_train_new_0, pd_train_duplicates_1, pd_train_duplicates_2])
+
+    # Oversampling of 1 (half of 2)
+    for i in range(int(len(pd_train_duplicates_2) / len(pd_train_duplicates_1)/2)):
+        pd_train = pd.concat([pd_train, pd_train_duplicates_1])
+        
+    pd_train_values = pd_train.values
+    np.random.shuffle(pd_train_values)
+
+    X_train = pd_train_values[:, :-1]
+    y_train = pd_train_values[:, -1]
+
+    return X_train, y_train
 
 def main():
     a = np.array([[0.33992657, 0.34396532, 0.31610811]])
