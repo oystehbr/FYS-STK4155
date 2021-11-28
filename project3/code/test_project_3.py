@@ -15,6 +15,7 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
+from sklearn.metrics import multilabel_confusion_matrix
 import matplotlib.pyplot as plt
 from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
@@ -29,7 +30,7 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-from  activation_functions import sigmoid_classification
+from activation_functions import sigmoid_classification
 
 
 """
@@ -42,46 +43,39 @@ an accuracy score (of both training and test data). We have also provided the
 opportunity to look at the accuracy score over the training time (iterations of the
 SGD-algorithm)
 """
-test1 = False
+test1 = True
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
-    n_components = 21
-    m_observations = 2000
-    # X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-    #     n_components)
+    n_components = 2
+    m_observations = 1600
 
-    
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-        n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(2)
+
     # X_train, X_test, y_train, y_test = helper.load_cancer_data(
     #     n_components)
-    
-    print(sum(y_train==0))
-    print(sum(y_train==1))
-    print(sum(y_train==2))
-    
+
     # Setting the architecture of the Neural Network
-    node_list = [20]*10
+    node_list = [8]
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
         no_input_nodes=n_components,
-        no_output_nodes=3,
+        no_output_nodes=7,
         node_list=node_list
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=200,
-        batch_size=16,
-        gamma=0.3,
-        eta=1e-4,
+        n_epochs=1000,
+        batch_size=100,
+        gamma=0.1,
+        eta=5e-5,
         lmbda=0)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN_multi)
-    FFNN.set_activation_function_hidden_layers('sigmoid')
+    FFNN.set_activation_function_hidden_layers('RELU')
     FFNN.set_activation_function_output_layer('softmax')
 
     FFNN.train_model(X_train, y_train, keep_cost_values=True,
@@ -91,18 +85,19 @@ if test1:
 
     y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
     y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
- 
 
-    for k in range(len(y_pred_test)):
-        if y_train[k] == 0:
-            print(
-                f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
-        if y_train[k] == 1:
-            print(
-                f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
+    # for k in range(len(y_pred_test)):
+    #     if y_train[k] == 0:
+    #         print(
+    #             f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
+    #     if y_train[k] == 1:
+    #         print(
+    #             f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
 
-    print(helper.accuracy_score(y_train, y_pred_train))
-    print(helper.accuracy_score(y_test, y_pred_test))
+    # print(y_pred_train)
+
+    # print(helper.accuracy_score(y_pred_train, y_train.reshape(-1, 1)))
+    # print(helper.accuracy_score(y_test, y_pred_test))
 
     # Change the activation function to predict 0 or 1's.
     # FFNN.set_activation_function_output_layer('sigmoid_classification')
@@ -110,7 +105,6 @@ if test1:
     #     f'Accuracy_train = {helper.accuracy_score(FFNN.feed_forward(X_train),  y_train)}')
     # print(
     #     f'Accuracy_test = {helper.accuracy_score(FFNN.feed_forward(X_test),  y_test)}')
-
 
 """
 TEST 2:
@@ -135,7 +129,7 @@ if test2:
     # Set the parameters used in the Neural Network (SGD)
     n_epochs = 300
     batch_size = 50
-    gamma = 0.4 
+    gamma = 0.4
     eta = 4e-4
     lmbda = 0
 
@@ -419,7 +413,7 @@ METHOD: Decision tree
 Use scikitlearn's decision tree, testing
 """
 
-test5 = True
+test5 = False
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
@@ -629,7 +623,7 @@ if test9:
 """
 TEST 10:
 DATASET: DIABETES DATA (classification case)
-METHOD: Bagging 
+METHOD: Bagging
 
 Training and test data vs. complexity of the tree
 Use scikitlearn's decision tree
@@ -700,7 +694,6 @@ if test11:
     #     n_components)
     n_classes = 3
 
-
     n_epochs = 1000
     batch_size = 10
     gamma = 0.8
@@ -723,16 +716,16 @@ if test11:
     y_pred_test = helper.convert_vec_to_num(prob_multi(theta, X_test))
 
     for k in range(len(y_pred_test)):
-        print(f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
-        
+        print(
+            f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
+
         # if y_train[k] == 2:
         #     print(
         #         f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
         # if y_train[k] == 1:
         #     print(
         #         f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
-    
-    
+
     print(f'Training accuracy: {helper.accuracy_score(y_train, y_pred_train)}')
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
 

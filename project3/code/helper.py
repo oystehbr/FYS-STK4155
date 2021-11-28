@@ -400,12 +400,10 @@ def load_cancer_data(n):
 
     # Loading cancer data
     cancer = load_breast_cancer()
-    print(type(cancer))
     # Parameter labels (if you want, not used)
     labels = cancer.feature_names[0:30]
 
     X_cancer = cancer.data
-    print(X_cancer)
     y_cancer = cancer.target    # 0 for benign and 1 for malignant
     y_cancer = y_cancer.reshape(-1, 1)
 
@@ -460,40 +458,38 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
 
     return X_train, X_test, y_train, y_test
 
-def load_muscle_data(n_components, m_observations=1000, show_explained_ratio=False):
+
+def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=False):
     """
     # TODO: docstrings
     """
 
-    path_0 = "data/muscle_data/0.csv"
-    path_1 = "data/muscle_data/1.csv"
-    path_2 = "data/muscle_data/2.csv"
-    path_3 = "data/muscle_data/3.csv"
+    path = "data/Dry_Bean_Dataset.xlsx"
     # Loading the data into pandas
-    df_0 = pd.read_csv(
-        path_0,
-        sep=","
-    )
-    df_1 = pd.read_csv(
-        path_1,
-        sep=","
-    )
-    df_2 = pd.read_csv(
-        path_2,
-        sep=","
-    )
-    df_3 = pd.read_csv(
-        path_3,
-        sep=","
-    )
+    df = pd.read_excel(path, index_col=0)
 
-    diabetes_values = df.values
+    values = df.values
+    for i in range(len(values)):
+        if values[i, -1] == 'SEKER':
+            values[i, -1] = 0
+        elif values[i, -1] == 'BARBUNYA':
+            values[i, -1] = 1
+        elif values[i, -1] == 'BOMBAY':
+            values[i, -1] = 2
+        elif values[i, -1] == 'CALI':
+            values[i, -1] = 3
+        elif values[i, -1] == 'HOROZ':
+            values[i, -1] = 4
+        elif values[i, -1] == 'SIRA':
+            values[i, -1] = 5
+        elif values[i, -1] == 'DERMASON':
+            values[i, -1] = 6
 
     # Shuffle the data
-    np.random.shuffle(diabetes_values)
+    np.random.shuffle(values)
 
-    X_input = diabetes_values[:m_observations, 1:]
-    y_target = diabetes_values[:m_observations, 0]
+    X_input = values[:m_observations, :-1]
+    y_target = values[:m_observations, -1]
 
     pca = PCA(n_components)
 
@@ -508,7 +504,88 @@ def load_muscle_data(n_components, m_observations=1000, show_explained_ratio=Fal
     X_train, X_test, y_train, y_test = train_test_split(
         X_input_PCA, y_target)
 
-    X_train, y_train = midsampling_of_training_data(X_train, y_train)
+    return X_train, X_test, y_train, y_test
+
+
+def load_wine_data(n_components, m_observations=1000, show_explained_ratio=False):
+    """
+    # TODO: docstrings
+    """
+
+    path = "data/wineQualityReds.csv"
+    # Loading the data into pandas
+    df = pd.read_csv(
+        path,
+        sep=","
+    )
+
+    values = df.values
+
+    # Shuffle the data
+    np.random.shuffle(values)
+
+    X_input = values[:m_observations, :-1]
+    y_target = values[:m_observations, -1]
+
+    # pca = PCA(n_components)
+
+    # # Only include the "n_components" most important features
+    # X_input_PCA = pca.fit_transform(X_input)
+
+    # if show_explained_ratio:
+    #     print(pca.explained_variance_ratio_)
+    #     print(sum(pca.explained_variance_ratio_))
+
+    X_input = X_input/(X_input.max(axis=0))
+    # X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_input, y_target)
+
+    # X_train, y_train = oversampling_of_training_data(X_train, y_train)
+
+    return X_train, X_test, y_train, y_test
+
+
+def load_muscle_data(n_components, m_observations=1000, show_explained_ratio=False):
+    """
+    # TODO: docstrings
+    """
+
+    path_0 = "data/muscle_data/0.csv"
+    path_1 = "data/muscle_data/1.csv"
+    path_2 = "data/muscle_data/2.csv"
+    path_3 = "data/muscle_data/3.csv"
+    # Loading the data into pandas
+    values_0 = pd.read_csv(path_0, sep=",").values
+    values_1 = pd.read_csv(path_1, sep=",").values
+    values_2 = pd.read_csv(path_2, sep=",").values
+    values_3 = pd.read_csv(path_3, sep=",").values
+
+    values = np.append(values_0, values_1, axis=0)
+    values = np.append(values, values_2, axis=0)
+    values = np.append(values, values_3, axis=0)
+
+    # Shuffle the data
+    np.random.shuffle(values)
+
+    X_input = values[:m_observations, :-1]
+    y_target = values[:m_observations, -1]
+
+    pca = PCA(n_components)
+
+    # Only include the "n_components" most important features
+    X_input_PCA = pca.fit_transform(X_input)
+
+    if show_explained_ratio:
+        print(pca.explained_variance_ratio_)
+        print(
+            f'sum of explained variance ratio {sum(pca.explained_variance_ratio_)}')
+
+    # X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_input_PCA, y_target)
 
     return X_train, X_test, y_train, y_test
 
@@ -646,7 +723,6 @@ def undersampling_of_training_data(X_train, y_train):
     pd_train = pd.concat(
         [pd_train_new_0, pd_train_duplicates_1, pd_train_duplicates_2])
 
-
     pd_train_values = pd_train.values
     np.random.shuffle(pd_train_values)
 
@@ -660,9 +736,7 @@ def midsampling_of_training_data(X_train, y_train):
     """
     # TODO: docstrings
     """
-    
-    
-    
+
     pd_train = pd.DataFrame(X_train)
     y_col = len(pd_train.columns)
     pd_train.insert(y_col, y_col, y_train, True)
@@ -671,7 +745,6 @@ def midsampling_of_training_data(X_train, y_train):
     pd_train_duplicates_1 = pd_train[y_train == 1]
     pd_train_duplicates_2 = pd_train[y_train == 2]
 
-    
     # Undersampling of 0 (double of 2)
     pd_train_new_0 = pd_train_duplicates_0.sample(
         n=int(2 * len(pd_train_duplicates_2)))
@@ -682,7 +755,7 @@ def midsampling_of_training_data(X_train, y_train):
     # Oversampling of 1 (half of 2)
     for i in range(int(len(pd_train_duplicates_2) / len(pd_train_duplicates_1)/2)):
         pd_train = pd.concat([pd_train, pd_train_duplicates_1])
-        
+
     pd_train_values = pd_train.values
     np.random.shuffle(pd_train_values)
 
@@ -690,6 +763,7 @@ def midsampling_of_training_data(X_train, y_train):
     y_train = pd_train_values[:, -1]
 
     return X_train, y_train
+
 
 def main():
     a = np.array([[0.33992657, 0.34396532, 0.31610811]])

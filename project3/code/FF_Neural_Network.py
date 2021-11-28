@@ -240,12 +240,13 @@ class Neural_Network():
 
                 # If we want to save the accuracy score of our model
                 if self.keep_accuracy_score:
+
                     accuracy_list.append(
                         helper.accuracy_score(helper.convert_vec_to_num(self.feed_forward(X)), helper.convert_vec_to_num(y)))
                     # Reset the activation function output layer
 
             # TODO: delte
-            # print(f'>>> SGD: {epoch + 1} / {self.n_epochs}')
+            print(f'>>> SGD: {epoch + 1} / {self.n_epochs}')
 
         self.error_list = error_list
         self.accuracy_list = accuracy_list

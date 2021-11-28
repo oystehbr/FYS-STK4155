@@ -3,7 +3,7 @@ Decision tree and Random forest
     - Predikerer bare 0 for det meste - klarer ikke å lage så mye bedre modell for testing data (har mye dataset som predikerer 0)
 
 Unngå veldig store tall som ødelegger
-Predikerer bare null om flere hidden layers
+Predikerer bare null/en class om flere hidden layers??
 
 
 We are working with "Imbalanced Data", approaches to fix this?
