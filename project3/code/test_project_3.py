@@ -853,7 +853,7 @@ if test16:
         n_components, 100)
 
     # Setting the architecture of the Neural Network
-    node_list = [20]
+    node_list = [5]
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -864,10 +864,10 @@ if test16:
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=400,
-        batch_size=10,
-        gamma=0.3,
-        eta=1e-4,
+        n_epochs=1000,
+        batch_size=5,
+        gamma=0.4,
+        eta=1e-3,
         lmbda=0)
 
     # Setting the preffered cost- and activation functions
@@ -879,6 +879,9 @@ if test16:
 
     y_pred_train = FFNN.feed_forward(X_train)
     y_pred_test = FFNN.feed_forward(X_test)
+
+    for i, j in zip(y_pred_train, y_train):
+        print(f'(pred) {i} - {j} (exact). DIFF = {abs(i-j)}')
 
     print(helper.r2_score(y_pred_train, y_train))
     print(helper.r2_score(y_test, y_pred_test))

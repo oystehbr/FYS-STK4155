@@ -490,8 +490,8 @@ def load_housing_california_data(n, m_observations, show_explained_ratio=False):
     # TODO: shuffle the data
 
     # Selecting the n first components w.r.t. the PCA
-    X_input = X_input[:m_observations, :-1]
-    y_target = X_input[:m_observations, -1]
+    X_input = X_input[:m_observations]
+    y_target = y_target[:m_observations]
 
     pca = PCA(n_components=n)
     X_nD = pca.fit_transform(X_input)
