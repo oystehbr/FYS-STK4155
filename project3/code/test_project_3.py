@@ -48,7 +48,7 @@ an accuracy score (of both training and test data). We have also provided the
 opportunity to look at the accuracy score over the training time (iterations of the
 SGD-algorithm)
 """
-test1 = True
+test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
@@ -764,7 +764,7 @@ if test12:
     # model.add(Dense(20, activation="relu"))
     # model.add(Dense(64, activation="relu"))
     model.add(Dense(7, activation='softmax'))
-    sgd = optimizers.SGD(learning_rate=1e-1, momentum=0.7)
+    sgd = optimizers.SGD(learning_rate=1e-2, momentum=0.7)
 
     model.compile(loss='categorical_crossentropy',
         optimizer=sgd, 
