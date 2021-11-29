@@ -648,34 +648,39 @@ test12 = True
 if test12:
     print(">> RUNNING TEST 11 <<")
     # Loading the training and testing dataset
-    n_components = 4
+    n_components = 8
 
-    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, 1000)
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, 500)
     # y_train = to_categorical(y_train)
     # y_test = to_categorical(y_test)
 
     model = Sequential()
-    model.add(Dense(20, activation="sigmoid", input_dim=n_components))
-    # model.add(Dense(20, activation="sigmoid"))
-    # model.add(Dense(64, activation="relu"))
+    model.add(Dense(50, activation="relu", input_dim=n_components))
+    model.add(Dense(50, activation="relu"))
+    model.add(Dense(50, activation="relu"))
     model.add(Dense(1))
-    sgd = optimizers.SGD(learning_rate=1e-3, momentum=0.7)
+    sgd = optimizers.SGD(learning_rate=1e-4, momentum=0.7)
 
     model.compile(loss='mse',
                   optimizer=sgd,
                   metrics=[tf.keras.metrics.MeanSquaredError()])
 
     model.fit(X_train, y_train,
-              epochs=1000,
+              epochs=2000,
               batch_size=100)
 
-    print(model.predict(X_train))
-    exit()
+    y_hat_train = model.predict(X_train)
+    y_hat_test = model.predict(X_test)
 
-    train_scores = model.evaluate(X_train, y_train, batch_size=100)
-    test_scores = model.evaluate(X_test, y_test, batch_size=100)
-    print(f"\nAccuracy for training: {train_scores[1]}")
-    print(f"Accuracy for testing: {test_scores[1]}")
+    r2_score_train = helper.r2_score(y_train, y_hat_train)
+    r2_score_test = helper.r2_score(y_test, y_hat_test)
+
+    print(f"\nR2-score training: {r2_score_train}")
+    print(f"R2-score testing: {r2_score_test}")
+    # train_scores = model.evaluate(X_train, y_train, batch_size=100)
+    # test_scores = model.evaluate(X_test, y_test, batch_size=100)
+    # print(f"\nAccuracy for training: {train_scores[1]}")
+    # print(f"Accuracy for testing: {test_scores[1]}")
 
 """
 TEST 13:
