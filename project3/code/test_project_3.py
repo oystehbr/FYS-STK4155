@@ -15,14 +15,21 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
+import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import regularizers
+from tensorflow.keras import optimizers
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input
 from sklearn.metrics import multilabel_confusion_matrix
 import matplotlib.pyplot as plt
 from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
 from cost_functions import logistic_cost_NN, logistic_cost_NN_multi, cost_logistic_regression, prob, \
     cost_logistic_regression_multi, prob_multi, MSE
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier, BaggingRegressor
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.svm import SVC
 from sklearn import tree
 import time
@@ -637,38 +644,47 @@ if test11:
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
 
 
-# """
-# TEST 12:
-# DATASET:Bean
-# METHOD: NN Keras
+"""
+TEST 12:
+DATASET:Bean
+METHOD: NN Keras
 
-# Tensorflow Keras
-# """
-# test12 = True
-# if test12:
-#     print(">> RUNNING TEST 11 <<")
-#     # Loading the training and testing dataset
-#     n_components = 8
+Tensorflow Keras
+"""
+test12 = False
+if test12:
+    print(">> RUNNING TEST 12 <<")
+    # Loading the training and testing dataset
+    n_components = 8
 
-#     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
-#         n_components, 2000)
-#     # y_train = to_categorical(y_train)
-#     # y_test = to_categorical(y_test)
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, 1000, show_explained_ratio=True
+    )
+    # y_train = to_categorical(y_train)
+    # y_test = to_categorical(y_test)
 
-#     model = Sequential()
-#     model.add(Dense(10, activation="sigmoid", input_dim=n_components))
-#     # model.add(Dense(50, activation="relu"))
-#     # model.add(Dense(50, activation="relu"))
-#     model.add(Dense(1))
-#     sgd = optimizers.SGD(learning_rate=1e-4, momentum=0.5)
+    lmbda = 1e-2
+    model = Sequential()
+    model.add(Dense(60, activation="relu", kernel_regularizer=regularizers.l2(
+        lmbda), input_dim=n_components))
+    model.add(Dense(60, activation="relu",
+              kernel_regularizer=regularizers.l2(lmbda)))
+    model.add(Dense(60, activation="relu",
+              kernel_regularizer=regularizers.l2(lmbda)))
+    model.add(Dense(60, activation="relu",
+              kernel_regularizer=regularizers.l2(lmbda)))
+    model.add(Dense(60, activation="relu",
+              kernel_regularizer=regularizers.l2(lmbda)))
+    model.add(Dense(1))
+    sgd = optimizers.SGD(learning_rate=1e-3, momentum=0.8)
 
 #     model.compile(loss='mse',
 #                   optimizer=sgd,
 #                   metrics=[tf.keras.metrics.MeanSquaredError()])
 
-#     model.fit(X_train, y_train,
-#               epochs=2000,
-#               batch_size=100)
+    model.fit(X_train, y_train,
+              epochs=2000,
+              batch_size=50, )
 
 #     y_hat_train = model.predict(X_train)
 #     y_hat_test = model.predict(X_test)
@@ -830,7 +846,7 @@ if test14:
 TEST 15:
 DATASET: IRIS (classification case)
 
-Show the explained variance ratio from the IRIS dataset 
+Show the explained variance ratio from the IRIS dataset
 with PCA
 """
 test15 = False
@@ -841,137 +857,191 @@ if test15:
     for n_components in n_components_list:
         helper.load_iris_data(n_components, show_explained_ratio=True)
 
-
 """
 TEST 16:
-DATASET: Housing Data
-METHOD: Neural Network
+DATASET: Housing data
+METHOD: Decision tree
 
-Testing NN for housing data
+Use scikitlearn's decision tree, testing
 """
 
 test16 = True
 if test16:
     print('>> RUNNING TEST 16:')
     # Loading the training and testing dataset
-    n_components = 8
+    n_components = 4
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
-        n_components, m_observations=1000, show_explained_ratio=True)
+        n_components, m_observations=2000, show_explained_ratio=True)
 
-    # Setting the architecture of the Neural Network
-    node_list = [10]*4
+    # Function to perform training with Entropy
+    clf = DecisionTreeRegressor(max_depth=100)
 
-    # Initializing the Neural Network
-    FFNN = Neural_Network(
-        no_input_nodes=n_components,
-        no_output_nodes=1,
-        node_list=node_list
-    )
+    # Fit the data to the model we have created
+    clf.fit(X_train, y_train)
 
-    # Setting the preffered Stochastic Gradient Descent parameters
-    FFNN.set_SGD_values(
-        n_epochs=1000,
-        batch_size=10,
-        gamma=0.6,
-        eta=5e-4,
-        lmbda=0
-    )
+    # Look at the three
+    text_representation = tree.export_text(clf)
+    print(text_representation)
+    print(clf.tree_.max_depth)
 
-    # Setting the preffered cost- and activation functions
-    FFNN.set_cost_function(MSE)
-    FFNN.set_activation_function_hidden_layers('RELU')
-
-    FFNN.train_model(X_train, y_train, keep_cost_values=True)
-    FFNN.plot_cost_of_last_training()
-
-    y_pred_train = FFNN.feed_forward(X_train)
-    y_pred_test = FFNN.feed_forward(X_test)
+    # Make predictions for
+    y_pred_train = clf.predict(X_train)
+    y_pred_test = clf.predict(X_test)
 
     print(helper.r2_score(y_pred_train, y_train))
     print(helper.r2_score(y_test, y_pred_test))
 
-    for i, j in zip(y_pred_train, y_train):
-        print(
-            f'(pred) {i} - {j} (exact). DIFF = {abs(i-j)}')
-
-    print(helper.r2_score(y_pred_train, y_train))
-    print(helper.r2_score(y_test, y_pred_test))
 
 """
 TEST 17:
-DATASET: IRIS (regression case)
-METHOD: 
+DATASET: Housing data
+METHOD: Decision tree
 
-Plotting the MSE, bias and variance (testing data), 
-over complexity
+Use scikitlearn's decision tree, testing
 """
+
 test17 = False
 if test17:
     print('>> RUNNING TEST 17:')
-    # Spliting in training and testing data
-    X_train, X_test, z_train, z_test = helper.load_housing_data(2, 5000)
-    x_train = X_train[:, 0]
-    y_train = X_train[:, 1]
-    x_test = X_test[:, 0]
-    y_test = X_test[:, 1]
+    # Loading the training and testing dataset
+    n_components = 8
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, 2000)
 
-    # Store the MSE, bias and variance values for test data
-    list_of_MSE_testing = []
-    list_of_bias_testing = []
-    list_of_variance_testing = []
+    max_depths = np.arange(1, 30, 1)
 
-    max_degree = 4
-    n_bootstrap = 100
-    lmbda = 0.1
+    train_accuracy_score = []
+    test_accuracy_score = []
 
-    # Finding MSE, bias and variance of test data for different degrees
-    for degree in range(1, max_degree + 1):
+    last_max_depth = 0
+    iter = 0
+    for i, max_depth in enumerate(max_depths):
+        clf = DecisionTreeRegressor(
+            max_depth=max_depth, criterion="mse")
 
-        # Create matrix for storing the bootstrap results
-        z_pred_test_matrix = np.empty((z_test.shape[0], n_bootstrap))
+        # Fit the data to the model we have created
+        clf.fit(X_train, y_train)
+        max_depth = clf.tree_.max_depth
 
-        # Running bootstrap-method
-        for i in range(n_bootstrap):
+        if last_max_depth == max_depth:
+            break
+        else:
+            last_max_depth = max_depth
 
-            _x, _y, _z = helper.resample(x_train, y_train, z_train)
+        # Make predictions
+        y_pred_train = clf.predict(X_train)
+        y_pred_test = clf.predict(X_test)
 
-            # Predicting z with the training set, _x, _y, _z
-            z_pred_test, _, _ = helper.predict_output(
-                x_train=_x, y_train=_y, z_train=_z,
-                x_test=x_test, y_test=y_test,
-                degree=degree, regression_method='OLS',
-                lmbda=lmbda
-            )
+        train_accuracy_score.append(
+            helper.r2_score(y_pred_train, y_train))
+        test_accuracy_score.append(helper.r2_score(y_pred_test, y_test))
 
-            z_pred_test_matrix[:, i] = z_pred_test
+        iter += 1
+        print(
+            f'Progress: {iter:2.0f}/{len(max_depths)}')
 
-        # Finding MSE, bias and variance from the bootstrap
-        MSE_test = np.mean(np.mean(
-            (z_pred_test_matrix - np.transpose(np.array([z_test])))**2))
+    plt.plot(range(1, len(train_accuracy_score) + 1),
+             train_accuracy_score, label="Train accuracy score ")
+    plt.plot(range(1, len(test_accuracy_score) + 1),
+             test_accuracy_score, label="Test accuracy score ")
 
-        bias_test = np.mean(
-            (z_test - np.mean(z_pred_test_matrix, axis=1, keepdims=False))**2)
-
-        variance_test = np.mean(
-            np.var(z_pred_test_matrix, axis=1, keepdims=False))
-
-        list_of_MSE_testing.append(MSE_test)
-        list_of_bias_testing.append(bias_test)
-        list_of_variance_testing.append(variance_test)
-
-    plt.plot(range(1, max_degree + 1),
-             list_of_MSE_testing, label="Test sample - error")
-    plt.plot(range(1, max_degree + 1),
-             list_of_bias_testing, label="Test sample - bias")
-    plt.plot(range(1, max_degree + 1),
-             list_of_variance_testing, label="Test sample - variance")
-    plt.xlabel("Model Complexity")
-    plt.ylabel("Prediction Error")
+    plt.xlabel("Model Complexity (max depth of decision tree)")
+    plt.ylabel("Accuracy score")
     plt.legend()
     plt.title(
-        f"bias-variance trade-off vs model complexity\n\
-        Data points: {len(x_train)}; Method: {'OLS'}"
-    )
+        f"Accuracy vs max depth used in the decision tree algorithm")
 
     plt.show()
-    plt.close()
+
+"""
+TEST 18:
+DATASET: Housing)
+METHOD: Random Forest
+
+Use scikitlearn's decision tree, testing
+"""
+
+test18 = False
+if test18:
+    print('>> RUNNING TEST 18:')
+    # Loading the training and testing dataset
+    n_components = 8
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, 2000)
+
+    # Create randomforest instance, with amount of max_depth
+    clf = RandomForestRegressor(max_depth=2)
+
+    # Fit the data to the model we have created
+    clf.fit(X_train, y_train)
+
+    # Make predictions for
+    y_pred_train = clf.predict(X_train)
+    y_pred_test = clf.predict(X_test)
+
+    print(
+        f'Accuracy_train = {helper.r2_score(y_pred_train, y_train)}')
+    print(
+        f'Accuracy_test = {helper.r2_score(y_pred_test,  y_test)}')
+
+
+"""
+TEST 19:
+DATASET: DIABETES DATA (classification case)
+METHOD: Random forest
+
+Training and test data vs. complexity of the tree
+Use scikitlearn's decision tree
+"""
+
+test19 = True
+if test19:
+    print('>> RUNNING TEST 10:')
+    # Loading the training and testing dataset
+    n_components = 8
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, 1000)
+
+    max_depths = np.arange(4, 100, 2)
+
+    train_accuracy_score = []
+    test_accuracy_score = []
+
+    iter = 0
+    last_train_accuracy = 0
+    for i, max_depth in enumerate(max_depths):
+        clf = RandomForestRegressor(
+            max_depth=max_depth, random_state=50)
+
+        # Fit the data to the model we have created
+        clf.fit(X_train, y_train)
+
+        # Make predictions
+        y_pred_train = clf.predict(X_train)
+        y_pred_test = clf.predict(X_test)
+
+        train_accuracy = helper.r2_score(y_pred_train, y_train)
+        if last_train_accuracy == 1:
+            break
+        else:
+            last_train_accuracy = train_accuracy
+
+        train_accuracy_score.append(train_accuracy)
+        test_accuracy_score.append(helper.r2_score(y_pred_test, y_test))
+
+        iter += 1
+        print(
+            f'Progress: {iter:2.0f}/{len(max_depths)}')
+
+    plt.plot(range(1, len(train_accuracy_score) + 1),
+             train_accuracy_score, label="Train accuracy score ")
+    plt.plot(range(1, len(test_accuracy_score) + 1),
+             test_accuracy_score, label="Test accuracy score ")
+
+    plt.xlabel("Model Complexity (max depth of random forest)")
+    plt.ylabel("Accuracy score")
+    plt.legend()
+    plt.title(
+        f"Accuracy vs max depth used in the decision tree algorithm")
+
+    plt.show()
