@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
 from cost_functions import logistic_cost_NN, logistic_cost_NN_multi, cost_logistic_regression, prob, \
-    cost_logistic_regression_multi, prob_multi
+    cost_logistic_regression_multi, prob_multi, MSE
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier, BaggingRegressor
 from sklearn.svm import SVC
@@ -52,14 +52,15 @@ test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
-    X_train, X_test, y_train, y_test = helper.load_iris_data(3)
+    n_components = 3
+    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
 
     # Setting the architecture of the Neural Network
     node_list = [12]
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
-        no_input_nodes=4,
+        no_input_nodes=n_components,
         no_output_nodes=3,
         node_list=node_list
     )
@@ -77,7 +78,7 @@ if test1:
     FFNN.set_activation_function_hidden_layers('sigmoid')
     FFNN.set_activation_function_output_layer('softmax')
 
-    FFNN.train_model(X_train, y_train, keep_cost_values=True,
+    FFNN.train_model(X_train, y_train, y_converter=True, keep_cost_values=True,
                      keep_accuracy_score=True)
     FFNN.plot_cost_of_last_training()
     FFNN.plot_accuracy_score_last_training()
@@ -833,69 +834,49 @@ if test15:
 
 
 """
-TEST 1:
-DATASET: DIABETES DATA (regression case)
+TEST 16:
+DATASET: Housing Data
 METHOD: Neural Network
 
-Here you are able to try out the neural network and see the result in the form of
-an accuracy score (of both training and test data). We have also provided the
-opportunity to look at the accuracy score over the training time (iterations of the
-SGD-algorithm)
+Testing NN for housing data
 """
 
 test16 = True
 if test16:
     print('>> RUNNING TEST 16:')
     # Loading the training and testing dataset
-    X_train, X_test, y_train, y_test = helper.load_iris_data(3)
+    X_train, X_test, y_train, y_test = helper.load_housing_data(2, 100)
 
     # Setting the architecture of the Neural Network
-    node_list = [12]
+    node_list = [20]*10
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
-        no_input_nodes=4,
-        no_output_nodes=3,
+        no_input_nodes=2,
+        no_output_nodes=1,
         node_list=node_list
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=2000,
-        batch_size=5,
-        gamma=0.1,
-        eta=1e-2,
+        n_epochs=100,
+        batch_size=10,
+        gamma=0.7,
+        eta=1e-4,
         lmbda=0)
 
     # Setting the preffered cost- and activation functions
-    FFNN.set_cost_function(logistic_cost_NN_multi)
+    FFNN.set_cost_function(MSE)
     FFNN.set_activation_function_hidden_layers('sigmoid')
-    FFNN.set_activation_function_output_layer('softmax')
 
-    FFNN.train_model(X_train, y_train, keep_cost_values=True,
-                     keep_accuracy_score=True)
+    FFNN.train_model(X_train, y_train, keep_cost_values=True)
     FFNN.plot_cost_of_last_training()
-    FFNN.plot_accuracy_score_last_training()
 
-    y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
-    y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+    y_pred_train = FFNN.feed_forward(X_train)
+    y_pred_test = FFNN.feed_forward(X_test)
 
-    # for k in range(len(y_pred_test)):
-    #     if y_train[k] == 0:
-    #         print(
-    #             f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
-    #     if y_train[k] == 1:
-    #         print(
-    #             f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
-
-    # print(y_pred_train)
-
-    print(helper.accuracy_score(y_pred_train, y_train))
-    print(helper.accuracy_score(y_test, y_pred_test))
-
-    # Change the activation function to predict 0 or 1's.
-    # FFNN.set_activation_function_output_layer('sigmoid_classification')
-
+    print(helper.r2_score(y_pred_train, y_train))
+    print(helper.r2_score(y_test, y_pred_test))
 
 """
 TEST 17:
@@ -907,18 +888,22 @@ over complexity
 """
 test17 = False
 if test17:
-    print('>> RUNNING TEST 1:')
+    print('>> RUNNING TEST 17:')
     # Spliting in training and testing data
-    x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
-        x_values, y_values, z_values, test_size=test_size)
+    X_train, X_test, z_train, z_test = helper.load_housing_data(2, 5000)
+    x_train = X_train[:, 0]
+    y_train = X_train[:, 1]
+    x_test = X_test[:, 0]
+    y_test = X_test[:, 1]
 
     # Store the MSE, bias and variance values for test data
     list_of_MSE_testing = []
     list_of_bias_testing = []
     list_of_variance_testing = []
 
-    max_degree = 10
+    max_degree = 4
     n_bootstrap = 100
+    lmbda = 0.1
 
     # Finding MSE, bias and variance of test data for different degrees
     for degree in range(1, max_degree + 1):
@@ -935,7 +920,7 @@ if test17:
             z_pred_test, _, _ = helper.predict_output(
                 x_train=_x, y_train=_y, z_train=_z,
                 x_test=x_test, y_test=y_test,
-                degree=degree, regression_method=method,
+                degree=degree, regression_method='OLS',
                 lmbda=lmbda
             )
 
@@ -966,9 +951,8 @@ if test17:
     plt.legend()
     plt.title(
         f"bias-variance trade-off vs model complexity\n\
-        Data points: {len(x_values)}; Method: {method}"
+        Data points: {len(x_train)}; Method: {'OLS'}"
     )
-    plt.savefig(
-        f"figures/bias_variance_boots_looping_degree_DP_{len(x_values)}_d_{degree}_{method}")
+
     plt.show()
     plt.close()
