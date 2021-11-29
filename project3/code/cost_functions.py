@@ -31,6 +31,7 @@ def logistic_cost_NN_multi(y_hat, y):
 
     return - np.sum(np.sum(np.log(y_hat)*y, axis=1))
 
+
 def cost_logistic_regression(beta, X, y, lmbda=0):
     """
     The cost function of the logistic regression, calculates the 
@@ -53,6 +54,7 @@ def cost_logistic_regression(beta, X, y, lmbda=0):
     return -np.sum(y*np.log(prob(beta, X)) + (1-y)
                    * np.log(1 - prob(beta, X))) + lmbda*np.sum(beta**2)
 
+
 def cost_logistic_regression_multi(beta, X, y, lmbda=0):
     """
     The cost function of the logistic regression, calculates the 
@@ -71,11 +73,11 @@ def cost_logistic_regression_multi(beta, X, y, lmbda=0):
     :return (float):
         the value of the cost function
     """
-    
+
     # TODO: add this underneath
     # Row-wise dot product, then summation
-    return - np.sum(np.sum(np.log(prob_multi(beta, X))*y, axis=1)) #+ lmbda*np.sum(beta**2)
-
+    # + lmbda*np.sum(beta**2)
+    return - np.sum(np.sum(np.log(prob_multi(beta, X))*y, axis=1))
 
 
 def prob(beta, X):
@@ -100,11 +102,11 @@ def prob_multi(beta, X):
     """
     # TODO: 
     """
-    
-    z = beta[:,0].T + X @ beta[:,1:].T
-    
+
+    z = beta[:, 0].T + X @ beta[:, 1:].T
+
     probs = softmax(z)
-    
+
     return probs
 
 
@@ -121,7 +123,7 @@ def MSE(y_hat, y):
         the value
     """
 
-    return 1/2 * np.sum((y - y_hat)**2)
+    return 1/len(y_hat) * np.sum((y - y_hat)**2)
 
 
 def cost_OLS(beta, X, y, lmbda=0):

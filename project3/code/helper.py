@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
-from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing
+from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing, load_diabetes
 
 import numpy as np
 import seaborn as sns
@@ -462,6 +462,56 @@ def load_iris_data(n, show_explained_ratio=False):
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
 
 
+def load_diabetes_PSY_data(n, show_explained_ratio=False):
+    """
+    Loading the cancer_data from scikit-learn. Selecting the
+    features with the highest explained variance ratio (the first
+    # n) and returning those
+
+    :param n (int):
+        amount of components we want to return
+
+    :return tuple(np.ndarray):
+        - Input data, training
+        - Input data, testing
+        - Target data, training
+        - Target data, testing
+    """
+
+    # Loading cancer data
+    diabetes = load_diabetes()
+    # Parameter labels (if you want, not used)
+
+    # TODO: shuffle the data
+    X_input = diabetes.data
+    y_target = diabetes.target    # 0 for benign and 1 for malignant
+    y_target = y_target.reshape(-1, 1)
+
+    values = np.concatenate((X_input, y_target), axis=1)
+    np.random.shuffle(values)
+
+    # Selecting the n first components w.r.t. the PCA
+    X_input = values[:, :-1]
+    y_target = values[:, -1]
+
+    # Selecting the n first components w.r.t. the PCA
+    pca = PCA(n_components=n)
+    X_nD = pca.fit_transform(X_input)
+
+    if show_explained_ratio:
+        print(
+            f'Total explained variance ratio (of {n} component): {sum(pca.explained_variance_ratio_)}')
+
+    # X_train_scale = np.mean(X_train, axis=0)
+    X_nD = (X_nD - np.mean(X_nD, axis=0))/np.std(X_nD, axis=0)
+    # X_nD = X_nD/(X_nD.max(axis=0))
+
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+        X_nD, y_target)
+
+    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+
+
 def load_housing_california_data(n, m_observations, show_explained_ratio=False):
     """
     Loading the cancer_data from scikit-learn. Selecting the
@@ -483,14 +533,14 @@ def load_housing_california_data(n, m_observations, show_explained_ratio=False):
     # Parameter labels (if you want, not used)
 
     # TODO: shuffle the data
-    X_input = pd.data
-    y_target = pd.target
+    X_input = pd.data[:1000]
+    y_target = pd.target[:1000]
     y_target = y_target.reshape(-1, 1)
 
     values = np.concatenate((X_input, y_target), axis=1)
     np.random.shuffle(values)
 
-    # Selecting the n first components w.r.t. the PCA
+    # # Selecting the n first components w.r.t. the PCA
     X_input = values[:m_observations, :-1]
     y_target = values[:m_observations, -1]
     # X_input = X_input[m_observations:2*m_observations]
@@ -547,7 +597,6 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
     X_train, y_train = midsampling_of_training_data(X_train, y_train)
 
     return X_train, X_test, y_train, y_test
-
 
 
 def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=False):
