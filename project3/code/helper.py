@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
-from sklearn.datasets import load_breast_cancer, load_iris
+from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing
 
 import numpy as np
 import seaborn as sns
@@ -462,6 +462,52 @@ def load_iris_data(n, show_explained_ratio=False):
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
 
 
+def load_housing_california_data(n, m_observations, show_explained_ratio=False):
+    """
+    Loading the cancer_data from scikit-learn. Selecting the
+    features with the highest explained variance ratio (the first
+    # n) and returning those
+
+    :param n (int):
+        amount of components we want to return
+
+    :return tuple(np.ndarray):
+        - Input data, training
+        - Input data, testing
+        - Target data, training
+        - Target data, testing
+    """
+
+    # Loading cancer data
+    pd = fetch_california_housing()
+    # Parameter labels (if you want, not used)
+
+    # TODO: shuffle the data
+    X_input = pd.data
+    y_target = pd.target    # 0 for benign and 1 for malignant
+    y_target = y_target.reshape(-1, 1)
+
+    # TODO: shuffle the data
+
+    # Selecting the n first components w.r.t. the PCA
+    X_input = X_input[:m_observations, :-1]
+    y_target = X_input[:m_observations, -1]
+
+    pca = PCA(n_components=n)
+    X_nD = pca.fit_transform(X_input)
+
+    if show_explained_ratio:
+        print(
+            f'Total explained variance ratio (of {n} component): {sum(pca.explained_variance_ratio_)}')
+
+    X_nD = X_nD/(X_nD.max(axis=0))
+
+    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+        X_nD, y_target)
+
+    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+
+
 def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=False):
     """
     # TODO: docstrings
@@ -532,6 +578,7 @@ def load_housing_data(n_components, m_observations=1000, show_explained_ratio=Fa
         print(pca.explained_variance_ratio_)
 
     X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
+    y_target = y_target/(y_target.max(axis=0))
 
     X_train, X_test, y_train, y_test = train_test_split(
         X_input_PCA, y_target)
@@ -607,20 +654,20 @@ def load_wine_data(n_components, m_observations=1000, show_explained_ratio=False
     X_input = values[:m_observations, :-1]
     y_target = values[:m_observations, -1]
 
-    # pca = PCA(n_components)
+    pca = PCA(n_components)
 
-    # # Only include the "n_components" most important features
-    # X_input_PCA = pca.fit_transform(X_input)
+    # Only include the "n_components" most important features
+    X_input_PCA = pca.fit_transform(X_input)
 
-    # if show_explained_ratio:
-    #     print(pca.explained_variance_ratio_)
-    #     print(sum(pca.explained_variance_ratio_))
+    if show_explained_ratio:
+        print(pca.explained_variance_ratio_)
+        print(sum(pca.explained_variance_ratio_))
 
-    X_input = X_input/(X_input.max(axis=0))
-    # X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
+    # X_input = X_input/(X_input.max(axis=0))
+    X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X_input, y_target)
+        X_input_PCA, y_target)
 
     # X_train, y_train = oversampling_of_training_data(X_train, y_train)
 

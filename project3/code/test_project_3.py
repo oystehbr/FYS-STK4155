@@ -845,23 +845,25 @@ test16 = False
 if test16:
     print('>> RUNNING TEST 16:')
     # Loading the training and testing dataset
-    X_train, X_test, y_train, y_test = helper.load_housing_data(2, 100)
+    n_components = 2
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, 100)
 
     # Setting the architecture of the Neural Network
-    node_list = [20]*10
+    node_list = [20]
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
-        no_input_nodes=2,
+        no_input_nodes=n_components,
         no_output_nodes=1,
         node_list=node_list
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=100,
+        n_epochs=400,
         batch_size=10,
-        gamma=0.7,
+        gamma=0.3,
         eta=1e-4,
         lmbda=0)
 
