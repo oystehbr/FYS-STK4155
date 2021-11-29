@@ -229,9 +229,6 @@ class Neural_Network():
 
                 iter += 1
                 # TODO: look at cost-values
-                # y_hat = helper.convert_vec_to_num(self.feed_forward(X))
-                # y_ = helper.convert_vec_to_num(y)
-                # print(helper.accuracy_score(y_hat, y_))
 
                 # If we want to save the error's according to the costfunction
                 if self.keep_cost_values:
@@ -400,11 +397,13 @@ class Neural_Network():
         self.cost_function = cost_function
         self.cost_grad = egrad(cost_function)
 
-    def train_model(self, X, y, keep_cost_values: bool = False, keep_accuracy_score: bool = False):
+    def train_model(self, X, y, y_converter=False, keep_cost_values: bool = False, keep_accuracy_score: bool = False):
         """
         This function will train the model by running through
         a stochastic gradient descent algorithm (with help from backpropagation)
         to update the weights and biases in the neural network
+        # TODO: docs on y_converter
+
 
         :param X (np.ndarray):
             the input variable we want to train the network with
@@ -425,7 +424,8 @@ class Neural_Network():
         self.keep_accuracy_score = keep_accuracy_score
 
         # Convert the output to a dimensional based target
-        y = helper.convert_num_to_vec(y, self.no_output_nodes)
+        if y_converter:
+            y = helper.convert_num_to_vec(y, self.no_output_nodes)
 
         # Calling the SGD-function to help us train the model
         self.SGD(X, y)
