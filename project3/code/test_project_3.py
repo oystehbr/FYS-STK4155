@@ -30,12 +30,13 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-# from tensorflow.keras.layers import Input
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras import optimizers
-# from tensorflow.keras import regularizers
-# from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras import optimizers
+from tensorflow.keras import regularizers
+from tensorflow.keras.utils import to_categorical
+import tensorflow as tf
 
 
 """
@@ -636,43 +637,42 @@ if test11:
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
 
 
-# """
-# TEST 12:
-# DATASET:Bean
-# METHOD: NN Keras
+"""
+TEST 12:
+DATASET:Bean
+METHOD: NN Keras
 
-# Tensorflow Keras
-# """
-# test12 = True
-# if test12:
-#     print(">> RUNNING TEST 11 <<")
-#     # Loading the training and testing dataset
-#     n_components = 2
-#     m_observations = 1600
+Tensorflow Keras
+"""
+test12 = True
+if test12:
+    print(">> RUNNING TEST 11 <<")
+    # Loading the training and testing dataset
+    n_components = 8
 
-#     X_train, X_test, y_train, y_test = helper.load_dry_beans_data(2)
-#     y_train = to_categorical(y_train)
-#     y_test = to_categorical(y_test)
+    X_train, X_test, y_train, y_test = helper.load_housing_data(n_components)
+    # y_train = to_categorical(y_train)
+    # y_test = to_categorical(y_test)
 
-#     model = Sequential()
-#     model.add(Dense(20, activation="relu", input_dim=n_components))
-#     # model.add(Dense(20, activation="relu"))
-#     # model.add(Dense(64, activation="relu"))
-#     model.add(Dense(7, activation='softmax'))
-#     sgd = optimizers.SGD(learning_rate=1e-1, momentum=0.7)
+    model = Sequential()
+    model.add(Dense(20, activation="sigmoid", input_dim=n_components))
+    model.add(Dense(20, activation="sigmoid"))
+    # model.add(Dense(64, activation="relu"))
+    model.add(Dense(1))
+    sgd = optimizers.SGD(learning_rate=1e-5, momentum=0.7)
 
-#     model.compile(loss='categorical_crossentropy',
-#                   optimizer=sgd,
-#                   metrics=['accuracy'])
+    model.compile(loss='mse',
+                  optimizer=sgd,
+                  metrics=[tf.keras.metrics.MeanSquaredError()])
 
-#     model.fit(X_train, y_train,
-#               epochs=500,
-#               batch_size=100)
+    model.fit(X_train, y_train,
+              epochs=1000,
+              batch_size=100)
 
-#     train_scores = model.evaluate(X_train, y_train, batch_size=100)
-#     test_scores = model.evaluate(X_test, y_test, batch_size=100)
-#     print(f"\nAccuracy for training: {train_scores[1]}")
-#     print(f"Accuracy for testing: {test_scores[1]}")
+    train_scores = model.evaluate(X_train, y_train, batch_size=100)
+    test_scores = model.evaluate(X_test, y_test, batch_size=100)
+    print(f"\nAccuracy for training: {train_scores[1]}")
+    print(f"Accuracy for testing: {test_scores[1]}")
 
 """
 TEST 13:
@@ -841,7 +841,7 @@ METHOD: Neural Network
 Testing NN for housing data
 """
 
-test16 = True
+test16 = False
 if test16:
     print('>> RUNNING TEST 16:')
     # Loading the training and testing dataset
