@@ -493,8 +493,6 @@ def load_housing_california_data(n, m_observations, show_explained_ratio=False):
     # Selecting the n first components w.r.t. the PCA
     X_input = values[:m_observations, :-1]
     y_target = values[:m_observations, -1]
-    # X_input = X_input[m_observations:2*m_observations]
-    # y_target = y_target[m_observations:2*m_observations]
 
     pca = PCA(n_components=n)
     X_nD = pca.fit_transform(X_input)
@@ -708,6 +706,52 @@ def load_diabetes_data_without_PCA(n_components, m_observations=1000):
     X_train, y_train = oversampling_of_training_data(X_train, y_train)
 
     return X_train, X_test, y_train, y_test
+
+
+def load_air_data(n_components, m_observations=1000, show_explained_ratio=False):
+    path = "data/AirQuality.csv"
+    df = pd.read_csv(
+        path,
+        sep=";"
+    )
+
+    df = df.drop(['Date', 'Time', 'Unnamed: 15', 'Unnamed: 16'], axis=1)
+    df = df.astype(float)
+
+    values = df.values
+    max = values.shape[0]
+    i=0
+    while i<max:
+        row = values[i]
+        if -200 in row:
+            values = np.delete(values, i, 0)
+            max -= 1
+        else:
+            i += 1
+
+    np.random.shuffle(values)
+    
+    X_input = values[:m_observations, :-1]
+    y_target = values[:m_observations, -1]
+
+    pca = PCA(n_components)
+
+    # Only include the "n_components" most important features
+    X_input_PCA = pca.fit_transform(X_input)
+
+    if show_explained_ratio:
+        print(pca.explained_variance_ratio_)
+        print(sum(pca.explained_variance_ratio_))
+
+    # X_input = X_input/(X_input.max(axis=0))
+    X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_input_PCA, y_target)
+
+    return X_train, X_test, y_train, y_test
+
+
 
 
 def convert_num_to_vec(y, dim):
