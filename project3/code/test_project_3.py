@@ -30,7 +30,12 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-from activation_functions import sigmoid_classification
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras import optimizers
+from tensorflow.keras import regularizers
+from tensorflow.keras.utils import to_categorical
 
 
 """
@@ -56,7 +61,7 @@ if test1:
     #     n_components)
 
     # Setting the architecture of the Neural Network
-    node_list = [8]
+    node_list = [20]*2
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -67,15 +72,15 @@ if test1:
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=1000,
+        n_epochs=20,
         batch_size=100,
-        gamma=0.1,
-        eta=5e-5,
+        gamma=0.7,
+        eta=1e-4,
         lmbda=0)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN_multi)
-    FFNN.set_activation_function_hidden_layers('RELU')
+    FFNN.set_activation_function_hidden_layers('relu')
     FFNN.set_activation_function_output_layer('softmax')
 
     FFNN.train_model(X_train, y_train, keep_cost_values=True,
@@ -735,3 +740,45 @@ if test11:
     #         print(softi[i])
     #         print(y_train[i])
     #         print('--------')
+
+"""
+TEST 11:
+DATASET: 
+METHOD: NN Keras
+
+Test if log reg works
+"""
+test12 = True
+if test12:
+    print(">> RUNNING TEST 11 <<")
+    # Loading the training and testing dataset
+    n_components = 2
+    m_observations = 1600
+
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(2)
+    y_train = to_categorical(y_train)
+    y_test = to_categorical(y_test)
+
+    model = Sequential()
+    model.add(Dense(20, activation="relu", input_dim=n_components))
+    # model.add(Dense(20, activation="relu"))
+    # model.add(Dense(64, activation="relu"))
+    model.add(Dense(7, activation='softmax'))
+    sgd = optimizers.SGD(learning_rate=1e-1, momentum=0.7)
+
+    model.compile(loss='categorical_crossentropy',
+        optimizer=sgd, 
+        metrics=['accuracy'])
+    
+    model.fit(X_train, y_train, 
+        epochs=500,
+        batch_size=100)
+    
+    train_scores = model.evaluate(X_train, y_train, batch_size=100)
+    test_scores = model.evaluate(X_test, y_test, batch_size=100)
+    print(f"\nAccuracy for training: {train_scores[1]}")
+    print(f"Accuracy for testing: {test_scores[1]}")
+
+    
+
+
