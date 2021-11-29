@@ -644,22 +644,23 @@ METHOD: NN Keras
 
 Tensorflow Keras
 """
-# test12 = True
-# if test12:
-#     print(">> RUNNING TEST 11 <<")
-#     # Loading the training and testing dataset
-#     n_components = 8
+test12 = True
+if test12:
+    print(">> RUNNING TEST 11 <<")
+    # Loading the training and testing dataset
+    n_components = 4
 
-#     X_train, X_test, y_train, y_test = helper.load_housing_data(n_components)
-#     # y_train = to_categorical(y_train)
-#     # y_test = to_categorical(y_test)
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, 1000)
+    # y_train = to_categorical(y_train)
+    # y_test = to_categorical(y_test)
 
-#     model = Sequential()
-#     model.add(Dense(20, activation="sigmoid", input_dim=n_components))
-#     model.add(Dense(20, activation="sigmoid"))
-#     # model.add(Dense(64, activation="relu"))
-#     model.add(Dense(1))
-#     sgd = optimizers.SGD(learning_rate=1e-5, momentum=0.7)
+    model = Sequential()
+    model.add(Dense(20, activation="sigmoid", input_dim=n_components))
+    # model.add(Dense(20, activation="sigmoid"))
+    # model.add(Dense(64, activation="relu"))
+    model.add(Dense(1))
+    sgd = optimizers.SGD(learning_rate=1e-3, momentum=0.7)
 
 #     model.compile(loss='mse',
 #                   optimizer=sgd,
@@ -669,10 +670,13 @@ Tensorflow Keras
 #               epochs=1000,
 #               batch_size=100)
 
-#     train_scores = model.evaluate(X_train, y_train, batch_size=100)
-#     test_scores = model.evaluate(X_test, y_test, batch_size=100)
-#     print(f"\nAccuracy for training: {train_scores[1]}")
-#     print(f"Accuracy for testing: {test_scores[1]}")
+    print(model.predict(X_train))
+    exit()
+
+    train_scores = model.evaluate(X_train, y_train, batch_size=100)
+    test_scores = model.evaluate(X_test, y_test, batch_size=100)
+    print(f"\nAccuracy for training: {train_scores[1]}")
+    print(f"Accuracy for testing: {test_scores[1]}")
 
 """
 TEST 13:
