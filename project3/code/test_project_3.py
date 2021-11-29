@@ -30,13 +30,13 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-# from tensorflow.keras.layers import Input
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras import optimizers
-# from tensorflow.keras import regularizers
-# from tensorflow.keras.utils import to_categorical
-# import tensorflow as tf
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras import optimizers
+from tensorflow.keras import regularizers
+from tensorflow.keras.utils import to_categorical
+import tensorflow as tf
 
 
 """
@@ -651,20 +651,20 @@ if test12:
     n_components = 8
 
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
-        n_components, 1000)
+        n_components, 2000)
     # y_train = to_categorical(y_train)
     # y_test = to_categorical(y_test)
 
     model = Sequential()
-    model.add(Dense(50, activation="relu", input_dim=n_components))
-    model.add(Dense(50, activation="relu"))
-    model.add(Dense(50, activation="relu"))
+    model.add(Dense(10, activation="sigmoid", input_dim=n_components))
+    # model.add(Dense(50, activation="relu"))
+    # model.add(Dense(50, activation="relu"))
     model.add(Dense(1))
-    sgd = optimizers.SGD(learning_rate=1e-4, momentum=0.7)
+    sgd = optimizers.SGD(learning_rate=1e-4, momentum=0.5)
 
-#     model.compile(loss='mse',
-#                   optimizer=sgd,
-#                   metrics=[tf.keras.metrics.MeanSquaredError()])
+    model.compile(loss='mse',
+                  optimizer=sgd,
+                  metrics=[tf.keras.metrics.MeanSquaredError()])
 
     model.fit(X_train, y_train,
               epochs=2000,
@@ -850,16 +850,16 @@ METHOD: Neural Network
 Testing NN for housing data
 """
 
-test16 = True
+test16 = False
 if test16:
     print('>> RUNNING TEST 16:')
     # Loading the training and testing dataset
     n_components = 8
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
-        n_components, 500, show_explained_ratio=True)
+        n_components, 30, show_explained_ratio=True)
 
     # Setting the architecture of the Neural Network
-    node_list = [10]*4
+    node_list = [10]
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
@@ -870,16 +870,16 @@ if test16:
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=2000,
-        batch_size=10,
+        n_epochs=1000,
+        batch_size=2,
         gamma=0.5,
-        eta=1e-3,
+        eta=1e-4,
         lmbda=0
     )
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(MSE)
-    FFNN.set_activation_function_hidden_layers('RELU')
+    FFNN.set_activation_function_hidden_layers('sigmoid')
 
     FFNN.train_model(X_train, y_train, keep_cost_values=True)
     FFNN.plot_cost_of_last_training()

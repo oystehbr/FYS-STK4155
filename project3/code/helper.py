@@ -484,14 +484,17 @@ def load_housing_california_data(n, m_observations, show_explained_ratio=False):
 
     # TODO: shuffle the data
     X_input = pd.data
-    y_target = pd.target    # 0 for benign and 1 for malignant
+    y_target = pd.target
     y_target = y_target.reshape(-1, 1)
 
-    # TODO: shuffle the data
+    values = np.concatenate((X_input, y_target), axis=1)
+    np.random.shuffle(values)
 
     # Selecting the n first components w.r.t. the PCA
-    X_input = X_input[:m_observations]
-    y_target = y_target[:m_observations]
+    X_input = values[:m_observations, :-1]
+    y_target = values[:m_observations, -1]
+    # X_input = X_input[m_observations:2*m_observations]
+    # y_target = y_target[m_observations:2*m_observations]
 
     pca = PCA(n_components=n)
     X_nD = pca.fit_transform(X_input)
@@ -545,45 +548,6 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
 
     return X_train, X_test, y_train, y_test
 
-
-def load_housing_data(n_components, m_observations=1000, show_explained_ratio=False):
-    """
-    # TODO: docstrings
-    """
-
-    path = "data/housing.csv"
-    # Loading the data into pandas
-    df = pd.read_csv(
-        path,
-        sep=","
-    )
-
-    df = df.drop(['ocean_proximity'], axis=1)
-    df = df.astype(float)
-
-    values = df.values
-
-    # Shuffle the data
-    np.random.shuffle(values)
-
-    X_input = values[:m_observations, :-1]
-    y_target = values[:m_observations, -1]
-
-    pca = PCA(n_components)
-
-    # Only include the "n_components" most important features
-    X_input_PCA = pca.fit_transform(X_input)
-
-    if show_explained_ratio:
-        print(pca.explained_variance_ratio_)
-
-    X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
-    y_target = y_target/(y_target.max(axis=0))
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_input_PCA, y_target)
-
-    return X_train, X_test, y_train, y_test
 
 
 def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=False):
