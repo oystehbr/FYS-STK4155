@@ -30,12 +30,12 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-from tensorflow.keras.layers import Input
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from tensorflow.keras import optimizers
-from tensorflow.keras import regularizers
-from tensorflow.keras.utils import to_categorical
+# from tensorflow.keras.layers import Input
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras import optimizers
+# from tensorflow.keras import regularizers
+# from tensorflow.keras.utils import to_categorical
 
 
 """
@@ -52,35 +52,29 @@ test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
-    n_components = 2
-    m_observations = 1600
-
-    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(2)
-
-    # X_train, X_test, y_train, y_test = helper.load_cancer_data(
-    #     n_components)
+    X_train, X_test, y_train, y_test = helper.load_iris_data(3)
 
     # Setting the architecture of the Neural Network
-    node_list = [20]*2
+    node_list = [12]
 
     # Initializing the Neural Network
     FFNN = Neural_Network(
-        no_input_nodes=n_components,
-        no_output_nodes=7,
+        no_input_nodes=4,
+        no_output_nodes=3,
         node_list=node_list
     )
 
     # Setting the preffered Stochastic Gradient Descent parameters
     FFNN.set_SGD_values(
-        n_epochs=20,
-        batch_size=100,
-        gamma=0.7,
-        eta=1e-4,
+        n_epochs=2000,
+        batch_size=5,
+        gamma=0.1,
+        eta=1e-2,
         lmbda=0)
 
     # Setting the preffered cost- and activation functions
     FFNN.set_cost_function(logistic_cost_NN_multi)
-    FFNN.set_activation_function_hidden_layers('relu')
+    FFNN.set_activation_function_hidden_layers('sigmoid')
     FFNN.set_activation_function_output_layer('softmax')
 
     FFNN.train_model(X_train, y_train, keep_cost_values=True,
@@ -101,15 +95,12 @@ if test1:
 
     # print(y_pred_train)
 
-    # print(helper.accuracy_score(y_pred_train, y_train.reshape(-1, 1)))
-    # print(helper.accuracy_score(y_test, y_pred_test))
+    print(helper.accuracy_score(y_pred_train, y_train))
+    print(helper.accuracy_score(y_test, y_pred_test))
 
     # Change the activation function to predict 0 or 1's.
     # FFNN.set_activation_function_output_layer('sigmoid_classification')
-    # print(
-    #     f'Accuracy_train = {helper.accuracy_score(FFNN.feed_forward(X_train),  y_train)}')
-    # print(
-    #     f'Accuracy_test = {helper.accuracy_score(FFNN.feed_forward(X_test),  y_test)}')
+
 
 """
 TEST 2:
@@ -312,6 +303,7 @@ if test3:
 
 """
 TEST 4:
+# TODO: change underneath
 DATASET: DIABETES DATA (classification case)
 METHOD: Neural Network
 
@@ -323,7 +315,7 @@ test4 = False
 if test4:
     print('>> RUNNING TEST 4:')
     # Loading the training and testing dataset
-    n_components = 10
+    n_components = 3
     X_train, X_test, y_train, y_test = helper.load_diabetes_data(
         n_components, 200)
 
@@ -344,11 +336,11 @@ if test4:
     FFNN.set_activation_function_hidden_layers('sigmoid')
 
     # Change the activation function to predict 0 or 1's.
-    learning_rates = [1e-4, 5e-5, 1e-5, 5e-6, 1e-6]
+    max_depths = [1e-4, 5e-5, 1e-5, 5e-6, 1e-6]
     lmbda_values = np.logspace(-5, -7, 3)
 
-    train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
-    test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
+    train_accuracy_score = np.zeros((len(max_depths), len(lmbda_values)))
+    test_accuracy_score = np.zeros((len(max_depths), len(lmbda_values)))
 
     n_epochs = 150
     batch_size = 10
@@ -360,7 +352,7 @@ if test4:
         gamma=gamma)
 
     iter = 0
-    for i, eta in enumerate(learning_rates):
+    for i, eta in enumerate(max_depths):
         for j, lmbda in enumerate(lmbda_values):
             print(eta, lmbda)
             # Reinitializing the weights, biases and activation function
@@ -390,13 +382,13 @@ if test4:
 
             iter += 1
             print(
-                f'Progress: {iter:2.0f}/{len(learning_rates) * len(lmbda_values)}')
+                f'Progress: {iter:2.0f}/{len(max_depths) * len(lmbda_values)}')
 
     # Creating the seaborn_plot
     helper.seaborn_plot_lmbda_learning(
         score=train_accuracy_score,
         x_tics=lmbda_values,
-        y_tics=learning_rates,
+        y_tics=max_depths,
         score_name='Training Accuracy',
         save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_training_14.png'
     )
@@ -404,7 +396,7 @@ if test4:
     helper.seaborn_plot_lmbda_learning(
         score=test_accuracy_score,
         x_tics=lmbda_values,
-        y_tics=learning_rates,
+        y_tics=max_depths,
         score_name='Test Accuracy',
         save_name=f'plots/test6/test6_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_hiddennodes_{no_hidden_nodes}_hiddenlayer_{no_hidden_layers}_actOUT_{output_activation}_test_14.png'
     )
@@ -422,14 +414,13 @@ test5 = False
 if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
-    n_components = 21
-    m_observations = 300000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-        n_components, m_observations)
+    n_components = 3
+    X_train, X_test, y_train, y_test = helper.load_iris_data(
+        n_components, 2000)
 
     # Function to perform training with Entropy
     clf = DecisionTreeClassifier(
-        criterion='entropy', max_depth=14)
+        criterion='entropy', max_depth=5)
 
     # Fit the data to the model we have created
     clf.fit(X_train, y_train)
@@ -457,42 +448,49 @@ Training and test data vs. complexity of the tree
 Use scikitlearn's decision tree, testing
 """
 
-test6 = False
+test6 = True
 if test6:
     print('>> RUNNING TEST 6:')
     # Loading the training and testing dataset
     n_components = 2
-    m_observations = 300000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
-        n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_iris_data(
+        n_components)
 
-    learning_rates = np.arange(1, 14, 1)
+    max_depths = np.arange(1, 14, 1)
 
-    train_accuracy_score = np.zeros(len(learning_rates))
-    test_accuracy_score = np.zeros(len(learning_rates))
+    train_accuracy_score = []
+    test_accuracy_score = []
 
+    last_max_depth = 0
     iter = 0
-    for i, max_depth in enumerate(learning_rates):
+    for i, max_depth in enumerate(max_depths):
         clf = DecisionTreeClassifier(
             criterion='entropy', max_depth=max_depth)
 
         # Fit the data to the model we have created
         clf.fit(X_train, y_train)
+        max_depth = clf.tree_.max_depth
+
+        if last_max_depth == max_depth:
+            break
+        else:
+            last_max_depth = max_depth
 
         # Make predictions
-        y_pred_test = clf.predict(X_train)
+        y_pred_train = clf.predict(X_train)
         y_pred_test = clf.predict(X_test)
 
-        train_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_train)
-        test_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_test)
+        train_accuracy_score.append(
+            helper.accuracy_score(y_pred_train, y_train))
+        test_accuracy_score.append(helper.accuracy_score(y_pred_test, y_test))
 
         iter += 1
         print(
-            f'Progress: {iter:2.0f}/{len(learning_rates)}')
+            f'Progress: {iter:2.0f}/{len(max_depths)}')
 
-    plt.plot(learning_rates,
+    plt.plot(range(len(train_accuracy_score)),
              train_accuracy_score, label="Train accuracy score ")
-    plt.plot(learning_rates,
+    plt.plot(range(len(test_accuracy_score)),
              test_accuracy_score, label="Test accuracy score ")
 
     plt.xlabel("Model Complexity (max depth of decision tree)")
@@ -554,13 +552,13 @@ if test8:
     X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
         n_components, m_observations)
 
-    learning_rates = np.arange(1, 40, 1)
+    max_depths = np.arange(1, 40, 1)
 
-    train_accuracy_score = np.zeros(len(learning_rates))
-    test_accuracy_score = np.zeros(len(learning_rates))
+    train_accuracy_score = np.zeros(len(max_depths))
+    test_accuracy_score = np.zeros(len(max_depths))
 
     iter = 0
-    for i, max_depth in enumerate(learning_rates):
+    for i, max_depth in enumerate(max_depths):
         clf = RandomForestClassifier(
             max_depth=max_depth)
 
@@ -576,11 +574,11 @@ if test8:
 
         iter += 1
         print(
-            f'Progress: {iter:2.0f}/{len(learning_rates)}')
+            f'Progress: {iter:2.0f}/{len(max_depths)}')
 
-    plt.plot(learning_rates,
+    plt.plot(max_depths,
              train_accuracy_score, label="Train accuracy score ")
-    plt.plot(learning_rates,
+    plt.plot(max_depths,
              test_accuracy_score, label="Test accuracy score ")
 
     plt.xlabel("Model Complexity (max depth of random forest)")
@@ -643,13 +641,13 @@ if test10:
     X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
         n_components, m_observations)
 
-    learning_rates = np.arange(1, 21, 1)
+    max_depths = np.arange(1, 21, 1)
 
-    train_accuracy_score = np.zeros(len(learning_rates))
-    test_accuracy_score = np.zeros(len(learning_rates))
+    train_accuracy_score = np.zeros(len(max_depths))
+    test_accuracy_score = np.zeros(len(max_depths))
 
     iter = 0
-    for i, max_depth in enumerate(learning_rates):
+    for i, max_depth in enumerate(max_depths):
         clf = GradientBoostingClassifier(
             n_estimators=3, learning_rate=0.1, max_depth=max_depth, random_state=100)
 
@@ -665,11 +663,11 @@ if test10:
 
         iter += 1
         print(
-            f'Progress: {iter:2.0f}/{len(learning_rates)}')
+            f'Progress: {iter:2.0f}/{len(max_depths)}')
 
-    plt.plot(learning_rates,
+    plt.plot(max_depths,
              train_accuracy_score, label="Train accuracy score ")
-    plt.plot(learning_rates,
+    plt.plot(max_depths,
              test_accuracy_score, label="Test accuracy score ")
 
     plt.xlabel("Model Complexity (max depth of random forest)")
@@ -767,18 +765,14 @@ if test12:
     sgd = optimizers.SGD(learning_rate=1e-2, momentum=0.7)
 
     model.compile(loss='categorical_crossentropy',
-        optimizer=sgd, 
-        metrics=['accuracy'])
-    
-    model.fit(X_train, y_train, 
-        epochs=500,
-        batch_size=100)
-    
+                  optimizer=sgd,
+                  metrics=['accuracy'])
+
+    model.fit(X_train, y_train,
+              epochs=500,
+              batch_size=100)
+
     train_scores = model.evaluate(X_train, y_train, batch_size=100)
     test_scores = model.evaluate(X_test, y_test, batch_size=100)
     print(f"\nAccuracy for training: {train_scores[1]}")
     print(f"Accuracy for testing: {test_scores[1]}")
-
-    
-
-
