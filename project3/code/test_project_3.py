@@ -448,7 +448,7 @@ Training and test data vs. complexity of the tree
 Use scikitlearn's decision tree, testing
 """
 
-test6 = True
+test6 = False
 if test6:
     print('>> RUNNING TEST 6:')
     # Loading the training and testing dataset
@@ -488,9 +488,9 @@ if test6:
         print(
             f'Progress: {iter:2.0f}/{len(max_depths)}')
 
-    plt.plot(range(len(train_accuracy_score)),
+    plt.plot(range(1, len(train_accuracy_score) + 1),
              train_accuracy_score, label="Train accuracy score ")
-    plt.plot(range(len(test_accuracy_score)),
+    plt.plot(range(1, len(test_accuracy_score) + 1),
              test_accuracy_score, label="Test accuracy score ")
 
     plt.xlabel("Model Complexity (max depth of decision tree)")
@@ -514,10 +514,9 @@ test7 = False
 if test7:
     print('>> RUNNING TEST 7:')
     # Loading the training and testing dataset
-    n_components = 5
-    m_observations = 10000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-        n_components, m_observations)
+    n_components = 3
+    X_train, X_test, y_train, y_test = helper.load_iris_data(
+        n_components)
 
     # Create randomforest instance, with amount of max_depth
     clf = RandomForestClassifier(max_depth=2)
@@ -547,17 +546,17 @@ test8 = False
 if test8:
     print('>> RUNNING TEST 8:')
     # Loading the training and testing dataset
-    n_components = 2
-    m_observations = 300000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
-        n_components, m_observations)
+    n_components = 3
+    X_train, X_test, y_train, y_test = helper.load_iris_data(
+        n_components)
 
     max_depths = np.arange(1, 40, 1)
 
-    train_accuracy_score = np.zeros(len(max_depths))
-    test_accuracy_score = np.zeros(len(max_depths))
+    train_accuracy_score = []
+    test_accuracy_score = []
 
     iter = 0
+    last_train_accuracy = 0
     for i, max_depth in enumerate(max_depths):
         clf = RandomForestClassifier(
             max_depth=max_depth)
@@ -566,19 +565,25 @@ if test8:
         clf.fit(X_train, y_train)
 
         # Make predictions
-        y_pred_test = clf.predict(X_train)
+        y_pred_train = clf.predict(X_train)
         y_pred_test = clf.predict(X_test)
 
-        train_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_train)
-        test_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_test)
+        train_accuracy = helper.accuracy_score(y_pred_train, y_train)
+        if last_train_accuracy == 1:
+            break
+        else:
+            last_train_accuracy = train_accuracy
+
+        train_accuracy_score.append(train_accuracy)
+        test_accuracy_score.append(helper.accuracy_score(y_pred_test, y_test))
 
         iter += 1
         print(
             f'Progress: {iter:2.0f}/{len(max_depths)}')
 
-    plt.plot(max_depths,
+    plt.plot(range(1, len(train_accuracy_score) + 1),
              train_accuracy_score, label="Train accuracy score ")
-    plt.plot(max_depths,
+    plt.plot(range(1, len(test_accuracy_score) + 1),
              test_accuracy_score, label="Test accuracy score ")
 
     plt.xlabel("Model Complexity (max depth of random forest)")
@@ -589,94 +594,6 @@ if test8:
 
     plt.show()
 
-
-"""
-TEST 9:
-DATASET: DIABETES DATA (classification case)
-METHOD: Gradient Boosting
-
-Use scikitlearn's decision tree, testing
-"""
-
-test9 = False
-if test9:
-    print('>> RUNNING TEST 9:')
-    # Loading the training and testing dataset
-    n_components = 5
-    m_observations = 10000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-        n_components, m_observations)
-
-    # Create randomforest instance, with amount of max_depth
-    clf = GradientBoostingClassifier(
-        n_estimators=10, learning_rate=0.1, max_depth=1)
-
-    # Fit the data to the model we have created
-    clf.fit(X_train, y_train)
-
-    # Make predictions for
-    y_pred_test = clf.predict(X_train)
-    y_pred_test = clf.predict(X_test)
-
-    print(
-        f'Accuracy_train = {helper.accuracy_score(y_pred_test, y_train)}')
-    print(
-        f'Accuracy_test = {helper.accuracy_score(y_pred_test,  y_test)}')
-
-"""
-TEST 10:
-DATASET: DIABETES DATA (classification case)
-METHOD: Bagging
-
-Training and test data vs. complexity of the tree
-Use scikitlearn's decision tree
-"""
-
-test10 = False
-if test10:
-    print('>> RUNNING TEST 10:')
-    # Loading the training and testing dataset
-    n_components = 2
-    m_observations = 300000
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data_without_PCA(
-        n_components, m_observations)
-
-    max_depths = np.arange(1, 21, 1)
-
-    train_accuracy_score = np.zeros(len(max_depths))
-    test_accuracy_score = np.zeros(len(max_depths))
-
-    iter = 0
-    for i, max_depth in enumerate(max_depths):
-        clf = GradientBoostingClassifier(
-            n_estimators=3, learning_rate=0.1, max_depth=max_depth, random_state=100)
-
-        # Fit the data to the model we have created
-        clf.fit(X_train, y_train)
-
-        # Make predictions
-        y_pred_test = clf.predict(X_train)
-        y_pred_test = clf.predict(X_test)
-
-        train_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_train)
-        test_accuracy_score[i] = helper.accuracy_score(y_pred_test, y_test)
-
-        iter += 1
-        print(
-            f'Progress: {iter:2.0f}/{len(max_depths)}')
-
-    plt.plot(max_depths,
-             train_accuracy_score, label="Train accuracy score ")
-    plt.plot(max_depths,
-             test_accuracy_score, label="Test accuracy score ")
-
-    plt.xlabel("Model Complexity (max depth of random forest)")
-    plt.ylabel("Accuracy score")
-    plt.legend()
-    plt.title(
-        f"Accuracy vs max depth used in the decision tree algorithm")
-
-    plt.show()
 
 """
 TEST 11:
@@ -688,20 +605,16 @@ Test if log reg works
 test11 = False
 if test11:
     print(">> RUNNING TEST 11 <<")
-    n_components = 21
-    m_observations = 1000
-    # X_train, X_test, y_train, y_test = helper.load_diabetes_data(n_components, m_observations)
-    X_train, X_test, y_train, y_test = helper.load_diabetes_data(
-        n_components, m_observations)
-    # X_train, X_test, y_train, y_test = helper.load_cancer_data(
-    #     n_components)
+    n_components = 3
+    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
+
     n_classes = 3
 
-    n_epochs = 1000
+    n_epochs = 3000
     batch_size = 10
     gamma = 0.8
     iter = 0
-    eta = 1e-4
+    eta = 1e-3
     lmbda = 0
 
     theta, num = SGD(
@@ -718,61 +631,344 @@ if test11:
     y_pred_train = helper.convert_vec_to_num(prob_multi(theta, X_train))
     y_pred_test = helper.convert_vec_to_num(prob_multi(theta, X_test))
 
-    for k in range(len(y_pred_test)):
-        print(
-            f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
-
-        # if y_train[k] == 2:
-        #     print(
-        #         f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
-        # if y_train[k] == 1:
-        #     print(
-        #         f'predicted {y_pred_train[k][0]} : {int(y_train[k])} (exact). {y_pred_train[k][0]==int(y_train[k])}')
-
     print(f'Training accuracy: {helper.accuracy_score(y_train, y_pred_train)}')
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
 
-    # for i in range(len(softi[:, 2])):
-    #     if softi[i, ] > 0.3:
-    #         print('-------')
-    #         print(softi[i])
-    #         print(y_train[i])
-    #         print('--------')
+
+# """
+# TEST 12:
+# DATASET:Bean
+# METHOD: NN Keras
+
+# Tensorflow Keras
+# """
+# test12 = True
+# if test12:
+#     print(">> RUNNING TEST 11 <<")
+#     # Loading the training and testing dataset
+#     n_components = 2
+#     m_observations = 1600
+
+#     X_train, X_test, y_train, y_test = helper.load_dry_beans_data(2)
+#     y_train = to_categorical(y_train)
+#     y_test = to_categorical(y_test)
+
+#     model = Sequential()
+#     model.add(Dense(20, activation="relu", input_dim=n_components))
+#     # model.add(Dense(20, activation="relu"))
+#     # model.add(Dense(64, activation="relu"))
+#     model.add(Dense(7, activation='softmax'))
+#     sgd = optimizers.SGD(learning_rate=1e-1, momentum=0.7)
+
+#     model.compile(loss='categorical_crossentropy',
+#                   optimizer=sgd,
+#                   metrics=['accuracy'])
+
+#     model.fit(X_train, y_train,
+#               epochs=500,
+#               batch_size=100)
+
+#     train_scores = model.evaluate(X_train, y_train, batch_size=100)
+#     test_scores = model.evaluate(X_test, y_test, batch_size=100)
+#     print(f"\nAccuracy for training: {train_scores[1]}")
+#     print(f"Accuracy for testing: {test_scores[1]}")
 
 """
-TEST 11:
-DATASET: 
-METHOD: NN Keras
+TEST 13:
+Dataset: Iris
+Method: Logistic regression
 
-Test if log reg works
+Grid search gamma batch size
 """
-test12 = True
-if test12:
-    print(">> RUNNING TEST 11 <<")
+
+test13 = False
+if test13:
+    n_components = 3
+    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
+
+    n_classes = 3
+
+    n_epochs = 100
+    eta = 1e-3
+    lmbda = 0
+
+    gamma_values = [round(0.2*i, 1) for i in range(5)]
+    batch_sizes = [2, 5, 10, 20]
+
+    train_accuracy_score = np.zeros((len(batch_sizes), len(gamma_values)))
+    test_accuracy_score = np.zeros((len(batch_sizes), len(gamma_values)))
+
+    iter = 0
+    for i, batch_size in enumerate(batch_sizes):
+        for j, gamma in enumerate(gamma_values):
+            theta, num = SGD(
+                X=X_train, y=y_train,
+                theta_init=0.01 + np.zeros((n_classes, X_train.shape[1] + 1)),
+                eta=eta,
+                cost_function=cost_logistic_regression_multi,
+                n_epochs=n_epochs, batch_size=batch_size,
+                gamma=gamma,
+                lmbda=lmbda
+            )
+
+            y_pred_train = helper.convert_vec_to_num(
+                prob_multi(theta, X_train))
+            y_pred_test = helper.convert_vec_to_num(
+                prob_multi(theta, X_test))
+
+            train_accuracy_score[i][j] = helper.accuracy_score(
+                y_train, y_pred_train)
+            test_accuracy_score[i][j] = helper.accuracy_score(
+                y_test, y_pred_test)
+
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(batch_sizes) * len(gamma_values)}')
+
+    helper.seaborn_plot_batchsize_gamma(
+        score=train_accuracy_score,
+        x_tics=gamma_values,
+        y_tics=batch_sizes,
+        score_name='Training Accuracy',
+        save_name=f'plots/test13/test13_{lmbda}_eta_{eta}_training.png'
+    )
+
+    helper.seaborn_plot_batchsize_gamma(
+        score=test_accuracy_score,
+        x_tics=gamma_values,
+        y_tics=batch_sizes,
+        score_name='Test Accuracy',
+        save_name=f'plots/test13/test13_gamma_{gamma}_lmbda_{lmbda}_test_.png'
+    )
+
+
+"""
+TEST 14:
+DATASET: IRIS (classification case)
+METHOD: Logistic regression
+
+Optimizing the hyperparameter lmbda and the learning rate by looking over
+a seaborn plot. Will be measured in accuracy-score for both training and test-data.
+"""
+
+test14 = False
+if test14:
+    print('>> RUNNING TEST 14:')
     # Loading the training and testing dataset
-    n_components = 2
-    m_observations = 1600
+    n_components = 3
+    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
 
-    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(2)
-    y_train = to_categorical(y_train)
-    y_test = to_categorical(y_test)
+    n_classes = 3
 
-    model = Sequential()
-    model.add(Dense(20, activation="relu", input_dim=n_components))
-    # model.add(Dense(20, activation="relu"))
-    # model.add(Dense(64, activation="relu"))
-    model.add(Dense(7, activation='softmax'))
-    sgd = optimizers.SGD(learning_rate=1e-1, momentum=0.7)
+    # Change the activation function to predict 0 or 1's.
+    learning_rates = [10**(-i) for i in range(5)]
+    lmbda_values = np.logspace(-1, -6, 6)
 
-    model.compile(loss='categorical_crossentropy',
-                  optimizer=sgd,
-                  metrics=['accuracy'])
+    train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
+    test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
-    model.fit(X_train, y_train,
-              epochs=500,
-              batch_size=100)
+    n_epochs = 100
+    batch_size = 10
+    gamma = 0.8
 
-    train_scores = model.evaluate(X_train, y_train, batch_size=100)
-    test_scores = model.evaluate(X_test, y_test, batch_size=100)
-    print(f"\nAccuracy for training: {train_scores[1]}")
-    print(f"Accuracy for testing: {test_scores[1]}")
+    iter = 0
+    for i, eta in enumerate(learning_rates):
+        for j, lmbda in enumerate(lmbda_values):
+            theta, num = SGD(
+                X=X_train, y=y_train,
+                theta_init=0.01 + np.zeros((n_classes, X_train.shape[1] + 1)),
+                eta=eta,
+                cost_function=cost_logistic_regression_multi,
+                n_epochs=n_epochs, batch_size=batch_size,
+                gamma=gamma,
+                lmbda=lmbda
+            )
+
+            y_pred_train = helper.convert_vec_to_num(
+                prob_multi(theta, X_train))
+            y_pred_test = helper.convert_vec_to_num(
+                prob_multi(theta, X_test))
+
+            train_accuracy_score[i][j] = helper.accuracy_score(
+                y_train, y_pred_train)
+            test_accuracy_score[i][j] = helper.accuracy_score(
+                y_test, y_pred_test)
+
+            iter += 1
+            print(
+                f'Progress: {iter:2.0f}/{len(learning_rates) * len(lmbda_values)}')
+
+    # Creating the seaborn_plot
+    helper.seaborn_plot_lmbda_learning(
+        score=train_accuracy_score,
+        x_tics=lmbda_values,
+        y_tics=learning_rates,
+        score_name='Training Accuracy',
+        save_name=f'plots/test14/test14_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_training_14.png'
+    )
+
+    helper.seaborn_plot_lmbda_learning(
+        score=test_accuracy_score,
+        x_tics=lmbda_values,
+        y_tics=learning_rates,
+        score_name='Test Accuracy',
+        save_name=f'plots/test14/test14_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_features_{n_components}_test_14.png'
+    )
+
+
+"""
+TEST 15:
+DATASET: IRIS (classification case)
+
+Show the explained variance ratio from the IRIS dataset 
+with PCA
+"""
+test15 = False
+if test15:
+    print('>> RUNNING TEST 14:')
+
+    n_components_list = [1, 2, 3, 4]
+    for n_components in n_components_list:
+        helper.load_iris_data(n_components, show_explained_ratio=True)
+
+
+"""
+TEST 1:
+DATASET: DIABETES DATA (regression case)
+METHOD: Neural Network
+
+Here you are able to try out the neural network and see the result in the form of
+an accuracy score (of both training and test data). We have also provided the
+opportunity to look at the accuracy score over the training time (iterations of the
+SGD-algorithm)
+"""
+
+test16 = True
+if test16:
+    print('>> RUNNING TEST 16:')
+    # Loading the training and testing dataset
+    X_train, X_test, y_train, y_test = helper.load_iris_data(3)
+
+    # Setting the architecture of the Neural Network
+    node_list = [12]
+
+    # Initializing the Neural Network
+    FFNN = Neural_Network(
+        no_input_nodes=4,
+        no_output_nodes=3,
+        node_list=node_list
+    )
+
+    # Setting the preffered Stochastic Gradient Descent parameters
+    FFNN.set_SGD_values(
+        n_epochs=2000,
+        batch_size=5,
+        gamma=0.1,
+        eta=1e-2,
+        lmbda=0)
+
+    # Setting the preffered cost- and activation functions
+    FFNN.set_cost_function(logistic_cost_NN_multi)
+    FFNN.set_activation_function_hidden_layers('sigmoid')
+    FFNN.set_activation_function_output_layer('softmax')
+
+    FFNN.train_model(X_train, y_train, keep_cost_values=True,
+                     keep_accuracy_score=True)
+    FFNN.plot_cost_of_last_training()
+    FFNN.plot_accuracy_score_last_training()
+
+    y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
+    y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+
+    # for k in range(len(y_pred_test)):
+    #     if y_train[k] == 0:
+    #         print(
+    #             f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
+    #     if y_train[k] == 1:
+    #         print(
+    #             f'predicted {y_pred_test[k][0]} : {int(y_test[k])} (exact). {y_pred_test[k][0]==int(y_test[k])}')
+
+    # print(y_pred_train)
+
+    print(helper.accuracy_score(y_pred_train, y_train))
+    print(helper.accuracy_score(y_test, y_pred_test))
+
+    # Change the activation function to predict 0 or 1's.
+    # FFNN.set_activation_function_output_layer('sigmoid_classification')
+
+
+"""
+TEST 17:
+DATASET: IRIS (regression case)
+METHOD: 
+
+Plotting the MSE, bias and variance (testing data), 
+over complexity
+"""
+test17 = False
+if test17:
+    print('>> RUNNING TEST 1:')
+    # Spliting in training and testing data
+    x_train, x_test, y_train, y_test, z_train, z_test = helper.train_test_split(
+        x_values, y_values, z_values, test_size=test_size)
+
+    # Store the MSE, bias and variance values for test data
+    list_of_MSE_testing = []
+    list_of_bias_testing = []
+    list_of_variance_testing = []
+
+    max_degree = 10
+    n_bootstrap = 100
+
+    # Finding MSE, bias and variance of test data for different degrees
+    for degree in range(1, max_degree + 1):
+
+        # Create matrix for storing the bootstrap results
+        z_pred_test_matrix = np.empty((z_test.shape[0], n_bootstrap))
+
+        # Running bootstrap-method
+        for i in range(n_bootstrap):
+
+            _x, _y, _z = helper.resample(x_train, y_train, z_train)
+
+            # Predicting z with the training set, _x, _y, _z
+            z_pred_test, _, _ = helper.predict_output(
+                x_train=_x, y_train=_y, z_train=_z,
+                x_test=x_test, y_test=y_test,
+                degree=degree, regression_method=method,
+                lmbda=lmbda
+            )
+
+            z_pred_test_matrix[:, i] = z_pred_test
+
+        # Finding MSE, bias and variance from the bootstrap
+        MSE_test = np.mean(np.mean(
+            (z_pred_test_matrix - np.transpose(np.array([z_test])))**2))
+
+        bias_test = np.mean(
+            (z_test - np.mean(z_pred_test_matrix, axis=1, keepdims=False))**2)
+
+        variance_test = np.mean(
+            np.var(z_pred_test_matrix, axis=1, keepdims=False))
+
+        list_of_MSE_testing.append(MSE_test)
+        list_of_bias_testing.append(bias_test)
+        list_of_variance_testing.append(variance_test)
+
+    plt.plot(range(1, max_degree + 1),
+             list_of_MSE_testing, label="Test sample - error")
+    plt.plot(range(1, max_degree + 1),
+             list_of_bias_testing, label="Test sample - bias")
+    plt.plot(range(1, max_degree + 1),
+             list_of_variance_testing, label="Test sample - variance")
+    plt.xlabel("Model Complexity")
+    plt.ylabel("Prediction Error")
+    plt.legend()
+    plt.title(
+        f"bias-variance trade-off vs model complexity\n\
+        Data points: {len(x_values)}; Method: {method}"
+    )
+    plt.savefig(
+        f"figures/bias_variance_boots_looping_degree_DP_{len(x_values)}_d_{degree}_{method}")
+    plt.show()
+    plt.close()

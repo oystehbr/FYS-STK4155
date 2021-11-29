@@ -451,7 +451,8 @@ def load_iris_data(n, show_explained_ratio=False):
     X_nD = pca.fit_transform(X_input)
 
     if show_explained_ratio:
-        print(pca.explained_variance_ratio_)
+        print(
+            f'Total explained variance ratio (of {n} component): {sum(pca.explained_variance_ratio_)}')
 
     X_nD = X_nD/(X_nD.max(axis=0))
 

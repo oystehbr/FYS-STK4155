@@ -54,7 +54,7 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
     m = int(n/batch_size)
 
     y = helper.convert_num_to_vec(y, theta_init.shape[0])
-    
+
     v = 0
     theta_previous = theta_init
     j = 0
@@ -66,7 +66,7 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
             # Finding the k-th batch
             Xk_batch = X[k*batch_size:(k+1)*batch_size]
             yk_batch = y[k*batch_size:(k+1)*batch_size]
-            
+
             grad = grad_C(theta_previous, Xk_batch, yk_batch, lmbda)
 
             # Using the gradients and stochastic to update the theta
@@ -76,8 +76,6 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
             if scale_learning:
                 eta = learning_schedule(epoch*i*m)
 
-            print(cost_function(theta_next, X, y))
-            
             # Check if the changes are less than the given tolerance
             if np.sum(np.abs(theta_next - theta_previous)) < tol:
                 print('local')
@@ -85,7 +83,6 @@ def SGD(X, y, theta_init, eta, cost_function, n_epochs, batch_size, gamma=0, tol
 
             # Updating the thetas
             theta_previous = theta_next
-            
 
     return theta_previous, j
 
