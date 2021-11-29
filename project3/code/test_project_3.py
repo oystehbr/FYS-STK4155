@@ -30,7 +30,12 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
-from activation_functions import sigmoid_classification
+# from tensorflow.keras.layers import Input
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras import optimizers
+# from tensorflow.keras import regularizers
+# from tensorflow.keras.utils import to_categorical
 
 
 """
@@ -726,3 +731,48 @@ if test11:
 
     print(f'Training accuracy: {helper.accuracy_score(y_train, y_pred_train)}')
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
+
+    # for i in range(len(softi[:, 2])):
+    #     if softi[i, ] > 0.3:
+    #         print('-------')
+    #         print(softi[i])
+    #         print(y_train[i])
+    #         print('--------')
+
+"""
+TEST 11:
+DATASET: 
+METHOD: NN Keras
+
+Test if log reg works
+"""
+test12 = True
+if test12:
+    print(">> RUNNING TEST 11 <<")
+    # Loading the training and testing dataset
+    n_components = 2
+    m_observations = 1600
+
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(2)
+    y_train = to_categorical(y_train)
+    y_test = to_categorical(y_test)
+
+    model = Sequential()
+    model.add(Dense(20, activation="relu", input_dim=n_components))
+    # model.add(Dense(20, activation="relu"))
+    # model.add(Dense(64, activation="relu"))
+    model.add(Dense(7, activation='softmax'))
+    sgd = optimizers.SGD(learning_rate=1e-1, momentum=0.7)
+
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=sgd,
+                  metrics=['accuracy'])
+
+    model.fit(X_train, y_train,
+              epochs=500,
+              batch_size=100)
+
+    train_scores = model.evaluate(X_train, y_train, batch_size=100)
+    test_scores = model.evaluate(X_test, y_test, batch_size=100)
+    print(f"\nAccuracy for training: {train_scores[1]}")
+    print(f"Accuracy for testing: {test_scores[1]}")

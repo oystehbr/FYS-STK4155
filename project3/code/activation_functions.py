@@ -69,13 +69,10 @@ def sigmoid(z, deriv=False):
         the function value
     """
     if deriv:
-        if abs(np.amax(z)) > 500:
-            print("clippp")
+        z = np.clip(z, -500, 500)
         return sigmoid(z) * (1 - sigmoid(z))
 
     else:
-        if abs(np.amax(z)) > 500:
-            print("clippp")
         z = np.clip(z, -500, 500)
         return 1/(1 + np.exp(-z))
 
@@ -83,15 +80,9 @@ def sigmoid(z, deriv=False):
 def softmax(z, deriv=False):
 
     if deriv:
-        if abs(np.amax(z)) > 500:
-            print("clippp")
         z = np.clip(z, -500, 500)
         return softmax(z) * (1 - softmax(z))
-        return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None] * (1 - np.exp(z) / np.sum(np.exp(z), axis=1)[:, None])
-        return (np.exp(z) * (np.sum(np.exp(z), axis=1)[:, None] - np.exp(z))) / (np.sum(np.exp(z), axis=1)[:, None]**2)
     else:
-        if abs(np.amax(z)) > 500:
-            print("clippp")
         z = np.clip(z, -500, 500)
         return np.exp(z) / np.sum(np.exp(z), axis=1)[:, None]
 
