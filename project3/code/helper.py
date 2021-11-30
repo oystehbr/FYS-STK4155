@@ -546,8 +546,8 @@ def load_housing_california_data(n, m_observations=1000, show_explained_ratio=Fa
     pd = fetch_california_housing()
     # Parameter labels (if you want, not used)
 
-    X_input = pd.data[:1000]
-    y_target = pd.target[:1000]
+    X_input = pd.data #[:1000]
+    y_target = pd.target #[:1000]
     y_target = y_target.reshape(-1, 1)
 
     # Shuffling the data

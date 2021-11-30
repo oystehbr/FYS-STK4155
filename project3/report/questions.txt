@@ -3,7 +3,10 @@ Decision tree and Random forest
     - Predikerer bare 0 for det meste - klarer ikke å lage så mye bedre modell for testing data (har mye dataset som predikerer 0)
 
 Unngå veldig store tall som ødelegger
-Predikerer bare null/en class om flere hidden layers??
+Hvor mye method må vi forklare i NN? kan vi bare referere til forrige prosjekt?
+Hvordan skal vi dele opp første og andre oppgaven i tex filen?
+Hvor mye data burde man bruke? Avveing mellom tid/accuracy
+
 
 
 We are working with "Imbalanced Data", approaches to fix this?

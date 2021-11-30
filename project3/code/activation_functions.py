@@ -78,7 +78,20 @@ def sigmoid(z, deriv=False):
 
 
 def softmax(z, deriv=False):
+    """
+    Apply the softmax activation function to
+    scalar, vectors or matrices
 
+    :param z (np.ndarray):
+        input value
+    :param deriv (bool):
+        - True if we want the derivative
+        - False if we want the function value
+
+    :return (np.ndarray):
+        the function value
+    """
+    
     if deriv:
         z = np.clip(z, -500, 500)
         return softmax(z) * (1 - softmax(z))

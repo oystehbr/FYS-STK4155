@@ -786,20 +786,20 @@ if test14:
     n_components = 8
 
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
-        n_components, 1000)
+        n_components, 2000)
     
     # TODO: delete
     # y_train = to_categorical(y_train)
     # y_test = to_categorical(y_test)
 
-    lmbda = 1e-2
-    eta = 1e-3
+    lmbda = 1e-4
+    eta = 5e-4
     gamma = 0.8
-    model = helper.create_NN(n_components, 60, 5, "relu", eta, lmbda, gamma)
+    model = helper.create_NN(n_components, 60, 7, "relu", eta, lmbda, gamma)
 
     model.fit(X_train, y_train,
-              epochs=100,
-              batch_size=5, )
+              epochs=500,
+              batch_size=100, )
 
     y_hat_train = model.predict(X_train)
     y_hat_test = model.predict(X_test)
@@ -1096,11 +1096,12 @@ METHOD: Neural Network
 Bias-variance tradeoff
 """
 
-test21 = False
+test21 = True
 if test21:
     print('>> RUNNING TEST 21:')
     n_components = 8
-    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components)
+    m_observations = 2000
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, m_observations)
 
 
     # Store the MSE, bias and variance values for test data
@@ -1109,17 +1110,18 @@ if test21:
     list_of_variance_testing = []
 
     
-    max_degree = 10
-    n_bootstraps = 5
+    max_degree = 12
+    n_bootstraps = 10
     iter = 0
     
-    lmbda = 1e-5
-    eta = 1e-2
-    gamma = 0.9
-    batch_size = 60
-    epochs = 200
+    lmbda = 1e-4
+    eta = 1e-3
+    gamma = 0.85
+    hidden_nodes = 60
+    batch_size = 120
+    epochs = 500
     # Finding MSE, bias and variance of test data for different degrees
-    for degree in range(1, max_degree + 1):
+    for degree in range(2, max_degree + 1, 2):
     
         # Create matrix for storing the bootstrap results
         y_pred_test_matrix = np.empty((y_test.shape[0], n_bootstraps))
@@ -1130,7 +1132,7 @@ if test21:
             _X, _y,  = helper.resample(X_train, y_train)
 
             #create NN model using tensorflow/keras
-            model = helper.create_NN(n_components, 60, degree, "relu", eta, lmbda, gamma)
+            model = helper.create_NN(n_components, hidden_nodes, degree, "relu", eta, lmbda, gamma)
             model.fit(_X, _y,
                     epochs=epochs,
                     batch_size=batch_size,)
@@ -1156,11 +1158,11 @@ if test21:
     
     
 
-    plt.plot(range(1, max_degree + 1),
+    plt.plot(range(2, max_degree + 1, 2),
              list_of_MSE_testing, label="Test sample - error")
-    plt.plot(range(1, max_degree + 1),
+    plt.plot(range(2, max_degree + 1, 2),
              list_of_bias_testing, label="Test sample - bias")
-    plt.plot(range(1, max_degree + 1),
+    plt.plot(range(2, max_degree + 1, 2),
              list_of_variance_testing, label="Test sample - variance")
     plt.xlabel("Model Complexity")
     plt.ylabel("Prediction Error")
@@ -1169,8 +1171,8 @@ if test21:
         f"bias-variance trade-off vs model complexity\n\
         Data points: {len(X_train[:,0]) + len(X_test[:,0])}; Method: Neural Network"
     )
-    # plt.savefig(
-        # f"figures/bias_variance_boots_looping_degree_DP_{len(x_train) + len(x_test)}_d_{degree}_{method}")
+    plt.savefig(
+        f"plots/test21/bias_variance_boots_NN.png")
     plt.show()
     plt.close()
 
@@ -1188,21 +1190,21 @@ if test22:
     print('>> RUNNING TEST 22:')
     # Loading the training and testing dataset
     n_components = 8
-    m_observations = 1000
+    m_observations = 2000
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
         n_components, m_observations)
     
 
-    batch_sizes = np.arange(20, 220, 20)
-    gammas = [0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0]
+    batch_sizes = np.arange(40, 440, 40)
+    gammas = [0, 0.4, 0.6, 0.8, 0.9]
 
     train_r2_score = np.zeros((len(batch_sizes), len(gammas)))
     test_r2_score = np.zeros((len(batch_sizes), len(gammas)))
 
-    eta = 1e-2
-    lmbda = 1e-7
+    eta = 5e-4
+    lmbda = 1e-5
     hidden_nodes = 60
-    hidden_layers = 1
+    hidden_layers = 7
     act_func = 'relu'
 
     iter = 0
@@ -1214,7 +1216,7 @@ if test22:
             epochs = batch_size
             # Train the model
             model.fit(X_train, y_train,
-                    epochs=epochs,
+                    epochs=batch_size*2,
                     batch_size=batch_size,)
 
             y_hat_train = model.predict(X_train)
@@ -1260,8 +1262,9 @@ test23 = False
 if test23:
     print('>> RUNNING TEST 23:')
     # Loading the training and testing dataset
+    m_observations = 2000
     n_components = 8
-    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components)
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, m_observations)
 
     learning_rates = [10**(-i) for i in range(1, 5)]
     lmbda_values = np.logspace(-1, -7, 7)
@@ -1269,11 +1272,11 @@ if test23:
     train_r2_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_r2_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
-    batch_size = 60
-    epochs = 100
+    batch_size = 120
+    epochs = 500
     gamma = 0.8
     hidden_nodes = 60
-    hidden_layers = 2
+    hidden_layers = 7
     act_func = 'relu'
 
     iter = 0
@@ -1330,7 +1333,7 @@ test24 = False
 if test24:
     print('>> RUNNING TEST 24:')
     n_components = 8
-    m_observations = 1000
+    m_observations = 2000
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, m_observations)
 
 

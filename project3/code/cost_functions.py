@@ -7,7 +7,8 @@ import helper
 def logistic_cost_NN(y_hat, y):
     """
     Finding the cost w.r.t. the logistic cost function,
-    used to determine the cost in the Neural Network
+    used to determine the cost in a classification case of the Neural Network
+    with binary target.
 
     :param y_hat (np.ndarray): 
         predicted target
@@ -23,12 +24,23 @@ def logistic_cost_NN(y_hat, y):
 
 def logistic_cost_NN_multi(y_hat, y):
     """
-    # TODO: docs
+    Finding the cost w.r.t. the logistic cost function,
+    used to determine the cost in a classification case of the Neural Network
+    with several targets.
+    
+    Link: 
     https://www.analyticsvidhya.com/blog/2021/02/cost-function-is-no-rocket-science/
+
+    :param y_hat (np.ndarray): 
+        predicted target
+    :param y (np.ndarray): 
+        actual target
+
+    :return (number):
+        the cost value
     """
 
     # Row-wise dot product, then summation
-
     return - np.sum(np.sum(np.log(y_hat)*y, axis=1))
 
 
@@ -74,10 +86,8 @@ def cost_logistic_regression_multi(beta, X, y, lmbda=0):
         the value of the cost function
     """
 
-    # TODO: add this underneath
     # Row-wise dot product, then summation
-    # + lmbda*np.sum(beta**2)
-    return - np.sum(np.sum(np.log(prob_multi(beta, X))*y, axis=1))
+    return - np.sum(np.sum(np.log(prob_multi(beta, X))*y, axis=1)) + lmbda*np.sum(beta**2)
 
 
 def prob(beta, X):
@@ -100,7 +110,16 @@ def prob(beta, X):
 
 def prob_multi(beta, X):
     """
-    # TODO: 
+    helper function for cost_logistic_regression_multi, will
+    establish the probabilities
+
+    :param beta (np.ndarray):
+        input value
+    :param x (np.ndarray, number):
+        input value
+
+    :return (np.ndarray):
+        function value
     """
 
     z = beta[:, 0].T + X @ beta[:, 1:].T
