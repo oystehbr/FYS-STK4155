@@ -243,7 +243,7 @@ class Neural_Network():
                     # Reset the activation function output layer
 
             # TODO: delte
-            print(f'>>> SGD: {epoch + 1} / {self.n_epochs}')
+            # print(f'>>> SGD: {epoch + 1} / {self.n_epochs}')
 
         self.error_list = error_list
         self.accuracy_list = accuracy_list

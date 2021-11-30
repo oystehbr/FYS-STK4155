@@ -10,6 +10,13 @@ from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
 from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing, load_diabetes
+import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import regularizers
+from tensorflow.keras import optimizers
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input
 
 import numpy as np
 import seaborn as sns
@@ -438,13 +445,20 @@ def load_iris_data(n, show_explained_ratio=False):
     """
 
     # Loading cancer data
-    cancer = load_iris()
+    pd = load_iris()
     # Parameter labels (if you want, not used)
 
-    # TODO: shuffle the data
-    X_input = cancer.data
-    y_target = cancer.target    # 0 for benign and 1 for malignant
+    
+    X_input = pd.data
+    y_target = pd.target    # 0 for benign and 1 for malignant
     y_target = y_target.reshape(-1, 1)
+    
+    # Shuffling the data
+    values = np.concatenate((X_input, y_target), axis=1)
+    np.random.shuffle(values)
+
+    X_input = values[:, :-1]
+    y_target = values[:, -1]
 
     # Selecting the n first components w.r.t. the PCA
     pca = PCA(n_components=n)
@@ -456,10 +470,10 @@ def load_iris_data(n, show_explained_ratio=False):
 
     X_nD = X_nD/(X_nD.max(axis=0))
 
-    X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test = train_test_split(
+    X_train, X_test, y_train, y_test = train_test_split(
         X_nD, y_target)
 
-    return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
+    return X_train, X_test, y_train, y_test
 
 
 def load_diabetes_PSY_data(n, show_explained_ratio=False):
@@ -512,7 +526,7 @@ def load_diabetes_PSY_data(n, show_explained_ratio=False):
     return X_cancer_train, X_cancer_test, y_cancer_train, y_cancer_test
 
 
-def load_housing_california_data(n, m_observations, show_explained_ratio=False):
+def load_housing_california_data(n, m_observations=1000, show_explained_ratio=False):
     """
     Loading the cancer_data from scikit-learn. Selecting the
     features with the highest explained variance ratio (the first
@@ -532,18 +546,17 @@ def load_housing_california_data(n, m_observations, show_explained_ratio=False):
     pd = fetch_california_housing()
     # Parameter labels (if you want, not used)
 
-    # TODO: shuffle the data
     X_input = pd.data[:1000]
     y_target = pd.target[:1000]
     y_target = y_target.reshape(-1, 1)
 
+    # Shuffling the data
     values = np.concatenate((X_input, y_target), axis=1)
     np.random.shuffle(values)
-
-    # # Selecting the n first components w.r.t. the PCA
     X_input = values[:m_observations, :-1]
     y_target = values[:m_observations, -1]
 
+    # # Selecting the n first components w.r.t. the PCA
     pca = PCA(n_components=n)
     X_nD = pca.fit_transform(X_input)
 
@@ -801,8 +814,6 @@ def load_air_data(n_components, m_observations=1000, show_explained_ratio=False)
     return X_train, X_test, y_train, y_test
 
 
-
-
 def convert_num_to_vec(y, dim):
     """
     # TODO:
@@ -947,6 +958,32 @@ def midsampling_of_training_data(X_train, y_train):
     y_train = pd_train_values[:, -1]
 
     return X_train, y_train
+
+
+def create_NN(input_nodes, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma):
+    """
+    # TODO: docstrings 
+
+    """
+
+    model = Sequential()
+    for degree in range(hidden_layers):
+        if degree == 0:
+            model.add(Dense(60, activation=act_func, kernel_regularizer=regularizers.l2(
+                lmbda), input_dim=input_nodes))
+        else:
+            model.add(Dense(60, activation=act_func,
+                    kernel_regularizer=regularizers.l2(lmbda)))
+
+    model.add(Dense(1))
+
+    sgd = optimizers.SGD(learning_rate=eta, momentum=gamma)
+
+    model.compile(loss='mse',
+                    optimizer=sgd,
+                    metrics=[tf.keras.metrics.MeanSquaredError()])
+
+    return model
 
 
 def main():
