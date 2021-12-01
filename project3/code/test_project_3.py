@@ -1096,7 +1096,7 @@ METHOD: Neural Network
 Bias-variance tradeoff
 """
 
-test21 = True
+test21 = False
 if test21:
     print('>> RUNNING TEST 21:')
     n_components = 8
@@ -1115,7 +1115,7 @@ if test21:
     iter = 0
     
     lmbda = 1e-4
-    eta = 1e-3
+    eta = 5e-4
     gamma = 0.85
     hidden_nodes = 60
     batch_size = 120
