@@ -15,13 +15,13 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
-import tensorflow as tf
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras import regularizers
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Input
+# import tensorflow as tf
+# from tensorflow.keras.utils import to_categorical
+# from tensorflow.keras import regularizers
+# from tensorflow.keras import optimizers
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Input
 from sklearn.metrics import multilabel_confusion_matrix
 import matplotlib.pyplot as plt
 from FF_Neural_Network import Neural_Network
@@ -55,7 +55,7 @@ if test1:
     # Loading the training and testing dataset
     n_components = 3
     X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
-    
+
     # Setting the architecture of the Neural Network
     node_list = [12]
 
@@ -127,7 +127,7 @@ if test2:
     for i, node in enumerate(nodes):
         for j, layer in enumerate(layers):
             print(node, layer)
-            
+
             # Need to create new instance, to change the architecture
             node_list = [node]*layer
             FFNN = Neural_Network(
@@ -144,7 +144,7 @@ if test2:
                 eta=eta,
                 lmbda=lmbda,
             )
-            
+
             FFNN.set_cost_function(logistic_cost_NN_multi)
 
             hidden_activation = 'sigmoid'
@@ -152,10 +152,9 @@ if test2:
             FFNN.set_activation_function_hidden_layers(hidden_activation)
             FFNN.set_activation_function_output_layer(output_activation)
 
-
             # Training the model
             FFNN.train_model(X_train, y_train, y_converter=True)
-            
+
             # Testing the model against the target values, and store the results
             y_pred_train = helper.convert_vec_to_num(
                 FFNN.feed_forward(X_train))
@@ -202,7 +201,6 @@ if test3:
     n_components = 3
     X_train, X_test, y_train, y_test = helper.load_iris_data(
         n_components)
-    
 
     # Setting up the Neural Network
     num_hidden_nodes = 20
@@ -214,12 +212,12 @@ if test3:
         node_list=node_list
     )
 
-    # Setting up the activation functions 
+    # Setting up the activation functions
     hidden_activation = 'sigmoid'
     output_activation = 'softmax'
     FFNN.set_activation_function_hidden_layers(hidden_activation)
     FFNN.set_activation_function_output_layer(output_activation)
-    
+
     # Set the parameters used in the Neural Network
     eta = 1e-3
     lmbda = 0
@@ -232,7 +230,7 @@ if test3:
     gammas = [0, 0.2, 0.6, 0.8, 0.9, 1.0]
     train_accuracy_score = np.zeros((len(batch_sizes), len(gammas)))
     test_accuracy_score = np.zeros((len(batch_sizes), len(gammas)))
-    
+
     iter = 0
     for i, batch_size in enumerate(batch_sizes):
         for j, gamma in enumerate(gammas):
@@ -244,11 +242,11 @@ if test3:
             FFNN.set_SGD_values(
                 batch_size=batch_size,
                 gamma=gamma,
-                n_epochs=batch_size*20 # same amount of runs in the SGD
+                n_epochs=batch_size*20  # same amount of runs in the SGD
             )
-            
+
             # Train the model
-            FFNN.train_model(X_train, y_train, y_converter = True)
+            FFNN.train_model(X_train, y_train, y_converter=True)
 
             # Finding the predicted values with our model
             y_hat_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
@@ -311,7 +309,7 @@ if test4:
 
     # Setting the preffered cost- and hidden_activation function
     FFNN.set_cost_function(logistic_cost_NN_multi)
-    
+
     hidden_activation = 'sigmoid'
     output_activation = 'softmax'
     FFNN.set_activation_function_hidden_layers(hidden_activation)
@@ -337,7 +335,7 @@ if test4:
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
             print(eta, lmbda)
-            
+
             # Reinitializing the weights, biases and activation function
             FFNN.set_activation_function_output_layer(output_activation)
             FFNN.initialize_the_weights()
@@ -477,7 +475,7 @@ if test6:
     plt.legend()
     plt.title(
         f"Accuracy vs max depth used in the decision tree algorithm")
-    
+
     plt.savefig('plots/test6/test6/accuracy_vs_decision_tree_classification')
     plt.show()
 
@@ -770,7 +768,6 @@ if test13:
     )
 
 
-
 """
 TEST 14:
 DATASET: Housing data (regression case)
@@ -787,7 +784,7 @@ if test14:
 
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
         n_components, 2000)
-    
+
     # TODO: delete
     # y_train = to_categorical(y_train)
     # y_test = to_categorical(y_test)
@@ -809,7 +806,7 @@ if test14:
 
     print(f"\nR2-score training: {r2_score_train}")
     print(f"R2-score testing: {r2_score_test}")
-    
+
     # TODO: delete
     # train_scores = model.evaluate(X_train, y_train, batch_size=100)
     # test_scores = model.evaluate(X_test, y_test, batch_size=100)
@@ -1017,12 +1014,13 @@ test20 = False
 if test20:
     print('>> RUNNING TEST 20:')
     n_components = 2
-    X_train, X_test, z_train, z_test = helper.load_housing_california_data(2)
+    m_observations = 10000
+    X_train, X_test, z_train, z_test = helper.load_housing_california_data(
+        n_components, m_observations)
     x_train = X_train[:, 0]
     y_train = X_train[:, 1]
     x_test = X_test[:, 0]
     y_test = X_test[:, 1]
-
 
     # Store the MSE, bias and variance values for test data
     list_of_MSE_testing = []
@@ -1067,7 +1065,6 @@ if test20:
         list_of_MSE_testing.append(MSE_test)
         list_of_bias_testing.append(bias_test)
         list_of_variance_testing.append(variance_test)
-    
 
     plt.plot(range(1, max_degree + 1),
              list_of_MSE_testing, label="Test sample - error")
@@ -1082,12 +1079,11 @@ if test20:
         f"bias-variance trade-off vs model complexity\n\
         Data points: {len(x_train) + len(x_test)}; Method: {method}"
     )
-    # plt.savefig(
-        # f"figures/bias_variance_boots_looping_degree_DP_{len(x_train) + len(x_test)}_d_{degree}_{method}")
+    plt.savefig('plots/test20/test20_OLS_bias_variance_1.png')
     plt.show()
     plt.close()
 
-    
+
 """
 TEST 21:
 DATASET: Housing data (regression case)
@@ -1101,19 +1097,18 @@ if test21:
     print('>> RUNNING TEST 21:')
     n_components = 8
     m_observations = 2000
-    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, m_observations)
-
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, m_observations)
 
     # Store the MSE, bias and variance values for test data
     list_of_MSE_testing = []
     list_of_bias_testing = []
     list_of_variance_testing = []
 
-    
     max_degree = 12
     n_bootstraps = 10
     iter = 0
-    
+
     lmbda = 1e-4
     eta = 5e-4
     gamma = 0.85
@@ -1122,25 +1117,26 @@ if test21:
     epochs = 500
     # Finding MSE, bias and variance of test data for different degrees
     for degree in range(2, max_degree + 1, 2):
-    
+
         # Create matrix for storing the bootstrap results
         y_pred_test_matrix = np.empty((y_test.shape[0], n_bootstraps))
 
         # Running bootstrap-method
         for i in range(n_bootstraps):
-            
+
             _X, _y,  = helper.resample(X_train, y_train)
 
-            #create NN model using tensorflow/keras
-            model = helper.create_NN(n_components, hidden_nodes, degree, "relu", eta, lmbda, gamma)
+            # create NN model using tensorflow/keras
+            model = helper.create_NN(
+                n_components, hidden_nodes, degree, "relu", eta, lmbda, gamma)
             model.fit(_X, _y,
-                    epochs=epochs,
-                    batch_size=batch_size,)
-            
-            y_pred_test_matrix[:, i] = model.predict(X_test).reshape(1, -1)
-            iter +=1
-            print(f"---------------- {iter}/{max_degree * n_bootstraps} RUNS ----------------")
+                      epochs=epochs,
+                      batch_size=batch_size,)
 
+            y_pred_test_matrix[:, i] = model.predict(X_test).reshape(1, -1)
+            iter += 1
+            print(
+                f"---------------- {iter}/{max_degree * n_bootstraps} RUNS ----------------")
 
         # Finding MSE, bias and variance from the bootstrap
         MSE_test = np.mean(np.mean(
@@ -1155,8 +1151,6 @@ if test21:
         list_of_MSE_testing.append(MSE_test)
         list_of_bias_testing.append(bias_test)
         list_of_variance_testing.append(variance_test)
-    
-    
 
     plt.plot(range(2, max_degree + 1, 2),
              list_of_MSE_testing, label="Test sample - error")
@@ -1193,7 +1187,6 @@ if test22:
     m_observations = 2000
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
         n_components, m_observations)
-    
 
     batch_sizes = np.arange(40, 440, 40)
     gammas = [0, 0.4, 0.6, 0.8, 0.9]
@@ -1211,13 +1204,14 @@ if test22:
     for i, batch_size in enumerate(batch_sizes):
         for j, gamma in enumerate(gammas):
             # Creating a neural network model
-            model = helper.create_NN(n_components, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma)
-            
+            model = helper.create_NN(
+                n_components, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma)
+
             epochs = batch_size
             # Train the model
             model.fit(X_train, y_train,
-                    epochs=batch_size*2,
-                    batch_size=batch_size,)
+                      epochs=batch_size*2,
+                      batch_size=batch_size,)
 
             y_hat_train = model.predict(X_train)
             y_hat_test = model.predict(X_test)
@@ -1264,7 +1258,8 @@ if test23:
     # Loading the training and testing dataset
     m_observations = 2000
     n_components = 8
-    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, m_observations)
 
     learning_rates = [10**(-i) for i in range(1, 5)]
     lmbda_values = np.logspace(-1, -7, 7)
@@ -1282,13 +1277,14 @@ if test23:
     iter = 0
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
-            # Creating the neural network model            
-            model = helper.create_NN(n_components, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma)
-            
+            # Creating the neural network model
+            model = helper.create_NN(
+                n_components, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma)
+
             # Train the model
             model.fit(X_train, y_train,
-                    epochs=epochs,
-                    batch_size=batch_size,)
+                      epochs=epochs,
+                      batch_size=batch_size,)
 
             y_hat_train = model.predict(X_train)
             y_hat_test = model.predict(X_test)
@@ -1320,7 +1316,6 @@ if test23:
     )
 
 
-
 """
 TEST 24:
 DATASET: Housing data (regression case)
@@ -1334,27 +1329,26 @@ if test24:
     print('>> RUNNING TEST 24:')
     n_components = 8
     m_observations = 2000
-    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, m_observations)
-
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, m_observations)
 
     # Store the MSE, bias and variance values for test data
     list_of_MSE_testing = []
     list_of_bias_testing = []
     list_of_variance_testing = []
 
-    
     iter = 0
-    max_degree = 10
+    max_degree = 20
     n_bootstraps = 1000
     # Finding MSE, bias and variance of test data for different degrees
     for degree in range(1, max_degree + 1):
-    
+
         # Create matrix for storing the bootstrap results
         y_pred_test_matrix = np.empty((y_test.shape[0], n_bootstraps))
 
         # Running bootstrap-method
         for i in range(n_bootstraps):
-            
+
             _X, _y,  = helper.resample(X_train, y_train)
 
             # Function to perform training with decision tree
@@ -1366,9 +1360,8 @@ if test24:
             # Make predictions
             y_pred_test_matrix[:, i] = clf.predict(X_test).reshape(1, -1)
 
-        iter +=1
+        iter += 1
         print(f"---------------- {iter}/{max_degree} RUNS ----------------")
-
 
         # Finding MSE, bias and variance from the bootstrap
         MSE_test = np.mean(np.mean(
@@ -1383,8 +1376,6 @@ if test24:
         list_of_MSE_testing.append(MSE_test)
         list_of_bias_testing.append(bias_test)
         list_of_variance_testing.append(variance_test)
-    
-    
 
     plt.plot(range(1, max_degree + 1),
              list_of_MSE_testing, label="Test sample - error")
@@ -1399,8 +1390,7 @@ if test24:
         f"bias-variance trade-off vs model complexity\n\
         Data points: {len(X_train[:,0]) + len(X_test[:,0])}; Method: Decision tree"
     )
-    # plt.savefig(
-        # f"figures/bias_variance_boots_looping_degree_DP_{len(x_train) + len(x_test)}_d_{degree}_{method}")
+    plt.savefig("plots/test24/test24_decision_tree_2")
     plt.show()
     plt.close()
 
@@ -1417,32 +1407,31 @@ test25 = False
 if test25:
     print('>> RUNNING TEST 25:')
     n_components = 8
-    m_observations = 1000
-    X_train, X_test, y_train, y_test = helper.load_housing_california_data(n_components, m_observations)
-
+    m_observations = 2000
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, m_observations)
 
     # Store the MSE, bias and variance values for test data
     list_of_MSE_testing = []
     list_of_bias_testing = []
     list_of_variance_testing = []
 
-    
     iter = 0
     max_degree = 20
-    n_bootstraps = 100
+    n_bootstraps = 50
     # Finding MSE, bias and variance of test data for different degrees
     for degree in range(1, max_degree + 1):
-    
+
         # Create matrix for storing the bootstrap results
         y_pred_test_matrix = np.empty((y_test.shape[0], n_bootstraps))
 
         # Running bootstrap-method
         for i in range(n_bootstraps):
-            
+
             _X, _y,  = helper.resample(X_train, y_train)
 
             # Create randomforest instance, with amount of max_depth
-            clf = RandomForestRegressor(n_estimators = 100, max_depth=degree)
+            clf = RandomForestRegressor(max_depth=degree)
 
             # Fit the data to the model we have created
             clf.fit(_X, _y)
@@ -1450,9 +1439,8 @@ if test25:
             # Make predictions
             y_pred_test_matrix[:, i] = clf.predict(X_test).reshape(1, -1)
 
-        iter +=1
+        iter += 1
         print(f"---------------- {iter}/{max_degree} RUNS ----------------")
-
 
         # Finding MSE, bias and variance from the bootstra
         MSE_test = np.mean(np.mean(
@@ -1467,8 +1455,6 @@ if test25:
         list_of_MSE_testing.append(MSE_test)
         list_of_bias_testing.append(bias_test)
         list_of_variance_testing.append(variance_test)
-    
-    
 
     plt.plot(range(1, max_degree + 1),
              list_of_MSE_testing, label="Test sample - error")
@@ -1483,8 +1469,6 @@ if test25:
         f"bias-variance trade-off vs model complexity\n\
         Data points: {len(X_train[:,0]) + len(X_test[:,0])}; Method: Random forest"
     )
-    # plt.savefig(
-        # f"figures/bias_variance_boots_looping_degree_DP_{len(x_train) + len(x_test)}_d_{degree}_{method}")
+    plt.savefig('plots/test25/test25_random_forest_1')
     plt.show()
     plt.close()
-
