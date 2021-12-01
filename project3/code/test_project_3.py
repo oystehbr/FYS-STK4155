@@ -15,14 +15,14 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
-# import tensorflow as tf
-# from tensorflow.keras.utils import to_categorical
-# from tensorflow.keras import regularizers
-# from tensorflow.keras import optimizers
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Input
-from sklearn.metrics import multilabel_confusion_matrix
+import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import regularizers
+from tensorflow.keras import optimizers
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input
+from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix
 import matplotlib.pyplot as plt
 from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
@@ -37,11 +37,12 @@ import numpy as np
 import gradient_descent
 import helper
 import seaborn as sns
+import pandas as pd
 
 # TODO: add a confusion matrix??
 """
 TEST 1:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Neural Network
 
 Here you are able to try out the neural network and see the result in the form of
@@ -49,53 +50,62 @@ an accuracy score (of both training and test data). We have also provided the
 opportunity to look at the accuracy score over the training time (iterations of the
 SGD-algorithm)
 """
-test1 = False
+test1 = True
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
+    m_observations = 20000
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
 
-    # Setting the architecture of the Neural Network
-    node_list = [12]
+    y_train = to_categorical(y_train, num_classes=7)
+    y_test = to_categorical(y_test, num_classes=7)
 
-    # Initializing the Neural Network
-    FFNN = Neural_Network(
-        no_input_nodes=n_components,
-        no_output_nodes=3,
-        node_list=node_list
-    )
+    n_epochs = 80
+    batch_size = 100
+    lmbda = 1e-4
+    eta = 1e-3
+    gamma = 0.9
+    hidden_nodes = 6
+    hidden_layers = 4
+    model = helper.create_NN(n_components, hidden_nodes, hidden_layers, 'categorical_crossentropy', 'relu', eta, lmbda, gamma)
 
-    # Setting the preffered Stochastic Gradient Descent parameters
-    FFNN.set_SGD_values(
-        n_epochs=200,
-        batch_size=5,
-        gamma=0.6,
-        eta=5e-4,
-        lmbda=0)
+    model.fit(X_train, y_train,
+              epochs=n_epochs,
+              batch_size=batch_size)
 
-    # Setting the preffered cost- and activation functions
-    FFNN.set_cost_function(logistic_cost_NN_multi)
-    FFNN.set_activation_function_hidden_layers('sigmoid')
-    FFNN.set_activation_function_output_layer('softmax')
+    y_hat_train = helper.convert_vec_to_num(model.predict(X_train))
+    y_hat_test = helper.convert_vec_to_num(model.predict(X_test))
+    y_train = helper.convert_vec_to_num(y_train)
+    y_test = helper.convert_vec_to_num(y_test)
 
-    # Training the model
-    FFNN.train_model(X_train, y_train, y_converter=True, keep_cost_values=True,
-                     keep_accuracy_score=True)
-    FFNN.plot_cost_of_last_training()
-    FFNN.plot_accuracy_score_last_training()
+    train_accuracy_score = helper.accuracy_score(
+                y_train, y_hat_train)
+    test_accuracy_score = helper.accuracy_score(
+                y_test, y_hat_test)
+    print(f"\nAccuracy for training: {train_accuracy_score}")
+    print(f"Accuracy for testing: {test_accuracy_score}")
+    
+    confusion_result = True
+    if confusion_result:
+        array = confusion_matrix(y_test, y_hat_test)
 
-    # Finding the prediction and printing those out
-    y_pred_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
-    y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+        df_cm = pd.DataFrame(array, range(7), range(7))
+        plt.figure(figsize=(8,8))
+        sns.set(font_scale=1.4) # for label size
+        sns.heatmap(df_cm, annot=True, annot_kws={"size": 12}, fmt='d', cmap='Blues') # font size
+        plt.title(f'Confusion matrix for beans data (Neural Network)')
+        plt.xlabel("classes")
+        plt.ylabel("classes")
 
-    print(helper.accuracy_score(y_pred_train, y_train))
-    print(helper.accuracy_score(y_test, y_pred_test))
+        plt.savefig('plots/test1/test1_confusion_matrix_NN_optimal.png')
+        plt.show()
+        
 
 
 """
 TEST 2:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Neural Network
 
 Optimizing the architecture of the Neural Network (amount of hidden nodes and layers)
@@ -106,64 +116,46 @@ if test2:
     print('>> RUNNING TEST 2:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(
-        n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
 
     sns.set()
 
     # Set the parameters used in the Neural Network (SGD)
-    n_epochs = 200
-    batch_size = 5
-    gamma = 0.6
-    eta = 5e-4
-    lmbda = 0
+    n_epochs = 80
+    batch_size = 500
+    gamma = 0.8
+    eta = 1e-2
+    lmbda = 1e-4
+    act_func = 'relu'
 
-    nodes = np.arange(2, 30, 4)
-    layers = np.arange(1, 3, 1)
+    nodes = np.arange(2, 20, 4)
+    layers = np.arange(2, 14, 2)
     train_accuracy_score = np.zeros((len(nodes), len(layers)))
     test_accuracy_score = np.zeros((len(nodes), len(layers)))
 
     iter = 0
     for i, node in enumerate(nodes):
         for j, layer in enumerate(layers):
-            print(node, layer)
-
+            y_train = to_categorical(y_train)
+            y_test = to_categorical(y_test)
             # Need to create new instance, to change the architecture
-            node_list = [node]*layer
-            FFNN = Neural_Network(
-                no_input_nodes=n_components,
-                no_output_nodes=3,
-                node_list=node_list
-            )
-
-            # Changing some SGD values
-            FFNN.set_SGD_values(
-                n_epochs=n_epochs,
-                batch_size=batch_size,
-                gamma=gamma,
-                eta=eta,
-                lmbda=lmbda,
-            )
-
-            FFNN.set_cost_function(logistic_cost_NN_multi)
-
-            hidden_activation = 'sigmoid'
-            output_activation = 'softmax'
-            FFNN.set_activation_function_hidden_layers(hidden_activation)
-            FFNN.set_activation_function_output_layer(output_activation)
+            FFNN = helper.create_NN(n_components, node, layer, \
+                'categorical_crossentropy', act_func, eta, lmbda, gamma)
 
             # Training the model
-            FFNN.train_model(X_train, y_train, y_converter=True)
+            FFNN.fit(X_train, y_train, epochs=n_epochs, batch_size = batch_size, verbose = 0)
 
-            # Testing the model against the target values, and store the results
-            y_pred_train = helper.convert_vec_to_num(
-                FFNN.feed_forward(X_train))
-            y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+            y_hat_train = helper.convert_vec_to_num(FFNN.predict(X_train))
+            y_hat_test = helper.convert_vec_to_num(FFNN.predict(X_test))
+            y_train = helper.convert_vec_to_num(y_train)
+            y_test = helper.convert_vec_to_num(y_test)
 
             train_accuracy_score[i][j] = helper.accuracy_score(
-                y_train, y_pred_train)
+                y_train, y_hat_train)
             test_accuracy_score[i][j] = helper.accuracy_score(
-                y_test, y_pred_test)
+                y_test, y_hat_test)
 
             iter += 1
             print(
@@ -175,20 +167,20 @@ if test2:
         x_tics=layers,
         y_tics=nodes,
         score_name='Training Accuracy',
-        save_name=f'plots/test2/test2_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_epochs_{n_epochs}_training_7.png'
+        save_name=f'plots/test2/test2_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_epochs_{n_epochs}_training_8.png'
     )
     helper.seaborn_plot_architecture(
         score=test_accuracy_score,
         x_tics=layers,
         y_tics=nodes,
         score_name='Test Accuracy',
-        save_name=f'plots/test2/test2_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_epochs_{n_epochs}_test_7.png'
+        save_name=f'plots/test2/test2_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_epochs_{n_epochs}_test_8.png'
     )
 
 
 """
 TEST 3:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Neural Network
 
 Optimizing the batch_sizes and the momentum parameter gamma by looking over a seaborn plot.
@@ -199,34 +191,20 @@ if test3:
     print('>> RUNNING TEST 3:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(
-        n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
 
-    # Setting up the Neural Network
-    num_hidden_nodes = 20
-    num_hidden_layers = 1
-    node_list = [num_hidden_nodes]*num_hidden_layers
-    FFNN = Neural_Network(
-        no_input_nodes=n_components,
-        no_output_nodes=3,
-        node_list=node_list
-    )
+    sns.set()
 
-    # Setting up the activation functions
-    hidden_activation = 'sigmoid'
-    output_activation = 'softmax'
-    FFNN.set_activation_function_hidden_layers(hidden_activation)
-    FFNN.set_activation_function_output_layer(output_activation)
-
-    # Set the parameters used in the Neural Network
-    eta = 1e-3
-    lmbda = 0
-    FFNN.set_SGD_values(
-        eta=eta,
-        lmbda=lmbda
-    )
-
-    batch_sizes = np.arange(2, 25, 4)
+    # Initialize some values
+    eta = 1e-2
+    lmbda = 1e-4
+    act_func = 'relu'
+    hidden_nodes = 6
+    hidden_layers = 4
+ 
+    batch_sizes = np.arange(100, 1100, 200)
     gammas = [0, 0.2, 0.6, 0.8, 0.9, 1.0]
     train_accuracy_score = np.zeros((len(batch_sizes), len(gammas)))
     test_accuracy_score = np.zeros((len(batch_sizes), len(gammas)))
@@ -234,29 +212,28 @@ if test3:
     iter = 0
     for i, batch_size in enumerate(batch_sizes):
         for j, gamma in enumerate(gammas):
-            # Refreshing the weights and biases before testing new SGD_values
-            FFNN.initialize_the_biases()
-            FFNN.initialize_the_weights()
 
-            # Set the preffered values of the gradient descent
-            FFNN.set_SGD_values(
-                batch_size=batch_size,
-                gamma=gamma,
-                n_epochs=batch_size*20  # same amount of runs in the SGD
-            )
+            y_train = to_categorical(y_train)
+            y_test = to_categorical(y_test)
 
-            # Train the model
-            FFNN.train_model(X_train, y_train, y_converter=True)
+            # Need to create new instance, to change the architecture
+            FFNN = helper.create_NN(n_components, hidden_nodes, hidden_layers, \
+                'categorical_crossentropy', act_func, eta, lmbda, gamma)
 
-            # Finding the predicted values with our model
-            y_hat_train = helper.convert_vec_to_num(FFNN.feed_forward(X_train))
-            y_hat_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+            # Training the model
+            FFNN.fit(X_train, y_train, epochs=int(batch_size/20), batch_size = batch_size, verbose = 0)
+
+            # Predicting
+            y_hat_train = helper.convert_vec_to_num(FFNN.predict(X_train))
+            y_hat_test = helper.convert_vec_to_num(FFNN.predict(X_test))
+            y_train = helper.convert_vec_to_num(y_train)
+            y_test = helper.convert_vec_to_num(y_test)
 
             train_accuracy_score[i][j] = helper.accuracy_score(
                 y_train, y_hat_train)
             test_accuracy_score[i][j] = helper.accuracy_score(
                 y_test, y_hat_test)
-
+            
             iter += 1
             print(
                 f'Progress: {iter:2.0f}/{len(batch_sizes) * len(gammas)}')
@@ -267,7 +244,7 @@ if test3:
         x_tics=gammas,
         y_tics=batch_sizes,
         score_name='Training Accuracy',
-        save_name=f'plots/test3/test3_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_training.png'
+        save_name=f'plots/test3/test3_lmbda_{lmbda}_eta_{eta}_training_1.png'
     )
 
     helper.seaborn_plot_batchsize_gamma(
@@ -275,13 +252,13 @@ if test3:
         x_tics=gammas,
         y_tics=batch_sizes,
         score_name='Test Accuracy',
-        save_name=f'plots/test3/test3_lmbda_{lmbda}_eta_{eta}_hidact_{hidden_activation}_test.png'
+        save_name=f'plots/test3/test3_lmbda_{lmbda}_eta_{eta}_test_1.png'
     )
 
 
 """
 TEST 4:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Neural Network
 
 Optimizing the hyperparameter lmbda and the learning rate by looking over
@@ -292,74 +269,52 @@ if test4:
     print('>> RUNNING TEST 4:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(
-        n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
 
-    # Setting the architecture of the Neural Network
-    no_hidden_nodes = 20
-    no_hidden_layers = 1
-    node_list = [no_hidden_nodes]*no_hidden_layers
-
-    # Initializing the Neural Network
-    FFNN = Neural_Network(
-        no_input_nodes=n_components,
-        no_output_nodes=3,
-        node_list=node_list
-    )
-
-    # Setting the preffered cost- and hidden_activation function
-    FFNN.set_cost_function(logistic_cost_NN_multi)
-
-    hidden_activation = 'sigmoid'
-    output_activation = 'softmax'
-    FFNN.set_activation_function_hidden_layers(hidden_activation)
-    FFNN.set_activation_function_output_layer(output_activation)
+    sns.set()
 
     # Change the activation function to predict 0 or 1's.
-    learning_rates = np.logspace(-1, -5, 5)
-    lmbda_values = np.logspace(-3, -7, 5)
+    learning_rates = np.logspace(0, -5, 6)
+    lmbda_values = np.logspace(-2, -7, 6)
 
     train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
-    n_epochs = 250
-    batch_size = 10
+    # Initialize some values
+    n_epochs = 80
     gamma = 0.9
-
-    FFNN.set_SGD_values(
-        n_epochs=n_epochs,
-        batch_size=batch_size,
-        gamma=gamma)
+    batch_size = 100
+    act_func = 'relu'
+    hidden_nodes = 6
+    hidden_layers = 4
 
     iter = 0
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
-            print(eta, lmbda)
+            
+            y_train = to_categorical(y_train)
+            y_test = to_categorical(y_test)
 
-            # Reinitializing the weights, biases and activation function
-            FFNN.set_activation_function_output_layer(output_activation)
-            FFNN.initialize_the_weights()
-            FFNN.initialize_the_biases()
-
-            # Changing some SGD values
-            FFNN.set_SGD_values(
-                eta=eta,
-                lmbda=lmbda,
-            )
+            # Need to create new instance, to change the architecture
+            FFNN = helper.create_NN(n_components, hidden_nodes, hidden_layers, \
+                'categorical_crossentropy', act_func, eta, lmbda, gamma)
 
             # Training the model
-            FFNN.train_model(X_train, y_train, y_converter=True)
+            FFNN.fit(X_train, y_train, epochs=n_epochs, batch_size = batch_size, verbose = 0)
 
-            # Testing the model against the target values, and store the results
-            y_pred_train = helper.convert_vec_to_num(
-                FFNN.feed_forward(X_train))
-            y_pred_test = helper.convert_vec_to_num(FFNN.feed_forward(X_test))
+            # Predicting
+            y_hat_train = helper.convert_vec_to_num(FFNN.predict(X_train))
+            y_hat_test = helper.convert_vec_to_num(FFNN.predict(X_test))
+            y_train = helper.convert_vec_to_num(y_train)
+            y_test = helper.convert_vec_to_num(y_test)
 
             train_accuracy_score[i][j] = helper.accuracy_score(
-                y_train, y_pred_train)
+                y_train, y_hat_train)
             test_accuracy_score[i][j] = helper.accuracy_score(
-                y_test, y_pred_test)
-
+                y_test, y_hat_test)
+            
             iter += 1
             print(
                 f'Progress: {iter:2.0f}/{len(learning_rates) * len(lmbda_values)}')
@@ -370,7 +325,7 @@ if test4:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Training Accuracy',
-        save_name=f'plots/test4/test4nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_acthidden{hidden_activation}_training.png'
+        save_name=f'plots/test4/test4nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_training.png'
     )
 
     helper.seaborn_plot_lmbda_learning(
@@ -378,13 +333,13 @@ if test4:
         x_tics=lmbda_values,
         y_tics=learning_rates,
         score_name='Test Accuracy',
-        save_name=f'plots/test4/test4_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_acthidden{hidden_activation}_test.png'
+        save_name=f'plots/test4/test4_nepochs_{n_epochs}_M_{batch_size}_gamma_{gamma}_test.png'
     )
 
 
 """
 TEST 5:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Decision tree
 
 Print tree representation, the accuracy-score and the depth used
@@ -394,8 +349,12 @@ if test5:
     print('>> RUNNING TEST 5:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(
-        n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
+
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
 
     # Function to perform training with Entropy
     clf = DecisionTreeClassifier(
@@ -420,7 +379,7 @@ if test5:
 
 """
 TEST 6:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Decision tree
 
 Optimizing w.r.t. max_depth
@@ -430,10 +389,13 @@ if test6:
     print('>> RUNNING TEST 6:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
         n_components)
 
-    max_depths = np.arange(1, 14, 1)
+    max_depths = np.arange(1, 100, 1)
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
 
     train_accuracy_score = []
     test_accuracy_score = []
@@ -476,13 +438,13 @@ if test6:
     plt.title(
         f"Accuracy vs max depth used in the decision tree algorithm")
 
-    plt.savefig('plots/test6/test6/accuracy_vs_decision_tree_classification')
+    plt.savefig('plots/test6/test6_accuracy_vs_decision_tree_classification_2')
     plt.show()
 
 
 """
 TEST 7:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Random Forest
 
 Print the accuracy-score and the depth used
@@ -492,11 +454,15 @@ if test7:
     print('>> RUNNING TEST 7:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(
-        n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
+
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
 
     # Create randomforest instance, with amount of max_depth
-    clf = RandomForestClassifier(max_depth=2)
+    clf = RandomForestClassifier(max_depth=6)
 
     # Fit the data to the model we have created
     clf.fit(X_train, y_train)
@@ -512,7 +478,7 @@ if test7:
 
 """
 TEST 8:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Random forest
 
 Optimizing w.r.t. max_depth
@@ -522,8 +488,12 @@ if test8:
     print('>> RUNNING TEST 8:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
         n_components)
+
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
 
     max_depths = np.arange(1, 40, 1)
 
@@ -566,12 +536,13 @@ if test8:
     plt.legend()
     plt.title(
         f"Accuracy vs max depth used in the decision tree algorithm")
+    plt.savefig('plots/test8/test8_random_forest_accuracy_vs_complexity.png')
 
     plt.show()
 
 """
 TEST 9:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 
 Show the explained variance ratio from the IRIS dataset
 with PCA
@@ -579,15 +550,16 @@ with PCA
 test9 = False
 if test9:
     print('>> RUNNING TEST 9:')
-
-    n_components_list = [1, 2, 3, 4]
+    helper.load_dry_beans_data(2, show_target_distribution=True)
+    
+    n_components_list = [1, 2, 3]
     for n_components in n_components_list:
-        helper.load_iris_data(n_components, show_explained_ratio=True)
+        helper.load_dry_beans_data(n_components, show_explained_ratio=True)
 
 
 """
 TEST 11:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Logistic regression
 
 Logistic regression, look at the accuracy score given some parameters
@@ -596,16 +568,20 @@ test11 = False
 if test11:
     print(">> RUNNING TEST 11 <<")
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
 
-    n_classes = 3
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
+
+    n_classes = 7
 
     n_epochs = 200
-    batch_size = 10
+    batch_size = 500
     gamma = 0.8
+    eta = 1e-2
+    lmbda = 1e-5
     iter = 0
-    eta = 1e-3
-    lmbda = 0
 
     theta, num = SGD(
         X=X_train, y=y_train,
@@ -626,7 +602,7 @@ if test11:
 
 """
 TEST 12:
-Dataset: Iris data (classification case)
+Dataset: Beans data (classification case)
 Method: Logistic regression
 
 Grid search gamma batch size
@@ -636,16 +612,18 @@ test12 = False
 if test12:
     print(">> RUNNING TEST 12 <<")
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
 
-    n_classes = 3
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
+    n_classes = 7
 
-    n_epochs = 100
     eta = 1e-3
     lmbda = 0
 
     gamma_values = [round(0.2*i, 1) for i in range(5)]
-    batch_sizes = [2, 5, 10, 20]
+    batch_sizes = np.arange(100, 1100, 200)
 
     train_accuracy_score = np.zeros((len(batch_sizes), len(gamma_values)))
     test_accuracy_score = np.zeros((len(batch_sizes), len(gamma_values)))
@@ -658,7 +636,7 @@ if test12:
                 theta_init=0.01 + np.zeros((n_classes, X_train.shape[1] + 1)),
                 eta=eta,
                 cost_function=cost_logistic_regression_multi,
-                n_epochs=n_epochs, batch_size=batch_size,
+                n_epochs=batch_size, batch_size=batch_size,
                 gamma=gamma,
                 lmbda=lmbda
             )
@@ -696,7 +674,7 @@ if test12:
 
 """
 TEST 13:
-DATASET: Iris data (classification case)
+DATASET: Beans data (classification case)
 METHOD: Logistic regression
 
 Optimizing the hyperparameter lmbda and the learning rate by looking over
@@ -708,19 +686,22 @@ if test13:
     print('>> RUNNING TEST 13:')
     # Loading the training and testing dataset
     n_components = 3
-    X_train, X_test, y_train, y_test = helper.load_iris_data(n_components)
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
 
-    n_classes = 3
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
+    n_classes = 7
 
     # Change the activation function to predict 0 or 1's.
-    learning_rates = [10**(-i) for i in range(5)]
+    learning_rates = [10**(-i) for i in range(1, 5)]
     lmbda_values = np.logspace(-1, -6, 6)
 
     train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
     n_epochs = 100
-    batch_size = 10
+    batch_size = 500
     gamma = 0.8
 
     iter = 0
@@ -1242,7 +1223,7 @@ if test22:
         save_name=f'plots/test22/test22_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_test_3.png'
     )
 
-
+# TODO: when calling helper NN -> add loss into the call
 """
 TEST 23:
 DATASET: Housing data (regression case)

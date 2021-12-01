@@ -10,17 +10,18 @@ from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
 from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing, load_diabetes
-# import tensorflow as tf
-# from tensorflow.keras.utils import to_categorical
-# from tensorflow.keras import regularizers
-# from tensorflow.keras import optimizers
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Input
+import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import regularizers
+from tensorflow.keras import optimizers
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input
 
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from tensorflow.python.keras.layers.core import Activation
 
 
 def franke_function(x: float, y: float):
@@ -609,7 +610,7 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
     return X_train, X_test, y_train, y_test
 
 
-def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=False):
+def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=False, show_target_distribution=False):
     """
     # TODO: docstrings
     """
@@ -638,6 +639,18 @@ def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=
     # Shuffle the data
     np.random.shuffle(values)
 
+    if show_target_distribution:
+        sum_all = values.shape[0]
+        print(">> The distribution of the targets ")
+        print(f'0: {sum(values[:, -1] == 0)/sum_all : 3.3f} (SEKER)')
+        print(f'1: {sum(values[:, -1] == 1)/sum_all : 3.3f} (BARBUNYA)')
+        print(f'2: {sum(values[:, -1] == 2)/sum_all : 3.3f} (BOMBAY)')
+        print(f'3: {sum(values[:, -1] == 3)/sum_all : 3.3f} (CALI)')
+        print(f'4: {sum(values[:, -1] == 4)/sum_all : 3.3f} (HOROZ)')
+        print(f'5: {sum(values[:, -1] == 5)/sum_all : 3.3f} (SIRA)')
+        print(f'6: {sum(values[:, -1] == 6)/sum_all : 3.3f} (DERMASON)')
+
+
     X_input = values[:m_observations, :-1]
     y_target = values[:m_observations, -1]
 
@@ -647,7 +660,8 @@ def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=
     X_input_PCA = pca.fit_transform(X_input)
 
     if show_explained_ratio:
-        print(pca.explained_variance_ratio_)
+        print(
+            f'Total explained variance ratio (of {n_components} component): {sum(pca.explained_variance_ratio_) : 3.3f}')
 
     X_input_PCA = X_input_PCA/(X_input_PCA.max(axis=0))
 
@@ -959,7 +973,7 @@ def midsampling_of_training_data(X_train, y_train):
     return X_train, y_train
 
 
-def create_NN(input_nodes, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma):
+def create_NN(input_nodes, hidden_nodes, hidden_layers, loss, act_func, eta, lmbda, gamma):
     """
     # TODO: docstrings 
 
@@ -973,16 +987,19 @@ def create_NN(input_nodes, hidden_nodes, hidden_layers, act_func, eta, lmbda, ga
         else:
             model.add(Dense(60, activation=act_func,
                             kernel_regularizer=regularizers.l2(lmbda)))
-
-    model.add(Dense(1))
+    if loss == "mse":
+        model.add(Dense(1))
+    else:
+        model.add(Dense(7, activation='softmax'))
 
     sgd = optimizers.SGD(learning_rate=eta, momentum=gamma)
 
-    model.compile(loss='mse',
-                  optimizer=sgd,
-                  metrics=[tf.keras.metrics.MeanSquaredError()])
+    model.compile(loss=loss,
+                  optimizer=sgd)
 
     return model
+
+
 
 
 def main():
