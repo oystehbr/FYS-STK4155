@@ -10,13 +10,13 @@ from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
 from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing, load_diabetes
-import tensorflow as tf
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras import regularizers
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Input
+# import tensorflow as tf
+# from tensorflow.keras.utils import to_categorical
+# from tensorflow.keras import regularizers
+# from tensorflow.keras import optimizers
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Input
 
 import numpy as np
 import seaborn as sns
@@ -448,11 +448,10 @@ def load_iris_data(n, show_explained_ratio=False):
     pd = load_iris()
     # Parameter labels (if you want, not used)
 
-    
     X_input = pd.data
     y_target = pd.target    # 0 for benign and 1 for malignant
     y_target = y_target.reshape(-1, 1)
-    
+
     # Shuffling the data
     values = np.concatenate((X_input, y_target), axis=1)
     np.random.shuffle(values)
@@ -546,8 +545,8 @@ def load_housing_california_data(n, m_observations=1000, show_explained_ratio=Fa
     pd = fetch_california_housing()
     # Parameter labels (if you want, not used)
 
-    X_input = pd.data #[:1000]
-    y_target = pd.target #[:1000]
+    X_input = pd.data  # [:1000]
+    y_target = pd.target  # [:1000]
     y_target = y_target.reshape(-1, 1)
 
     # Shuffling the data
@@ -782,8 +781,8 @@ def load_air_data(n_components, m_observations=1000, show_explained_ratio=False)
 
     values = df.values
     max = values.shape[0]
-    i=0
-    while i<max:
+    i = 0
+    while i < max:
         row = values[i]
         if -200 in row:
             values = np.delete(values, i, 0)
@@ -792,7 +791,7 @@ def load_air_data(n_components, m_observations=1000, show_explained_ratio=False)
             i += 1
 
     np.random.shuffle(values)
-    
+
     X_input = values[:m_observations, :-1]
     y_target = values[:m_observations, -1]
 
@@ -973,15 +972,15 @@ def create_NN(input_nodes, hidden_nodes, hidden_layers, act_func, eta, lmbda, ga
                 lmbda), input_dim=input_nodes))
         else:
             model.add(Dense(60, activation=act_func,
-                    kernel_regularizer=regularizers.l2(lmbda)))
+                            kernel_regularizer=regularizers.l2(lmbda)))
 
     model.add(Dense(1))
 
     sgd = optimizers.SGD(learning_rate=eta, momentum=gamma)
 
     model.compile(loss='mse',
-                    optimizer=sgd,
-                    metrics=[tf.keras.metrics.MeanSquaredError()])
+                  optimizer=sgd,
+                  metrics=[tf.keras.metrics.MeanSquaredError()])
 
     return model
 
