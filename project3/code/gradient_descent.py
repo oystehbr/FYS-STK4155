@@ -4,7 +4,6 @@ import autograd.numpy as np
 import matplotlib.pyplot as plt
 import helper
 import seaborn as sns
-from cost_functions import prob_multi
 
 
 def learning_schedule(t):

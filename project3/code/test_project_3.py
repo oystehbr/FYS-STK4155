@@ -28,7 +28,6 @@ from gradient_descent import SGD
 from cost_functions import cost_logistic_regression_multi, prob_multi
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.svm import SVC
 from sklearn import tree
 import numpy as np
 import helper
