@@ -10,18 +10,17 @@ from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
 from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing, load_diabetes
-import tensorflow as tf
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras import regularizers
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Input
+# import tensorflow as tf
+# from tensorflow.keras.utils import to_categorical
+# from tensorflow.keras import regularizers
+# from tensorflow.keras import optimizers
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Input
 
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from tensorflow.python.keras.layers.core import Activation
 
 
 def franke_function(x: float, y: float):
@@ -408,7 +407,7 @@ def load_cancer_data(n):
 
     # Loading cancer data
     cancer = load_breast_cancer()
-    # Parameter labels (if you want, not used)
+    # Parameter labels (if you want,  not used)
     labels = cancer.feature_names[0:30]
 
     X_cancer = cancer.data
@@ -447,7 +446,7 @@ def load_iris_data(n, show_explained_ratio=False):
 
     # Loading cancer data
     pd = load_iris()
-    # Parameter labels (if you want, not used)
+    # Parameter labels (if you want,  not used)
 
     X_input = pd.data
     y_target = pd.target    # 0 for benign and 1 for malignant
@@ -494,9 +493,8 @@ def load_diabetes_PSY_data(n, show_explained_ratio=False):
 
     # Loading cancer data
     diabetes = load_diabetes()
-    # Parameter labels (if you want, not used)
+    # Parameter labels (if you want,  not used)
 
-    # TODO: shuffle the data
     X_input = diabetes.data
     y_target = diabetes.target    # 0 for benign and 1 for malignant
     y_target = y_target.reshape(-1, 1)
@@ -544,7 +542,7 @@ def load_housing_california_data(n, m_observations=1000, show_explained_ratio=Fa
 
     # Loading cancer data
     pd = fetch_california_housing()
-    # Parameter labels (if you want, not used)
+    # Parameter labels (if you want,  not used)
 
     X_input = pd.data  # [:1000]
     y_target = pd.target  # [:1000]
@@ -574,7 +572,7 @@ def load_housing_california_data(n, m_observations=1000, show_explained_ratio=Fa
 
 def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=False):
     """
-    # TODO: docstrings
+    not used 
     """
 
     path = "data/diabetes_012_health_indicators_BRFSS2015.csv"
@@ -612,7 +610,25 @@ def load_diabetes_data(n_components, m_observations=1000, show_explained_ratio=F
 
 def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=False, show_target_distribution=False):
     """
-    # TODO: docstrings
+    Loading the dry beans data set explained in the report, and 
+    returns the training and testing data set
+
+    :param n_components (int):
+        amount of components we want to return (PCA-components)
+    :param m_observations (int):
+        the amount of observations we want to run with
+    :param show_explained_ratio (bool):
+        if True then it will present the explained variance ratio
+        if False, then it will not
+    :param show_target_distribution (bool):
+        if True then it will present the amount of representative for each class
+        if False, then it will not
+
+    :return tuple(np.ndarray):
+        - Input data, training
+        - Input data, testing
+        - Target data, training
+        - Target data, testing
     """
 
     path = "data/Dry_Bean_Dataset.xlsx"
@@ -650,7 +666,6 @@ def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=
         print(f'5: {sum(values[:, -1] == 5)/sum_all : 3.3f} (SIRA)')
         print(f'6: {sum(values[:, -1] == 6)/sum_all : 3.3f} (DERMASON)')
 
-
     X_input = values[:m_observations, :-1]
     y_target = values[:m_observations, -1]
 
@@ -673,7 +688,7 @@ def load_dry_beans_data(n_components, m_observations=1000, show_explained_ratio=
 
 def load_wine_data(n_components, m_observations=1000, show_explained_ratio=False):
     """
-    # TODO: docstrings
+    not used 
     """
 
     path = "data/wineQualityReds.csv"
@@ -713,7 +728,7 @@ def load_wine_data(n_components, m_observations=1000, show_explained_ratio=False
 
 def load_muscle_data(n_components, m_observations=1000, show_explained_ratio=False):
     """
-    # TODO: docstrings
+    not used 
     """
 
     path_0 = "data/muscle_data/0.csv"
@@ -756,8 +771,7 @@ def load_muscle_data(n_components, m_observations=1000, show_explained_ratio=Fal
 
 def load_diabetes_data_without_PCA(n_components, m_observations=1000):
     """
-    # TODO: docstrings
-    https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
+    not used 
     """
 
     path = "data/diabetes_012_health_indicators_BRFSS2015.csv"
@@ -784,6 +798,10 @@ def load_diabetes_data_without_PCA(n_components, m_observations=1000):
 
 
 def load_air_data(n_components, m_observations=1000, show_explained_ratio=False):
+    """
+    not used 
+    """
+
     path = "data/AirQuality.csv"
     df = pd.read_csv(
         path,
@@ -829,9 +847,19 @@ def load_air_data(n_components, m_observations=1000, show_explained_ratio=False)
 
 def convert_num_to_vec(y, dim):
     """
-    # TODO:
+    Convertert the input numbers to a vector-representation. 
+    F.ex: y = 2, dim = 4, will be converted to
+    [0, 0, 1, 0].
 
-    Dimensional of the converter
+
+    :param y (number, np.ndarray): 
+        the number(s) you want to convert
+    :param dim (int):
+        the dimension of the target group
+
+    :return (np.ndarray): 
+        the converted output    
+
     """
 
     y_list = []
@@ -847,7 +875,17 @@ def convert_num_to_vec(y, dim):
 
 def convert_vec_to_num(y):
     """
-    # TODO:
+    Finds the entry with the highest value and set the
+    index number instead of the vector. So, it will predict 
+    the highest probability. 
+    F.ex: y = [0.2, 0.7, 0.04, 0.06]
+    output: [1].
+
+    :param y (np.ndarray):
+        the array you want to convert
+
+    :return (np.ndarray):
+        the converted value
     """
 
     y_list = list(y)
@@ -866,7 +904,7 @@ def convert_vec_to_num(y):
 
 def oversampling_of_training_data(X_train, y_train):
     """
-
+    not used 
     https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
     """
 
@@ -898,7 +936,6 @@ def oversampling_of_training_data(X_train, y_train):
         pd_train = pd.concat([pd_train, pd_train_duplicates_2])
 
     pd_train_values = pd_train.values
-    # TODO: check if shuffling row-wise
     np.random.shuffle(pd_train_values)
 
     X_train = pd_train_values[:, :-1]
@@ -908,8 +945,8 @@ def oversampling_of_training_data(X_train, y_train):
 
 
 def undersampling_of_training_data(X_train, y_train):
-    """[summary]
-    Given that class 0 has most data
+    """
+    not used 
     """
 
     # Doing the imbalanced data approach, oversampling
@@ -942,7 +979,7 @@ def undersampling_of_training_data(X_train, y_train):
 
 def midsampling_of_training_data(X_train, y_train):
     """
-    # TODO: docstrings
+    not used 
     """
 
     pd_train = pd.DataFrame(X_train)
@@ -975,17 +1012,40 @@ def midsampling_of_training_data(X_train, y_train):
 
 def create_NN(input_nodes, hidden_nodes, hidden_layers, loss, act_func, eta, lmbda, gamma):
     """
-    # TODO: docstrings 
+    Simple creating of the neural network instance and returning the model, 
+    which is ready for the fitting process. This function is kind of special 
+    made for the classification problem we are up agains (7 targets), but it 
+    works find for the regression case. 
 
+
+    :param input_nodes (int):
+        the amount of input nodes
+    :param hidden_nodes (int):
+        the amount of hidden nodes
+    :param hidden_layers (int):
+        the amount of hidden layers
+    :param loss (str):
+        the cost-function used in the neural network
+    :param act_func (str):
+        the activation function used in the hidden layers
+    :param eta (float):
+        the learning rate
+    :param lmbda (float):
+        the hyperparameter/ regularization parameter lambda
+    :param gamma (float):
+        the momentum parameter
+
+    :return (model):
+        the model ready for the fitting process
     """
 
     model = Sequential()
     for degree in range(hidden_layers):
         if degree == 0:
-            model.add(Dense(60, activation=act_func, kernel_regularizer=regularizers.l2(
+            model.add(Dense(hidden_nodes, activation=act_func, kernel_regularizer=regularizers.l2(
                 lmbda), input_dim=input_nodes))
         else:
-            model.add(Dense(60, activation=act_func,
+            model.add(Dense(hidden_nodes, activation=act_func,
                             kernel_regularizer=regularizers.l2(lmbda)))
     if loss == "mse":
         model.add(Dense(1))
@@ -998,8 +1058,6 @@ def create_NN(input_nodes, hidden_nodes, hidden_layers, loss, act_func, eta, lmb
                   optimizer=sgd)
 
     return model
-
-
 
 
 def main():

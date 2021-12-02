@@ -1,5 +1,5 @@
 """
-Setup for testing the results of project 2, feel free to change the
+Setup for testing the results of project 3, feel free to change the
 different variables. Read docstrings inside the functions/ classes
 to know their functionality.
 
@@ -15,52 +15,49 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
-import tensorflow as tf
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras import regularizers
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Input
-from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix
+# import tensorflow as tf
+# from tensorflow.keras.utils import to_categorical
+# from tensorflow.keras import regularizers
+# from tensorflow.keras import optimizers
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Input
+from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
-from FF_Neural_Network import Neural_Network
 from gradient_descent import SGD
-from cost_functions import logistic_cost_NN, logistic_cost_NN_multi, cost_logistic_regression, prob, \
-    cost_logistic_regression_multi, prob_multi, MSE
+from cost_functions import cost_logistic_regression_multi, prob_multi
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.svm import SVC
 from sklearn import tree
-import time
 import numpy as np
-import gradient_descent
 import helper
 import seaborn as sns
 import pandas as pd
 
-# TODO: add a confusion matrix??
 """
 TEST 1:
 DATASET: Beans data (classification case)
 METHOD: Neural Network
 
 Here you are able to try out the neural network and see the result in the form of
-an accuracy score (of both training and test data). We have also provided the
-opportunity to look at the accuracy score over the training time (iterations of the
-SGD-algorithm)
+an accuracy score (of both training and test data). In addition, we have provided 
+the opportunity to look at the confusion matrix of the testing data
 """
-test1 = True
+test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
     n_components = 3
     m_observations = 20000
-    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
 
+    # Switching the target values to a vector (other representation of the output)
     y_train = to_categorical(y_train, num_classes=7)
     y_test = to_categorical(y_test, num_classes=7)
 
+    # Initialize some parameters for the neural network
     n_epochs = 80
     batch_size = 100
     lmbda = 1e-4
@@ -68,8 +65,10 @@ if test1:
     gamma = 0.9
     hidden_nodes = 6
     hidden_layers = 4
-    model = helper.create_NN(n_components, hidden_nodes, hidden_layers, 'categorical_crossentropy', 'relu', eta, lmbda, gamma)
+    model = helper.create_NN(n_components, hidden_nodes, hidden_layers,
+                             'categorical_crossentropy', 'relu', eta, lmbda, gamma)
 
+    # Fitting the model
     model.fit(X_train, y_train,
               epochs=n_epochs,
               batch_size=batch_size)
@@ -80,27 +79,28 @@ if test1:
     y_test = helper.convert_vec_to_num(y_test)
 
     train_accuracy_score = helper.accuracy_score(
-                y_train, y_hat_train)
+        y_train, y_hat_train)
     test_accuracy_score = helper.accuracy_score(
-                y_test, y_hat_test)
+        y_test, y_hat_test)
     print(f"\nAccuracy for training: {train_accuracy_score}")
     print(f"Accuracy for testing: {test_accuracy_score}")
-    
+
+    # Provide a confusion matrix if True
     confusion_result = True
     if confusion_result:
         array = confusion_matrix(y_test, y_hat_test)
 
         df_cm = pd.DataFrame(array, range(7), range(7))
-        plt.figure(figsize=(8,8))
-        sns.set(font_scale=1.4) # for label size
-        sns.heatmap(df_cm, annot=True, annot_kws={"size": 12}, fmt='d', cmap='Blues') # font size
+        plt.figure(figsize=(8, 8))
+        sns.set(font_scale=1.4)  # for label size
+        sns.heatmap(df_cm, annot=True, annot_kws={
+                    "size": 12}, fmt='d', cmap='Blues')  # font size
         plt.title(f'Confusion matrix for beans data (Neural Network)')
         plt.xlabel("classes")
         plt.ylabel("classes")
 
         plt.savefig('plots/test1/test1_confusion_matrix_NN_optimal.png')
         plt.show()
-        
 
 
 """
@@ -141,11 +141,12 @@ if test2:
             y_train = to_categorical(y_train)
             y_test = to_categorical(y_test)
             # Need to create new instance, to change the architecture
-            FFNN = helper.create_NN(n_components, node, layer, \
-                'categorical_crossentropy', act_func, eta, lmbda, gamma)
+            FFNN = helper.create_NN(n_components, node, layer,
+                                    'categorical_crossentropy', act_func, eta, lmbda, gamma)
 
             # Training the model
-            FFNN.fit(X_train, y_train, epochs=n_epochs, batch_size = batch_size, verbose = 0)
+            FFNN.fit(X_train, y_train, epochs=n_epochs,
+                     batch_size=batch_size, verbose=0)
 
             y_hat_train = helper.convert_vec_to_num(FFNN.predict(X_train))
             y_hat_test = helper.convert_vec_to_num(FFNN.predict(X_test))
@@ -203,7 +204,7 @@ if test3:
     act_func = 'relu'
     hidden_nodes = 6
     hidden_layers = 4
- 
+
     batch_sizes = np.arange(100, 1100, 200)
     gammas = [0, 0.2, 0.6, 0.8, 0.9, 1.0]
     train_accuracy_score = np.zeros((len(batch_sizes), len(gammas)))
@@ -217,11 +218,12 @@ if test3:
             y_test = to_categorical(y_test)
 
             # Need to create new instance, to change the architecture
-            FFNN = helper.create_NN(n_components, hidden_nodes, hidden_layers, \
-                'categorical_crossentropy', act_func, eta, lmbda, gamma)
+            FFNN = helper.create_NN(n_components, hidden_nodes, hidden_layers,
+                                    'categorical_crossentropy', act_func, eta, lmbda, gamma)
 
             # Training the model
-            FFNN.fit(X_train, y_train, epochs=int(batch_size/20), batch_size = batch_size, verbose = 0)
+            FFNN.fit(X_train, y_train, epochs=int(batch_size/20),
+                     batch_size=batch_size, verbose=0)
 
             # Predicting
             y_hat_train = helper.convert_vec_to_num(FFNN.predict(X_train))
@@ -233,7 +235,7 @@ if test3:
                 y_train, y_hat_train)
             test_accuracy_score[i][j] = helper.accuracy_score(
                 y_test, y_hat_test)
-            
+
             iter += 1
             print(
                 f'Progress: {iter:2.0f}/{len(batch_sizes) * len(gammas)}')
@@ -293,16 +295,17 @@ if test4:
     iter = 0
     for i, eta in enumerate(learning_rates):
         for j, lmbda in enumerate(lmbda_values):
-            
+
             y_train = to_categorical(y_train)
             y_test = to_categorical(y_test)
 
             # Need to create new instance, to change the architecture
-            FFNN = helper.create_NN(n_components, hidden_nodes, hidden_layers, \
-                'categorical_crossentropy', act_func, eta, lmbda, gamma)
+            FFNN = helper.create_NN(n_components, hidden_nodes, hidden_layers,
+                                    'categorical_crossentropy', act_func, eta, lmbda, gamma)
 
             # Training the model
-            FFNN.fit(X_train, y_train, epochs=n_epochs, batch_size = batch_size, verbose = 0)
+            FFNN.fit(X_train, y_train, epochs=n_epochs,
+                     batch_size=batch_size, verbose=0)
 
             # Predicting
             y_hat_train = helper.convert_vec_to_num(FFNN.predict(X_train))
@@ -314,7 +317,7 @@ if test4:
                 y_train, y_hat_train)
             test_accuracy_score[i][j] = helper.accuracy_score(
                 y_test, y_hat_test)
-            
+
             iter += 1
             print(
                 f'Progress: {iter:2.0f}/{len(learning_rates) * len(lmbda_values)}')
@@ -342,7 +345,8 @@ TEST 5:
 DATASET: Beans data (classification case)
 METHOD: Decision tree
 
-Print tree representation, the accuracy-score and the depth used
+Print tree representation, the accuracy-score and the depth used and 
+the test will also provide a confusion matrix if interested. 
 """
 test5 = False
 if test5:
@@ -357,16 +361,19 @@ if test5:
     y_test = y_test.astype('int')
 
     # Function to perform training with Entropy
+    max_depth = 5
     clf = DecisionTreeClassifier(
-        criterion='entropy', max_depth=5)
+        criterion='entropy', max_depth=max_depth)
 
     # Fit the data to the model we have created
     clf.fit(X_train, y_train)
 
     # Look at the tree
-    text_representation = tree.export_text(clf)
-    print(text_representation)
-    print(clf.tree_.max_depth)
+    look_at_tree = False
+    if look_at_tree:
+        text_representation = tree.export_text(clf)
+        print(text_representation)
+        print(clf.tree_.max_depth)
 
     # Make predictions
     y_pred_train = clf.predict(X_train)
@@ -377,12 +384,30 @@ if test5:
     print(
         f'Accuracy_test = {helper.accuracy_score(y_pred_test,  y_test)}')
 
+    confusion_result = True
+    if confusion_result:
+        array = confusion_matrix(y_test, y_pred_test)
+
+        df_cm = pd.DataFrame(array, range(7), range(7))
+        plt.figure(figsize=(8, 8))
+        sns.set(font_scale=1.4)  # for label size
+        sns.heatmap(df_cm, annot=True, annot_kws={
+                    "size": 12}, fmt='d', cmap='Blues')  # font size
+        plt.title(f'Confusion matrix for beans data (Decision tree)')
+        plt.xlabel("classes")
+        plt.ylabel("classes")
+
+        plt.savefig(
+            'plots/test5/test5_confusion_matrix_decision_tree_optimal.png')
+        plt.show()
+
 """
 TEST 6:
 DATASET: Beans data (classification case)
 METHOD: Decision tree
 
-Optimizing w.r.t. max_depth
+Optimizing the max_depth parameter - looking on the accuracy
+against the complexity parameter: 'max_depth'
 """
 test6 = False
 if test6:
@@ -447,7 +472,8 @@ TEST 7:
 DATASET: Beans data (classification case)
 METHOD: Random Forest
 
-Print the accuracy-score and the depth used
+Print the accuracy-score and the depth used, and the test
+will also provide a confusion matrix.
 """
 test7 = False
 if test7:
@@ -458,11 +484,13 @@ if test7:
     X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
         n_components, m_observations)
 
+    # Converting the type to integer
     y_train = y_train.astype('int')
     y_test = y_test.astype('int')
 
     # Create randomforest instance, with amount of max_depth
-    clf = RandomForestClassifier(max_depth=6)
+    max_depth = 6
+    clf = RandomForestClassifier(max_depth=max_depth)
 
     # Fit the data to the model we have created
     clf.fit(X_train, y_train)
@@ -476,27 +504,50 @@ if test7:
     print(
         f'Accuracy_test = {helper.accuracy_score(y_pred_test,  y_test)}')
 
+    # Setting up the confusion matrix for testing data
+    confusion_result = True
+    if confusion_result:
+        array = confusion_matrix(y_test, y_pred_test)
+
+        df_cm = pd.DataFrame(array, range(7), range(7))
+        plt.figure(figsize=(8, 8))
+        sns.set(font_scale=1.4)  # for label size
+        sns.heatmap(df_cm, annot=True, annot_kws={
+                    "size": 12}, fmt='d', cmap='Blues')  # font size
+        plt.title(f'Confusion matrix for beans data (Decision tree)')
+        plt.xlabel("classes")
+        plt.ylabel("classes")
+
+        plt.savefig(
+            'plots/test7/test7_confusion_matrix_random_forest_optimal_1.png')
+        plt.show()
+
 """
 TEST 8:
 DATASET: Beans data (classification case)
 METHOD: Random forest
 
-Optimizing w.r.t. max_depth
+Optimizing the max_depth parameter - looking on the accuracy
+against the complexity parameter: 'max_depth'. Here we are using 
+the default amount of trees (from the packages), which is 
+'n_estimators = 100' (by default).
 """
 test8 = False
 if test8:
     print('>> RUNNING TEST 8:')
+
     # Loading the training and testing dataset
     n_components = 3
     m_observations = 13611
     X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
         n_components)
 
+    # Converting the types to integer
     y_train = y_train.astype('int')
     y_test = y_test.astype('int')
 
+    # Setting up the values for the iterations and the storage
     max_depths = np.arange(1, 40, 1)
-
     train_accuracy_score = []
     test_accuracy_score = []
 
@@ -513,6 +564,7 @@ if test8:
         y_pred_train = clf.predict(X_train)
         y_pred_test = clf.predict(X_test)
 
+        # Check if we have gotten max accuracy on testing data (then stop)
         train_accuracy = helper.accuracy_score(y_pred_train, y_train)
         if last_train_accuracy == 1:
             break
@@ -551,7 +603,7 @@ test9 = False
 if test9:
     print('>> RUNNING TEST 9:')
     helper.load_dry_beans_data(2, show_target_distribution=True)
-    
+
     n_components_list = [1, 2, 3]
     for n_components in n_components_list:
         helper.load_dry_beans_data(n_components, show_explained_ratio=True)
@@ -563,13 +615,15 @@ DATASET: Beans data (classification case)
 METHOD: Logistic regression
 
 Logistic regression, look at the accuracy score given some parameters
+Can also look at the confusion matrix
 """
 test11 = False
 if test11:
     print(">> RUNNING TEST 11 <<")
     n_components = 3
     m_observations = 13611
-    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
 
     y_train = y_train.astype('int')
     y_test = y_test.astype('int')
@@ -600,6 +654,22 @@ if test11:
     print(f'Training accuracy: {helper.accuracy_score(y_train, y_pred_train)}')
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
 
+    confusion_result = True
+    if confusion_result:
+        array = confusion_matrix(y_test, y_pred_test)
+
+        df_cm = pd.DataFrame(array, range(7), range(7))
+        plt.figure(figsize=(8, 8))
+        sns.set(font_scale=1.4)  # for label size
+        sns.heatmap(df_cm, annot=True, annot_kws={
+                    "size": 12}, fmt='d', cmap='Blues')  # font size
+        plt.title(f'Confusion matrix for beans data (Logistic regression)')
+        plt.xlabel("classes")
+        plt.ylabel("classes")
+
+        plt.savefig('plots/test11/tes11_confusion_matrix_logistic_optimal.png')
+        plt.show()
+
 """
 TEST 12:
 Dataset: Beans data (classification case)
@@ -613,7 +683,8 @@ if test12:
     print(">> RUNNING TEST 12 <<")
     n_components = 3
     m_observations = 13611
-    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
 
     y_train = y_train.astype('int')
     y_test = y_test.astype('int')
@@ -687,7 +758,8 @@ if test13:
     # Loading the training and testing dataset
     n_components = 3
     m_observations = 13611
-    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(n_components, m_observations)
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
 
     y_train = y_train.astype('int')
     y_test = y_test.astype('int')
@@ -766,14 +838,11 @@ if test14:
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
         n_components, 2000)
 
-    # TODO: delete
-    # y_train = to_categorical(y_train)
-    # y_test = to_categorical(y_test)
-
     lmbda = 1e-4
     eta = 5e-4
     gamma = 0.8
-    model = helper.create_NN(n_components, 60, 7, "relu", eta, lmbda, gamma)
+    model = helper.create_NN(n_components, 60, 7, 'mse',
+                             "relu", eta, lmbda, gamma)
 
     model.fit(X_train, y_train,
               epochs=500,
@@ -787,13 +856,6 @@ if test14:
 
     print(f"\nR2-score training: {r2_score_train}")
     print(f"R2-score testing: {r2_score_test}")
-
-    # TODO: delete
-    # train_scores = model.evaluate(X_train, y_train, batch_size=100)
-    # test_scores = model.evaluate(X_test, y_test, batch_size=100)
-    # print(f"\nAccuracy for training: {train_scores[1]}")
-    # print(f"Accuracy for testing: {test_scores[1]}")
-
 
 """
 TEST 16:
@@ -1105,11 +1167,11 @@ if test21:
         # Running bootstrap-method
         for i in range(n_bootstraps):
 
-            _X, _y,  = helper.resample(X_train, y_train)
+            _X, _y, = helper.resample(X_train, y_train)
 
             # create NN model using tensorflow/keras
             model = helper.create_NN(
-                n_components, hidden_nodes, degree, "relu", eta, lmbda, gamma)
+                n_components, hidden_nodes, degree, 'mse', "relu", eta, lmbda, gamma)
             model.fit(_X, _y,
                       epochs=epochs,
                       batch_size=batch_size,)
@@ -1186,7 +1248,7 @@ if test22:
         for j, gamma in enumerate(gammas):
             # Creating a neural network model
             model = helper.create_NN(
-                n_components, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma)
+                n_components, hidden_nodes, hidden_layers, 'mse', act_func, eta, lmbda, gamma)
 
             epochs = batch_size
             # Train the model
@@ -1223,7 +1285,6 @@ if test22:
         save_name=f'plots/test22/test22_M_{batch_size}_gamma_{gamma}_lmbda_{lmbda}_eta_{eta}_test_3.png'
     )
 
-# TODO: when calling helper NN -> add loss into the call
 """
 TEST 23:
 DATASET: Housing data (regression case)
@@ -1260,7 +1321,7 @@ if test23:
         for j, lmbda in enumerate(lmbda_values):
             # Creating the neural network model
             model = helper.create_NN(
-                n_components, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma)
+                n_components, hidden_nodes, hidden_layers, 'mse', act_func, eta, lmbda, gamma)
 
             # Train the model
             model.fit(X_train, y_train,
@@ -1330,7 +1391,7 @@ if test24:
         # Running bootstrap-method
         for i in range(n_bootstraps):
 
-            _X, _y,  = helper.resample(X_train, y_train)
+            _X, _y, = helper.resample(X_train, y_train)
 
             # Function to perform training with decision tree
             clf = DecisionTreeRegressor(max_depth=degree)
@@ -1409,7 +1470,7 @@ if test25:
         # Running bootstrap-method
         for i in range(n_bootstraps):
 
-            _X, _y,  = helper.resample(X_train, y_train)
+            _X, _y, = helper.resample(X_train, y_train)
 
             # Create randomforest instance, with amount of max_depth
             clf = RandomForestRegressor(max_depth=degree)
