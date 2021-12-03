@@ -982,10 +982,10 @@ def create_NN(input_nodes, hidden_nodes, hidden_layers, loss, act_func, eta, lmb
     model = Sequential()
     for degree in range(hidden_layers):
         if degree == 0:
-            model.add(Dense(60, activation=act_func, kernel_regularizer=regularizers.l2(
+            model.add(Dense(hidden_nodes, activation=act_func, kernel_regularizer=regularizers.l2(
                 lmbda), input_dim=input_nodes))
         else:
-            model.add(Dense(60, activation=act_func,
+            model.add(Dense(hidden_nodes, activation=act_func,
                             kernel_regularizer=regularizers.l2(lmbda)))
     if loss == "mse":
         model.add(Dense(1))

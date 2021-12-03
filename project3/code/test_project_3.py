@@ -50,7 +50,7 @@ an accuracy score (of both training and test data). We have also provided the
 opportunity to look at the accuracy score over the training time (iterations of the
 SGD-algorithm)
 """
-test1 = True
+test1 = False
 if test1:
     print('>> RUNNING TEST 1:')
     # Loading the training and testing dataset
@@ -61,12 +61,12 @@ if test1:
     y_train = to_categorical(y_train, num_classes=7)
     y_test = to_categorical(y_test, num_classes=7)
 
-    n_epochs = 80
+    n_epochs = 30
     batch_size = 100
     lmbda = 1e-4
-    eta = 1e-3
+    eta = 1e-2
     gamma = 0.9
-    hidden_nodes = 6
+    hidden_nodes = 14
     hidden_layers = 4
     model = helper.create_NN(n_components, hidden_nodes, hidden_layers, 'categorical_crossentropy', 'relu', eta, lmbda, gamma)
 
@@ -201,7 +201,7 @@ if test3:
     eta = 1e-2
     lmbda = 1e-4
     act_func = 'relu'
-    hidden_nodes = 6
+    hidden_nodes = 14
     hidden_layers = 4
  
     batch_sizes = np.arange(100, 1100, 200)
@@ -287,7 +287,7 @@ if test4:
     gamma = 0.9
     batch_size = 100
     act_func = 'relu'
-    hidden_nodes = 6
+    hidden_nodes = 14
     hidden_layers = 4
 
     iter = 0
@@ -1160,7 +1160,7 @@ METHOD: Neural Network
 Optimizing the batch_sizes and the momentum parameter gamma by looking over a seaborn plot.
 Will be measured in r2-score for both training and test-data.
 """
-test22 = False
+test22 = True
 if test22:
     print('>> RUNNING TEST 22:')
     # Loading the training and testing dataset
@@ -1186,7 +1186,7 @@ if test22:
         for j, gamma in enumerate(gammas):
             # Creating a neural network model
             model = helper.create_NN(
-                n_components, hidden_nodes, hidden_layers, act_func, eta, lmbda, gamma)
+                n_components, hidden_nodes, hidden_layers, 'mse', act_func, eta, lmbda, gamma)
 
             epochs = batch_size
             # Train the model
