@@ -36,6 +36,14 @@ Includes three functions:
 #### >> requirements.txt 🔞
 We have added a requirements file, including all the packages needed for this project.
 
+#### data (folder) 🖥📜
+The data sets we are using in the project and some more we have been testing. Those are of type xlsx and csv. 
+
+#### not_used (folder) ⛔️🗑
+Our own created neural network class. Now, with a new feature: it can predict multiclasses (so it is possible to have multiple output nodes). We are not using this class in this project
+
+
+
 ENJOY☺️
 
 
