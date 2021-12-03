@@ -1,7 +1,5 @@
 import autograd.numpy as np
-import numpy
 from activation_functions import softmax
-import helper
 
 
 def logistic_cost_NN(y_hat, y):
@@ -27,7 +25,7 @@ def logistic_cost_NN_multi(y_hat, y):
     Finding the cost w.r.t. the logistic cost function,
     used to determine the cost in a classification case of the Neural Network
     with several targets.
-    
+
     Link: 
     https://www.analyticsvidhya.com/blog/2021/02/cost-function-is-no-rocket-science/
 
