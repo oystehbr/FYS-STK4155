@@ -10,13 +10,13 @@ from sklearn.utils import resample
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
 from sklearn.datasets import load_breast_cancer, load_iris, fetch_california_housing, load_diabetes
-# import tensorflow as tf
-# from tensorflow.keras.utils import to_categorical
-# from tensorflow.keras import regularizers
-# from tensorflow.keras import optimizers
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Input
+import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import regularizers
+from tensorflow.keras import optimizers
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input
 
 import numpy as np
 import seaborn as sns
