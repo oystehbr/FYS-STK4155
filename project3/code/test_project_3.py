@@ -17,11 +17,6 @@ then this file will be very easy to read/ use
 
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras import regularizers
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Input
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 from gradient_descent import SGD
@@ -405,7 +400,9 @@ DATASET: Beans data (classification case)
 METHOD: Decision tree
 
 Optimizing the max_depth parameter - looking on the accuracy
-against the complexity parameter: 'max_depth'
+against the complexity parameter: 'max_depth'. The max_depth will be lower
+than the number provided if the decision tree is accurate on all targets (on training data). 
+Therefore, we stop the iterations, when the model is all accurate on the training data
 """
 test6 = False
 if test6:
@@ -473,6 +470,7 @@ METHOD: Random Forest
 Print the accuracy-score and the depth used, and the test
 will also provide a confusion matrix.
 """
+
 test7 = False
 if test7:
     print('>> RUNNING TEST 7:')
@@ -594,14 +592,19 @@ if test8:
 TEST 9:
 DATASET: Beans data (classification case)
 
-Show the explained variance ratio from the IRIS dataset
-with PCA
+Test for showing both the distribution of the data (the amount of targets
+of the different classes), and it will also provide the 'explained variance
+ratio' for the amount of components provided in the list:
+n_components_list
+This is test is for finding the optimal number of components to use in
+the machine learning algorithm. 
 """
 test9 = False
 if test9:
     print('>> RUNNING TEST 9:')
     helper.load_dry_beans_data(2, show_target_distribution=True)
 
+    # Setting the number of components to check the total explained variance ratio of.
     n_components_list = [1, 2, 3]
     for n_components in n_components_list:
         helper.load_dry_beans_data(n_components, show_explained_ratio=True)
@@ -612,12 +615,15 @@ TEST 11:
 DATASET: Beans data (classification case)
 METHOD: Logistic regression
 
-Logistic regression, look at the accuracy score given some parameters
-Can also look at the confusion matrix
+Logistic regression, look at the accuracy score with the parameters 
+provide inside the test below. You can also be provided with a confusion 
+matrix of the testing data. 
 """
+
 test11 = False
 if test11:
     print(">> RUNNING TEST 11 <<")
+    # Loading the data
     n_components = 3
     m_observations = 13611
     X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
@@ -628,6 +634,7 @@ if test11:
 
     n_classes = 7
 
+    # Initialize some variables
     n_epochs = 200
     batch_size = 500
     gamma = 0.8
@@ -646,12 +653,14 @@ if test11:
         lmbda=lmbda
     )
 
+    # Finding the prediction of the model and printing the result
     y_pred_train = helper.convert_vec_to_num(prob_multi(theta, X_train))
     y_pred_test = helper.convert_vec_to_num(prob_multi(theta, X_test))
 
     print(f'Training accuracy: {helper.accuracy_score(y_train, y_pred_train)}')
     print(f'Testing accuracy: {helper.accuracy_score(y_test, y_pred_test)}')
 
+    # If True, then the confusion matrix will be computed and shown
     confusion_result = True
     if confusion_result:
         array = confusion_matrix(y_test, y_pred_test)
@@ -673,21 +682,25 @@ TEST 12:
 Dataset: Beans data (classification case)
 Method: Logistic regression
 
-Grid search gamma batch size
+Grid search of the momentum parameter gamma, and the batch size
+used in the SGD algorithm for optimizing the model. 
 """
 
 test12 = False
 if test12:
     print(">> RUNNING TEST 12 <<")
+    # Loading the data
     n_components = 3
     m_observations = 13611
     X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
         n_components, m_observations)
 
+    # Setting up the structure
     y_train = y_train.astype('int')
     y_test = y_test.astype('int')
     n_classes = 7
 
+    # Initialize some values
     eta = 1e-3
     lmbda = 0
 
@@ -770,6 +783,7 @@ if test13:
     train_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
+    # Initialize some variables
     n_epochs = 100
     batch_size = 500
     gamma = 0.8
@@ -825,21 +839,25 @@ DATASET: Housing data (regression case)
 METHOD: Neural network
 
 Using neural network by tensorflow, to predict prices. Can check different
-kind of networks and optimization parameters
+kind of networks and optimization parameters. It will provide the R2-score
+for both the testing- and training data.
 """
 test14 = False
 if test14:
     print(">> RUNNING TEST 14 <<")
     # Loading the training and testing dataset
     n_components = 8
+    m_observations = 2000
 
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
-        n_components, 2000)
+        n_components, m_observations)
 
     lmbda = 1e-4
     eta = 5e-4
     gamma = 0.8
-    model = helper.create_NN(n_components, 60, 7, 'mse',
+    hidden_nodes = 60
+    hidden_layers = 7
+    model = helper.create_NN(n_components, hidden_nodes, hidden_layers, 'mse',
                              "relu", eta, lmbda, gamma)
 
     model.fit(X_train, y_train,
@@ -861,6 +879,7 @@ DATASET: Housing data (regression case)
 METHOD: Decision tree
 
 Print tree representation, the r2-score and the depth used
+in the tree
 """
 
 test16 = False
@@ -882,7 +901,7 @@ if test16:
     print(text_representation)
     print(clf.tree_.max_depth)
 
-    # Make predictions for
+    # Make predictions
     y_pred_train = clf.predict(X_train)
     y_pred_test = clf.predict(X_test)
 
@@ -895,7 +914,8 @@ TEST 17:
 DATASET: Housing data (regression case)
 METHOD: Decision tree
 
-Optimizing w.r.t. max_depth
+Optimizing the algorithm by looking over the
+depth of the tree.
 """
 
 test17 = False
@@ -939,12 +959,12 @@ if test17:
             f'Progress: {iter:2.0f}/{len(max_depths)}')
 
     plt.plot(range(1, len(train_accuracy_score) + 1),
-             train_accuracy_score, label="Train accuracy score ")
+             train_accuracy_score, label="Train R2-score ")
     plt.plot(range(1, len(test_accuracy_score) + 1),
-             test_accuracy_score, label="Test accuracy score ")
+             test_accuracy_score, label="Test R2-score ")
 
     plt.xlabel("Model Complexity (max depth of decision tree)")
-    plt.ylabel("Accuracy score")
+    plt.ylabel("R2-score")
     plt.legend()
     plt.title(
         f"Accuracy vs max depth used in the decision tree algorithm")
@@ -956,7 +976,8 @@ TEST 18:
 DATASET: Housing data (regression case)
 METHOD: Random Forest
 
-Printing the r2-score
+Evaluating the random forest model, set the depth to the
+preffered value and see the result (in the R2-score)
 """
 
 test18 = False
@@ -978,9 +999,9 @@ if test18:
     y_pred_test = clf.predict(X_test)
 
     print(
-        f'Accuracy_train = {helper.r2_score(y_pred_train, y_train)}')
+        f'R2_score_train = {helper.r2_score(y_pred_train, y_train)}')
     print(
-        f'Accuracy_test = {helper.r2_score(y_pred_test,  y_test)}')
+        f'R2_score_test = {helper.r2_score(y_pred_test,  y_test)}')
 
 
 """
@@ -988,7 +1009,9 @@ TEST 19:
 DATASET: Housing data (regression case)
 METHOD: Random forest
 
-Optimizing w.r.t. max_depth
+Optimizing the random forest, by looking over the
+depth of the trees. The amount of trees are set by default 
+to 100. 
 """
 
 test19 = False
@@ -1031,15 +1054,15 @@ if test19:
             f'Progress: {iter:2.0f}/{len(max_depths)}')
 
     plt.plot(range(1, len(train_accuracy_score) + 1),
-             train_accuracy_score, label="Train accuracy score ")
+             train_accuracy_score, label="Train R2-score ")
     plt.plot(range(1, len(test_accuracy_score) + 1),
-             test_accuracy_score, label="Test accuracy score ")
+             test_accuracy_score, label="Test R2-score ")
 
     plt.xlabel("Model Complexity (max depth of random forest)")
-    plt.ylabel("Accuracy score")
+    plt.ylabel("R2 score")
     plt.legend()
     plt.title(
-        f"Accuracy vs max depth used in the decision tree algorithm")
+        f"R2_score vs max depth used in the decision tree algorithm")
 
     plt.show()
 
@@ -1048,7 +1071,7 @@ TEST 20:
 DATASET: Housing data (regression case)
 METHOD: OLS regression
 
-Bias-variance tradeoff
+Bias-variance tradeoff (not used)
 """
 
 test20 = False
@@ -1130,7 +1153,8 @@ TEST 21:
 DATASET: Housing data (regression case)
 METHOD: Neural Network
 
-Bias-variance tradeoff
+Bias-variance tradeoff. The error vs. the complexity of the method,
+where the complexity in the neural network is the amount of hidden layers
 """
 
 test21 = False
@@ -1235,6 +1259,7 @@ if test22:
     train_r2_score = np.zeros((len(batch_sizes), len(gammas)))
     test_r2_score = np.zeros((len(batch_sizes), len(gammas)))
 
+    # Initialize some values
     eta = 5e-4
     lmbda = 1e-5
     hidden_nodes = 60
@@ -1307,6 +1332,7 @@ if test23:
     train_r2_score = np.zeros((len(learning_rates), len(lmbda_values)))
     test_r2_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
+    # Initialize some variables
     batch_size = 120
     epochs = 500
     gamma = 0.8
@@ -1361,7 +1387,8 @@ TEST 24:
 DATASET: Housing data (regression case)
 METHOD: Decision tree
 
-Bias-variance tradeoff
+Bias-variance tradeoff. The error vs. the complexity of the method,
+where the complexity in decision tree is the depth of the trees. 
 """
 
 test24 = False
@@ -1440,7 +1467,9 @@ TEST 25:
 DATASET: Housing data (regression case)
 METHOD: Random forest
 
-Bias-variance tradeoff
+Bias-variance tradeoff. The error vs. the complexity of the method,
+where the complexity in random forest is the depth of the trees. The amount of
+trees in the random forest is set by default to 100. 
 """
 
 test25 = False

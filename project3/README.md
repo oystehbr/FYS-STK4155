@@ -30,7 +30,7 @@ This is our helper function. The functions that are included in this file are us
 - As the filename highlights, collection of the different cost-functions we are using in this project
 
 #### >> gradient_descent.py 🏔📉
-Includes three functions:
+The function of importance in this project is:
 - **SGD**-function: do stochastic gradient descent and optimize against a cost-function that will be provided into the function. Used in the logistic regression algorithm in this project. 
 
 #### >> requirements.txt 🔞
