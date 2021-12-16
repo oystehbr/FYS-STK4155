@@ -259,7 +259,7 @@ METHOD: Neural Network
 Optimizing the hyperparameter lmbda and the learning rate by looking over
 a seaborn plot. Will be measured in accuracy-score for both training and test-data.
 """
-test4 = True
+test4 = False
 if test4:
     print('>> RUNNING TEST 4:')
     # Loading the training and testing dataset
