@@ -260,7 +260,7 @@ METHOD: Neural Network
 Optimizing the hyperparameter lmbda and the learning rate by looking over
 a seaborn plot. Will be measured in accuracy-score for both training and test-data.
 """
-test4 = False
+test4 = True
 if test4:
     print('>> RUNNING TEST 4:')
     # Loading the training and testing dataset
@@ -279,10 +279,10 @@ if test4:
     test_accuracy_score = np.zeros((len(learning_rates), len(lmbda_values)))
 
     # Initialize some values
-    n_epochs = 80
+    n_epochs = 20
     gamma = 0.9
     batch_size = 100
-    act_func = 'relu'
+    act_func = 'leaky_relu'
     hidden_nodes = 14
     hidden_layers = 4
 
