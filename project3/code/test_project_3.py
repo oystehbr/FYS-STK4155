@@ -15,6 +15,7 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
+import time
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import confusion_matrix
@@ -608,6 +609,107 @@ if test9:
     n_components_list = [1, 2, 3]
     for n_components in n_components_list:
         helper.load_dry_beans_data(n_components, show_explained_ratio=True)
+
+"""
+TEST 10:
+DATASET: Beans data (classification case)
+
+Test the time different of the four methods:
+- neural network 
+- logistic regression
+- decision tree
+- random forest
+
+"""
+test10 = False
+if test10:
+    print('>> RUNNING TEST 10:')
+    # Loading the training and testing dataset
+    n_components = 3
+    m_observations = 13611
+    X_train, X_test, y_train, y_test = helper.load_dry_beans_data(
+        n_components, m_observations)
+
+    neural_network = True
+    time_neural_start = time.time()
+    if neural_network:
+        # Switching the target values to a vector (other representation of the output)
+        y_train_NN = to_categorical(y_train, num_classes=7)
+
+        n_epochs = 30
+        batch_size = 100
+        lmbda = 1e-5
+        eta = 1e-2
+        gamma = 0.9
+        hidden_nodes = 14
+        hidden_layers = 4
+        model = helper.create_NN(n_components, hidden_nodes, hidden_layers,
+                                 'categorical_crossentropy', 'relu', eta, lmbda, gamma)
+
+        # Fitting the model
+        model.fit(X_train, y_train_NN,
+                  epochs=n_epochs,
+                  batch_size=batch_size)
+    time_neural = time.time() - time_neural_start
+    print('>> Time: {time_neural} s (Neural network)')
+
+    logistic_regression = True
+    time_logistic_start = time.time()
+    if logistic_regression:
+        y_train_reg = y_train.astype('int')
+
+        n_classes = 7
+
+        # Initialize some variables
+        n_epochs = 200
+        batch_size = 500
+        gamma = 0.8
+        eta = 1e-2
+        lmbda = 1e-5
+        iter = 0
+
+        theta, num = SGD(
+            X=X_train, y=y_train_reg,
+            # theta_init=np.array([0.1]*(X_train.shape[1] + 1))
+            theta_init=0.01 + np.zeros((n_classes, X_train.shape[1] + 1)),
+            eta=eta,
+            cost_function=cost_logistic_regression_multi,
+            n_epochs=n_epochs, batch_size=batch_size,
+            gamma=gamma,
+            lmbda=lmbda
+        )
+    time_logistic = time.time() - time_logistic_start
+    print('>> Time: {time_logistic} s (Logistic regression)')
+
+    decision_tree = True
+    time_tree_start = time.time()
+    if decision_tree:
+        y_train_decision_tree = y_train.astype('int')
+
+        # Function to perform training with Entropy
+        max_depth = 5
+        clf = DecisionTreeClassifier(
+            criterion='entropy', max_depth=max_depth)
+
+        # Fit the data to the model we have created
+        clf.fit(X_train, y_train_decision_tree)
+    time_tree = time.time() - time_tree_start
+    print('>> Time: {time_tree} s (Decision tree)')
+
+    random_forest = True
+    time_forest_start = time.time()
+    if random_forest:
+        # Converting the type to integer
+        y_train_random_forest = y_train.astype('int')
+
+        # Create randomforest instance, with amount of max_depth
+        max_depth = 6
+        clf = RandomForestClassifier(max_depth=max_depth)
+
+        # Fit the data to the model we have created
+        clf.fit(X_train, y_train_random_forest)
+    time_forest = time.time() - time_forest_start
+    print('>> Time: {time_forest} s (Random forest)')
 
 
 """
