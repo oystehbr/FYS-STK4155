@@ -1,0 +1,1511 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{esint}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usepackage{tikz}
+\usepackage{mathtools}
+\usepackage{ dsfont }
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[font={small,it}]{caption}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage[euler]{textgreek}
+\graphicspath{{./plots/}}
+\usepackage{biblatex}
+\addbibresource{reff.bib}
+\usepackage{caption}
+\usepackage{subfig}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage[font=small,labelfont=bf]{caption}
+\setcounter{secnumdepth}{5}
+\usepackage[autocite=footnote,notetype=foot+end,style=authortitle-ibid]{biblatex}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={150mm,230mm},
+ left=30mm,
+ top=30mm,
+ }
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+\title{Project 3 FYS-STK4155}
+\author{Sigurd Holmsen, Philip Sommerfelt, Øystein Høistad Bruce}
+\date{November 2021}
+
+\begin{document}
+
+\maketitle
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{uio.jpeg}
+\end{figure}
+
+\begin{center}
+    \Large
+    Department of Mathematics 
+    \normalsize
+\end{center}
+
+
+\newpage
+
+\tableofcontents
+\newpage
+
+
+\begin{abstract}
+    \noindent
+    \normalsize
+    When given a data set to study, there is a plethora of methods in machine learning to choose from. In this project, we will compare some of them to find which one works best for a data set we have chosen for a classification problem. We will find the parameters which give the best results in terms of accuracy, and study which algorithm that has the highest accuracy in the end. We will also discuss the pros and cons of each method in terms of simplicity, accuracy and training time. As an additional problem, we will study the bias-variance trade-off for different machine learning approaches for a regression problem, and explore what impact this analysis has when choosing a machine learning method. For the classification problem, we observed similar results in accuracy among the algorithms. Meanwhile, there were some vast differences in training time. For the regression problem, when increasing the complexity of each method, both bias and variance behaved differently. 
+    % TODO: abstract, feedback from p2
+\end{abstract}
+
+\section{Introduction}
+This report will cover both the main- and optional task, that is both the general study of different machine learning methods and the bias-variance problem. Firstly, we will look into the data sets we have used in the respective problems, which is both a classification- and a regression data set. The classification problem studies a dry beans data set \ref{sec_classification_data} containing seven classes of beans, where the purpose is to classify correctly. The regression data set for the bias-variance problem contains housing data \ref{sec_regression_data}, where the goal is to estimate the average price of a block group. It is important to understand both the features of the data and what we want to predict before we can set up and interpret the machine learning models. \\
+
+\noindent
+To be able to interpret the results, it is also important to understand the fundamental properties and mathematics of the methods we are performing. We will look into the methods that we have used, and will give a deeper explanation of the additional methods for the optional project. We will elaborate more on multinomial classification problems and regression, and on the details of the following machine learning methods: neural networks, logistic regression, decision trees and random forests. We will study some of the mathematical concepts behind them, and give a motivation for why the models work. We will also give a brief explanation of how we measure the performance of the models, as well as details on bias-variance trade-off. \\
+
+\noindent
+The goal of this project is to evaluate the models we have chosen on specific data sets, so it is important to do thorough testing and analyze the results. When testing our models, we will firstly look at the classification data set, where we used a neural network, logistic regression, decision tree and random forest. All methods have pros and cons when it comes to simplicity, computation time and interpretability. In each machine learning technique, we will optimize the parameters for each model by making grid searches before we can evaluate the performance of the model on the data sets. \\
+
+\noindent
+Then we will look at the regression data set. As in project 1 (\cite{project_1}), we are again interested in doing the bias-variance trade-off analysis, but now with different machine learning methods. We will look at neural network, decision tree and random forest. Before we do the bias-variance analysis, we need once again to optimize the different parameters used in the methods. We will study how complexity can be interpreted in each model, and how it affects the error propagated from both bias and variance. \\
+
+\noindent
+Lastly, we will summarize our results, compare the performances of the models and state their pros and cons, both for the main problem and the additional one. We will give a critical assessment and link with existing literature, before concluding with our main findings. This research is important because it shows that picking and training a machine learning method is no simple task, and every model has its pros and cons. It is also worth noting that in the field of machine learning it is often difficult to predict how well models work a priori, which bolsters the importance of thorough testing with trials and errors before any conclusions can be made. The bias-variance trade-off is relevant because it explains not only how large the errors in our models are but where the errors come from, something that helps our understanding of machine learning. \\
+
+\noindent
+In this project, we have used Tensorflow when creating and training the neural network, scikitlearn for decision trees and random forest-algorithms, and our own logistic regression implementation from the last project \cite{project_2}. The logistic regression code has some new features, since it will now handle multiple target values (more information in section \ref{sec_logistic_regression_method}). \\
+
+\noindent
+The code is stored in the Github repository attached at the last page of the report (section \ref{sec_github_repository}). The main code in the repository is the \textbf{test\_project\_3} file, which contains all the tests we are running to achieve the results and figures in the result sections. In the appendix (section \ref{sec_reproduce_figures} and \ref{sec_reproduce_figures_regression}), we have added enough information to reproduce the figures and results we uses in the result section.
+
+\section{Data sets}
+\subsection{Beans data set}
+\label{sec_classification_data}
+We have chosen to use a classification data set provided by The University of California at Irvine containing data on different beans (UCI) \cite{data_set_beans}. We are trying to find a great machine learning model for this data set in section \ref{exploring_machine_learning_methods_on_beans}. The data set is interesting to look at, since the beans are almost inseparable for the human eye. Therefore it is interesting to see if a machine learning algorithm will be able to . \\
+
+\noindent
+The data consist of 13611 observations and 15 features. Some of the features included in the data set are shape, compactness and solidity of the bean. We will be using all the data in our analysis, and split the data according to section \ref{train_test_splitting}. We have transformed the classification data set to targets that are either $0, 1, ..., 6$ and represents the different beans shown below: \\
+
+\begin{figure}[h]
+    \includegraphics[width=.22\textwidth, height=2.2cm]{beans/seker_beans.png}\hfill
+    \includegraphics[width=.22\textwidth, height=2.2cm]{beans/barbunya_beans.jpeg}\hfill
+     \includegraphics[width=.22\textwidth, height=2.2cm]{beans/bombay_beans.png}\hfill
+    \includegraphics[width=.22\textwidth, height=2.2cm]{beans/cali_beans.png}\hfill
+     \\[\smallskipamount]
+     \\[\smallskipamount]
+    \includegraphics[width=.25\textwidth, height=2.5cm]{beans/horoz_beans.png}\hfill
+    \includegraphics[width=.25\textwidth, height=2.5cm]{beans/WhitebeansSiratype.jpg}\hfill
+    \includegraphics[width=.25\textwidth, height=2.5cm]{beans/whole-dried-white-dermason-beans-close-up-full-frame-top-shot-phaseolus-BJ7GP5.jpg}\hfill
+\caption{Picture of the beans in the data set, with the picture source. 
+\\\textbf{From upper left:} Seker \cite{pic_beans_horoz_seker_cali}, Barbunya \cite{pic_beans_barbunya}, Bombay \cite{pic_beans_bombay}, Cali \cite{pic_beans_horoz_seker_cali}.
+\\\textbf{From lower left:} Horoz \cite{pic_beans_horoz_seker_cali}, Sira \cite{pic_beans_sira}, Dermason \cite{pic_beans_dermason}
+}
+\end{figure}
+
+\noindent
+So, we have now a data set with 7 different numerated classes. The following table, shows us how the targets are distributed and the class number of the different beans (information gained from \textbf{Result 1} in the appendix section (\ref{appendix_result_1})):
+
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ Class (num) & distribution of targets & Class(name) \\ 
+ \hline
+ 0 & 0.149 & SEKER \\
+ 1 & 0.097 & BARBUNYA \\
+ 2 & 0.038 & BOMBAY \\
+ 3 & 0.120 & CALI \\
+ 4 & 0.142 & HOROZ \\
+ 5 & 0.194 & SIRA \\
+ 6 & 0.261 & DERMASON \\
+ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Housing data set}
+\label{sec_regression_data}
+We have chosen to use a housing (regression) data set provided by the Sci-kit learn package $sklearn.datasets$ \cite{scikit_data_housing}. We will use this data set when studying bias-variance trade-off of different machine learning algorithms in section \ref{bias_variance_analysis_regression}. \\
+
+\noindent
+The data consist of 20640 observations and 8 features. We reduced the data to 2000 observations for the sake of computing power and time consumption. The target values lie between $0.15$ and $5$ and represent an average house value in units of $\$100,000$. The average is being taken by a block group which typically has a population of $600$ to $3000$ people) \cite{scikit_data_housing}. \\
+
+\noindent
+We want to predict average house value in a block group, therefore many of the input features will be a average of all the housings in the block. The input features, that shall predict the average block price are:
+
+\begin{itemize}
+    \item median income and age in the block
+    \item average number of rooms, bedroom and household members in the block group
+    \item total population in the block
+    \item latitude and longitude of block group
+\end{itemize}
+
+\newpage
+\section{Method}
+Here, we explain the functions we have programmed and/or used and some concepts behind them. All methods assume that the input and output data $X, y$ have been extracted or generated, and they are all supervised machine learning methods. The methods which will be discussed below are neural networks, logistic regression, decision tree and random forest. \\
+
+\subsection{Train-test splitting}
+\label{train_test_splitting}
+For both data sets we have used, we have done a train-test split. We do not want to evaluate our model with the same data we used to train it, as this will not reveal overfitted models. An overfitted model can fit the data it trained with very well, but it is often so complex that it loses accuracy when being used on new data, hence the name. Therefore, we only use 75$\%$ of each data set for training, while the remaining $\%$ is used for testing the quality of the model after it is trained. It's the result from the testing data we are most interested in. We will study both a classification data set and a regression data set for the main problem and additional problem, respectively. The details of the data sets are explained in the sections (\ref{sec_classification_data} and \ref{sec_regression_data}).
+
+\subsection{Bootstrap as resampling}
+\label{sec_bootstrap_method}
+We do not have a probability distribution of the outputs, and therefore we will use the independent bootstrap method. The bootstrap method goes as follow:
+
+\begin{enumerate}
+    \item Pick $n$ numbers for the observed variables with replacement, and save the result.
+    \item Now, use the saved result from last step to compute the desired estimate. 
+    \item Repeat the process (1 and 2) $k$ times.
+\end{enumerate}
+
+\noindent
+The method provided is inspired by \cite{bootstrap}.
+
+\subsection{Principal component analysis (PCA)}
+\label{sec_pca_method}
+
+The principal component analysis deals with the problem of high dimensional data set. The algorithm will reduce the dimension of the data, without loosing (much) information of importance. How this is done, can be found here: \cite{pca_lecture_notes}. We will be using scikit-learn's functionality for computing the principal components in our data sets \cite{scikit_learn_documentation_pca}.
+
+\subsection{Scaling the data}
+\label{sec_scaling_data_method}
+In both of our data set, we scale by the maximum of each input feature, so that the largest input value will be 1 for each feature. This is to adjust for different units for each feature, which will help all our models train. Some units may be of an entirely different order than others, which would make it difficult for the models to adjust equally for all the features. 
+
+\subsection{Stochastic Gradient Descent}
+The goal of gradient descent is to find parameters that minimizes a cost function. We have written a gradient descent function that takes in initial values of the parameters that will be tuned, a cost function, the learning rate $\eta$, a hyper-parameter $\lambda$ and the number of iterations, as well as input and output data $X, y$. The learning rate $\eta$ decides the length of each step in the search direction, while the hyper-parameter $\lambda$ adds a term to the cost function to avoid overfitting in the following manner:
+
+\begin{align}
+    C(\beta, X, y, \lambda) = cost(\beta, X, y) + \lambda \left\lVert \beta \right\rVert^2_2
+\end{align}
+
+\noindent
+Here, $cost$ is the cost-function given as a parameter, $\beta$ are the parameters for a given model that we want to tune. $\lambda \left\lVert \beta \right\rVert^2_2$ shows how large values of $\beta$ are penalized in the final cost $C$. This will help prevent overfitting because large $\beta$ values implicates a complex model which may fit the training data better than the testing data. The algorithm for updating the $\beta$ parameter is explained below.
+
+\subsubsection{Momentum}
+We have used a momentum based gradient descent, which means the length of each step in the gradient descent depends on the size of the previous gradient. The point is to do longer steps when gradients are steeper, and smaller steps when the gradients are flatter. In this way, the gradient descent adjusts to the "terrain" of the cost function. The algorithm can be expressed as follows (inspired by \cite{BPA_website}): 
+
+\begin{align}
+    v_t &= \gamma v_{t-1} + \eta_t \frac{d C}{d \beta} \\
+    \beta_{t+1} &= \beta_t - v_t
+\end{align}
+
+where the parameter $\gamma \in [0, 1]$ is the amount of momentum we want to use ($\gamma = 0$ means no momentum). $v_t$ is the amount of tuning of the parameter at time $t$. $\beta$ is the parameter we want to tune, and $\frac{d C}{d \beta}$ is the change in cost with respect to $\beta$.
+
+\subsubsection{Stochastic}
+The gradient descent method is stochastic, meaning we do not necessarily compute the gradients for the entire data set $X, y$, but for a small, randomly chosen batch $X_k, y_k$. If we let the size of the mini-batches be $M$, we will have $m$ mini-batches, where $m=\frac{\text{number of data}}{M}$ (rounded down to nearest integer). We then select a random integer $k\in [0, 1, ... (m-1)]$, and select the k-th mini-batch:
+
+\begin{align*}
+    \text{}
+    X_k &= X[k \cdot M:(k+1) \cdot M]\\
+    y_k &= y[k \cdot M:(k+1) \cdot M]
+\end{align*}
+In this way, we have produced a randomly chosen mini-batch from $X, y$, and computed the gradient $\frac{\text{number of data}}{M}$ times. We also need to decide the number of epochs, that is how many times we will repeat this process. The goal of the stochastic gradient descent is to save computational power and time, as we compute lower dimensional gradients. \\
+
+\noindent
+To summarize, Stochastic gradient descent takes the following parameters: model-parameter to be tuned $\beta$, a cost function, the learning rate $\eta$, the regularization parameter $\lambda$, the mini-batch size and the number of epochs, and its goal is to tune the parameters of a model until the cost function reaches a minimum. It will be utilized both in the Neural Network method and in Logistic regression. 
+
+\subsection{Neural Network}
+\label{sec_neural_network_method}
+%We will give a brief summary of the method behind neural networks, and reference the details to our previous project. 
+A neural network is inspired by how a biological brain processes signals. In a feed forward neural network, the input signal is fed through hidden layers before it reaches the output layer. Each layers consists of nodes which take in signals of nodes from the previous layer, multiplies it with a weight matrix, adds a bias parameter, then sends the signal through an activation function. When the input signal reaches the output layer, the model will have made a prediction. We will further elaborate on the details and some of the mathematics behind a neural network. 
+
+\subsubsection{Architecture}
+Regarding the network architecture, a neural network has the following parameters: number of input nodes, number of output nodes, number of hidden layers and number of nodes per hidden layer. The number of input nodes and output nodes are fitted to the dimension of the input and output data, respectively. The number of hidden layers and nodes per hidden layer can be interpreted as the complexity of a neural network, because if these parameters are increased, we will need to tune a higher amount weight and bias parameters, as will be explained below. We have decided to look at a constant number of nodes per hidden layer even though it would be possible for this to vary. This is mainly because there are a lot of parameters to tune in a neural network, and without this simplification we would have to run an unfeasible amount of tests to find the optimal network in our given time-frame.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{architecture_NN.png}
+    \captionof{figure}{An example of architecture in a feed forward neural network \cite{BPA_website}}
+    \label{architecture_method_picture}
+\end{figure}
+
+\noindent
+In fig. \ref{architecture_method_picture}, we can see an example of an architecture of a neural network with 3 input nodes, 2 hidden layers with 3 nodes each and 2 output nodes. This example provides just the weights parameters and not the biases. If we had added the biases to the architecture, it would look like $y_j = f(\sum x_i w_i + b_i)$, where x, w and b are the input from last layer, weights and biases (respectively). The function $f$ is an activation function, which will be more explained in section \ref{activation_function_hidden_layers}.
+
+\subsubsection{Feed Forward}
+When the input-data is given to the input nodes, it is "fed forward" to the hidden layers. Each node in the hidden layers have its own weights and biases. When data is fed forward from one layer to the next, each node in the next layer receives signals from each of the previous nodes multiplied with each weight and then added with the bias parameter. This can be written mathematically as follows: 
+
+\begin{align}
+    z^l_i = \sum_{j=1}^M w_{ij}^l x_j^{l-1} + b_i^l
+\end{align}
+
+\noindent
+The left hand side $z^l_i$ is the information passed into node $i$ in the layer $l$, and the right hand side is the sum of the signals from the previous layer $x^{l-1}$ multiplied with the corresponding weight values for each previous node, and finally added with the corresponding bias $b_i^l$. The value $i$ in the equation indicates that this happens for every node in layer $l$. Next, each such signal is passed through an activation function:
+
+\begin{align}
+    a^l_i = f(z^l_i)
+\end{align}
+
+\noindent
+Here, the previously computed $z^l_i$ is passed through the activation function $f$, and the resulting value is the signal $a^l_i$ which is passed on to the next hidden layer. An activation function has the purpose of deciding whether a signal should yield an output to the next layer or not. After the signals have been passed through all the layers, it reaches the output layer where the signals are passed through the final activation function. The output layer does not have to use the same activation function as the hidden layers, or it may not have an activation function at all. This all depends on what values we are expecting our model to return. If we want output values to be anything on the real line, we do not need an activation function here, but if we would like the output to be for instance a probability, we would use a function that takes values on $[0,1]$. Examples of common activation functions will be given below. \\
+
+\noindent
+The data should be a matrix of dimension $(\#data, \#features)$. This means we are approximating several output values simultaneously. The feed forward algorithm is further elaborated here: \cite{BPA_website}. Before the training of the model can begin, the weights are initialized according to some distribution, for instance the standard normal distribution and the biases as small float numbers. That includes the learning rate $\eta$, the regularization parameter $\lambda$, batch size and number of epochs in the SGD, and the hyper-parameter $\gamma$.
+
+\subsubsection{Back Propagation}
+To tune our weight and bias parameters, we use a momentum stochastic gradient descent (SGD) as explained above. To find gradients for both the weights and biases, we perform the back propagation algorithm. First, we choose a cost-function as a measure of model quality, then we are interested in finding the gradients for the cost function $C$ with respect to the weights and biases for a given layer $l$:
+
+\begin{equation}
+    \frac{\delta C}{\delta w^l_{ij}}, \, \frac{\delta C}{\delta b^l_j}
+\end{equation}
+According to the back propagation algorithm, this can be written as:
+
+\begin{align}
+    \frac{\delta C}{\delta w^l_{ij}} = \delta_j^l a_k^{l-1}, \, \frac{\delta C}{\delta b^l_j} = \delta_j^l
+\end{align}
+
+where
+
+\begin{equation}
+    \delta_j^l = \sum_k \delta_k^{l+1} w_{kj}^{l+1} f'(z^l_j)
+\end{equation}
+Here, $f$ is the activation function for the given layer, $\delta_j^l$ is the error term for layer $l$ and node $j$, $a^l_k$ is the node value for layer $l$ and node $k$ before being sent through the activation function for the hidden layers, and $z_j^l$ is the same node value before being sent through the activation function. We can compute this if we know the value of $\delta^{l+1}$. We compute the last layer delta (or error) in such way:
+
+\begin{equation}
+    \delta^L = \frac{1}{2n} \sum_{i=1}^n (y_i - \hat{y}_i)^2
+\end{equation}
+So, we are able to find all the $\delta$ values starting backwards, which we use to compute the gradients for all weights $w^l$ and biases $b^l$. After we have found all these gradients, we use this for the momentum based SGD in the same way as described in the section above. When the SGD has iterated through all the given epochs, the training of the model is complete. We have been inspired by \cite{BPA_website}. \\
+
+\noindent
+For this project, we look at both a regression problem and a classification problem, and these two problems require slightly different neural networks which will be explained below. We have used "tensorflow" with "keras" to create instances of our neural networks. The documentation is referenced here: \cite{tf_documentation}
+
+\subsubsection{Activating functions hidden layers}
+\label{activation_function_hidden_layers}
+We have used both of the following activation functions for the hidden layers:
+\subsubsection*{Sigmoid}
+The Sigmoid is a bounded and differentiable S-shaped function defined for all real values $x \;\epsilon\;
+\mathbb{R}$. In our case, for use as activation function in a neural network, we define the Sigmoid as the logistic function:
+\[
+f_{sig}(x) = \frac{e^{x}}{1 + e ^{x}} = \frac{1}{1+ e ^{-x}}. 
+\]
+
+\noindent
+The derivative of the logistic function is:
+\[
+\frac{\partial}{\partial x} f_{sig} =  \frac{e ^{x}}{(1+ e ^{x})^2},
+\]
+it is bell shaped, always positive and tends to zero as $x \to \pm\infty$. When training a neural network with the logistic function in the hidden layers this can lead to the infamous problem of a vanishing gradient, causing the network to learn slower for smaller or larger inputs. That is, weights will change little or not at all in each iteration. Different proposals have been made to overcome this problem. One solution is to consider another activation function, e.g the ReLU presented in the following. \cite{project_2_seb}
+
+\subsubsection*{ReLU}
+The Rectified Linear Unit, or ReLU for short, is a piecewise linear function; linear for values $x \in \mathbb{R}^+$ and zero for values $x \in \mathbb{R}^-$. The linearity often makes optimization task easier, and the fact that is zero for negative values accounts for non-linearities. The ReLu is defined as:
+\[
+f_{ReLu}(x) = max(0,x)
+\]
+This simple definition makes it very easy to implement, and although it's derivative is not defined for $x=0$, for $x \neq 0$ it is well defined as:
+
+\begin{equation*}
+\frac{\partial}{\partial x}f_{ReLu}(x) = \left\{
+        \begin{array}{ll}
+            0 & \quad x < 0 \\
+            1 & \quad x > 0
+        \end{array}
+    \right.
+\end{equation*}
+
+\noindent
+In practice, one chooses a value (either 0 or 1) for the derivative when $x=0$. As mentioned, the ReLu activation function does not suffer from the problem of a vanishing gradient (negative weights are put to zero and input is disregarded). This causes models to learn faster and often perform better than models using other activation functions such as the sigmoid. There are however some limitations to the ReLu. In particular, large weight updates can result in the input to the activation to always be negative. This causes the node to always give a value of zero activation, resulting in a phenomena that is often referred to as the dying ReLu. Some proposals has been made to overcome this issue, and an example is the leaky ReLu. \cite{project_2_seb}
+
+\subsubsection{Regression case}
+For the regression case, we will not need an activation function for the output layer. This is because we may want to fit any number from $-\infty$ to $\infty$, and then we do not want to put a boundary on the value of the output. We also use the MSE as the cost function:
+
+\begin{equation}
+    MSE = \frac{1}{2n} \sum_i (y_i - \tilde{y}_i)^{2}
+\end{equation}
+Here, $y_i$ is the actual target data and $\hat{y}_i$ is the predicted value given the same input data for $i=1, ..., n$ where $n$ is the number of data points. 
+
+\subsubsection{Multinomial Classification case}
+For the first data set, we will utilize multinomal classification, which means the targets in the data are one of $n$ classes. To translate the different classes into usable data, each class instance is represented by it's own one-hot vector \cite{onehot}. The only non-zero element is placed correspondingly with the class:
+
+\begin{align*}
+    Class_0 &= (1, 0, ..., 0) \\
+    Class_1 &= (0, 1, ..., 0) \\
+    &... \\
+    Class_{n-1} &= (0, 0, ..., 1)
+\end{align*}
+
+\noindent
+This is done using the "to categorical" function from "keras" \cite{to_categorical}. The neural network will need $n$ output nodes to predict each one-hot vector, where the values of each output node can be interpreted as the probability of the input being of the corresponding class. To further separate the multi-class case from the binomial case we did in project 2, we need to introduce a cost function and an activation for the output layer. 
+
+\subsubsection{(Cross-entropy) cost function}
+As a cost function for the neural network, we will be using the cross-entropy cost function:
+
+\begin{equation}
+    C(\boldsymbol{\hat{y}}; \boldsymbol{y}) = - \sum_{i=0}^{n-1} log(\hat{y}_i) y_i
+\end{equation}
+
+\noindent
+Where $\boldsymbol{\hat{y}}$, $\boldsymbol{y}$ is the predicted target and the actual target (respectively) of the neural network. This function can be interpreted as a maximum log likelihood with a negative sign, meaning the higher the likelihood, the lower the cost. 
+
+\subsubsection{Softmax activation function}
+Since we want to restrict our output layer so that it represents probabilities of each class, we need an activation function for the output layer that sums up to 1. We use the Softmax function:
+
+\begin{equation}
+    f(z_j) = \frac{e^{z_j}}{\sum_{i=0}^{n-1} e^{z_i}} 
+\end{equation}
+
+\noindent
+After this is applied to every node of the output layer, we have our model prediction. 
+
+\subsection{Logistic regression}
+\label{sec_logistic_regression_method}
+Logistic regression predicts probabilities of given outputs being of a certain class, and uses stochastic gradient descent to tune its model parameters. The model is given as follows:
+\begin{equation}
+    p(y_j = 1 ;\boldsymbol{x}, \boldsymbol{\boldsymbol{\beta}}) = \frac{e^{(x_j)^T \boldsymbol{\beta_c}}}{\sum_{i=0}^{n-1} e^{(x_i)^T \boldsymbol{\beta_{i}}}} 
+\end{equation}
+
+\noindent
+Where $p(y_{j} = 1)$ is the probability that a given input data will be part of class $class_j$, and each class $j=0,...,n-1$ will have its own $\boldsymbol{\beta}$ parameter $\boldsymbol{\beta_{j}}$. To find the best $\boldsymbol{\beta}$ parameter values for a given data set, we use stochastic gradient descent given a cost function.
+
+\subsubsection{Cost function}
+%Cost using the p function above. 
+The cost function used in the gradient descent is the categorical cross-entropy:
+
+\begin{equation}
+    C(\boldsymbol{\beta}, \boldsymbol{x}, \boldsymbol{y}) = - \sum_{i=0}^{n-1} log \left(p(y_i = 1; \boldsymbol{x}, \boldsymbol{\beta}) \right) \, y_i
+\end{equation}
+
+\noindent
+Again, the optimal $\boldsymbol{\beta}$ parameters will minimize the negative log likelihood function. The final predicted output given input data will be the class which the highest value, i.e. the highest probability. For instance if $(y_j = 1 ;\boldsymbol{x}, \boldsymbol{\boldsymbol{\beta}}) = 0.90$, the predicted output will be $class_j$.
+
+\subsection{Decision trees}
+\label{sec_decision_tree_theory}
+The explanation of the decision tree algorithm is inspired of a lecture given by Riccardo De Bin, Fall 2021 \cite{lecture_8}. \\
+
+\noindent
+Decision trees are maybe the most used machine learning algorithm outside the field of machine learning. This is due to its quite simple implementation, low training times and high level of interpretability. The method is, not very surprisingly, about building a tree like structure of decision rules. It works fine for both regression and classification problems and can be applied to problems with both numerical and categorical features. One downside to the decision tree method is that it is unstable (high variance). \\
+
+\noindent
+The tree itself is a recursive binary partition of the feature space. In each iteration, a region is split into two or more regions. This splitting process is repeated until a stopping criterion is satisfied, and the end result is M regions $R_m, m=1,...,M$. In regression problems a constant value $c_m$ is assigned to each region, in classification problems we need to assign each region to a class. In regression problems the final prediction is
+
+\begin{equation}
+    \hat{f}(X) = \sum_{m=0}^{M-1} \hat{c}_m\mathbbm{1}(X \in R_m). 
+\end{equation}
+where $X$ is the feature matrix, $\hat{c}_m$ is the predicted value of region $R_m$ (e.g. $ave(y_i | x_i \in R_m)$) and $\mathbbm{1}(\cdot)$ is the indicator function.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Decision_tree1.png}
+    \caption{Source: \cite{pic_decision_tree_splitting_method}}
+    \label{fig:DT}
+\end{figure}
+
+\noindent
+The splitting points $t$ can be interpreted as a junction of the tree where all observations are assigned to a \emph{branch} and at the end of each branch an end node, or \emph{leaf}. The variable to split and where to split it needs to be automatically chosen by our algorithm. That is, the algorithm chooses the variables and splits points that minimizes a cost function at each iteration. \\
+
+\noindent
+The problem of finding the optimal number of splits is however not trivial. Finding the best tree only in terms of minimizing total cost is generally not feasible, and if we split the tree until there are no more splits we have only one observation in every region and the tree will heavily overfit the training data. Therefore, we will have to choose a criterion of when to stop the algorithm. One could stop when the pre-specified tree size is reached, or whenever the next split does not reduce the total cost more than some threshold. However, the best approach is in general to build a complete tree with only one observation in each region and then \emph{prune} it to find the optimal tree size for the problem at hand. We will look at this soon. First, we focus on growing the tree.
+
+\subsubsection*{Growing a regression tree}
+\begin{itemize}
+    \item Firstly, we need to choose a cost function $C(\hat{y}; y)$ that takes the correct target value $y$ and the predicted value $y_hat$.
+    \item For each input variable $X_j$, find the best splitting point $\hat{s}$. Define the two hyperplanes:
+    \begin{itemize}
+        \item $R_1(j, s) = \{ X | X_j \leq s \}$
+        \item $R_2(j, s) = \{ X | X_j > s \}$
+    \end{itemize}
+    \item For each $j$ and $s$, solve
+    \begin{equation}
+        \min\limits_{j,s} \Big\{ \min\limits_{c_1; x \in R_1(j,s)} {C(c_1; y)} + \min\limits_{c_2; x \in R_2(j,s)}{C(c_2; y)} \Big\}
+    \end{equation}
+\end{itemize}
+
+\noindent When the cost function is the usual squared error $C(\hat{y}; y) = \sum\limits_{i=0}^{n-1}{(y_i - \hat{y}_i)^2}$, the solution to the inner minimization problem is feasible and the solution is 
+\begin{itemize}
+    \item $\hat{c}_1 = ave(y_i | x_i \in R_1(j,s))$
+    \item $\hat{c}_2 = ave(y_i | x_i \in R_2(j,s))$
+\end{itemize}
+The index $j$ corresponding to the variable $X_j$ to be split and split point $hat{s}$ is then the pair $(j, s)$ that minimizes the sum $\hat{c}_1 + \hat{c}_2$
+
+\subsubsection*{Classification trees}
+There are no major differences between regression and classification problems. However, we will need a different cost function and instead of predicting a value we need to predict the class to assign each region.
+\begin{itemize}
+    \item Define the class $k \in \{1, \dots ,K\}$ for each region. i.e. choose the class that contains the most observations in each region:
+    \begin{itemize}
+        \item $k_m = argmax_k \: \hat{p}_{mk} = argmax_k \Big\{ N_m^{-1} \sum\limits_{x_i \in R_m}\mathbbm{1}(y_i = k)$ \Big\}
+    \end{itemize}
+    \item Spilt the tree where the predicted value, $\hat{p}_{mk}$, minimize the cost.
+\end{itemize}
+Some standard cost functions for classification problems include
+\begin{itemize}
+    \item 0-1 loss: $N_m^{-1} \sum\limits_{x_i \in R_m} \mathbbm(y_i \neq k)$
+    \item Gini index: $\sum\limits_{k=0}^{K-1} \hat{p}_{mk}(1 - \hat{p}_mk)$
+    \item Entropy: $\sum\limits_{k=0}^{K-1} \hat{p}_{mk} log \hat{p}_{mk}$
+\end{itemize}
+\noindent In the classification problem later in this project we chose entropy to be our cost function.
+
+\subsubsection*{Pruning}
+There are some different algorithms for tree pruning, but we will here focus on the method of cost complexity pruning: \\
+
+\noindent
+Let the complete tree be $T_0$. Then, the goal is to find the optimal tree $T_{\alpha} \subset T_0$. The \emph{cost complexity criterion} is: 
+\begin{equation}
+    C_{\alpha}(T) = \sum\limits_{m=1}^{M_T}{N_m Q_m(T) + \alpha M_T}
+\end{equation}
+where $N_m$ is the number of observations in each region, $Q_m(T)$ is loss in each region, $M_T$ is number of leaves (tree size) in tree T and $\alpha \geq 0$ is a tuning parameter that represents the trade-off between tree size and level of fit. Smaller values of $\alpha$ gives larger trees and larger values smaller trees. Typically, one finds the optimal value $\hat{\alpha}$ by iteratively collapsing the complete tree at the split point that corresponds to smallest increase in loss until no more splits and in the end choose the tree $T_a$ with smallest total loss withing the sequence of iterations. Or, one could simply use cross validation to find the optimal value for $\alpha$ and with it the optimal tree $T_\hat{\alpha}$ with optimal tree size $M_{opt}$.
+
+\subsection{Random forest}
+\label{sec_random_forest_theory}
+The method of random decision forests was first introduced by Ho (1995) \cite{random_decision_forest} and later improved by Breiman (2001) \cite{random_forest}. 
+The general idea proposed by Ho was to train many decision trees, each time on randomly selected features, and aggregate over the results. This was done to prevent overfitting of training data. In 1996, Breiman introduced the concept of bagging and applied this to decision trees later. His method of random forest with bagging is widely used and will be presented here.
+
+\subsubsection*{Bagging, inspired by \cite{bootsrap_aggregating}}
+Bootstrap aggregating, or bagging for short, is an ensemble learning method. An ensemble method in machine learning is a method that uses a finite set of models to increase the predictive performance. In bagging, the addition of more than one model is used to reduce the variance in a dataset by using weak (high bias / low variance) learning models. The method follows three steps:
+
+\begin{itemize}
+    \item Sample multiple samples with replacement from the observations (bootstrap).
+    \item Train a model on each sample.
+    \item Aggregate over results.
+\end{itemize}
+
+\noindent In regression problems the aggregation is typically done by taking the average over predictions. In classification the standard approach is to choose the class with the majority of predictions. This is known as soft and hard \emph{voting} respectively.
+
+\subsubsection*{Decision trees with bagging}
+When constructing a random forest, the models that are trained and aggregated over are decision trees. This model is much harder to interpret than the single decision tree as the final prediction does not follow some very specific decision rules but is the result of many decision rules combined. \\
+
+\noindent The trees in a random forest all have the same depth but are not trained on the same samples and will therefore be a little random. Generally, one would not benefit from having large trees as this will lead to overfitting and also more correlation between the trees. Instead, one would want the trees to have less correlation (higher variance between them), be more biased and therefore span more of the data. This is known as the concept of weak learners often used in ensemble methods (this is maybe more important in other methods such as boosting). 
+In addition to the tree depth there is another parameter to consider; the number of trees. When adding more trees to the model one will get a better prediction in the end. When aggregating over many weak learners, one will end up with a stronger learner. This is famously known as Wisdom of Crowds; the collective opinion of a large group is generally better than the opinion of a single expert \cite{wisdom_of_crowds}. 
+
+
+\subsection{Bias-variance trade-off}
+\label{sec_bias_variance_method}
+This part will be specifically for the additional problem. When we study how the complexity affects the accuracy of a model, it is useful to look at the bias-variance trade-off. Firstly, we will explain what it means when we say that a model is complex. Even though it is a bit subjective to each model, it can generally be interpreted as how many parameters in a model that need tuning, or in other words how many degrees of freedom are in play. Complex models generally require large data sets to train properly, while simple models can train on smaller sets. The optimal complexity in a model requires heavily on the nature of the data set.
+\\ \\
+We often measure the mean square error of a model to determine how well it performs. The mean square error can be re-written as follows \cite{project_1}:
+
+\begin{equation}
+\label{eqn: bias_variance_equation}
+    \mathds{E} [(\boldsymbol{y} - \boldsymbol{\tilde{y}})^2]
+     = \frac{1}{n} \sum_{i} (y_i - \mathds{E}[\boldsymbol{\tilde{y}}])^{2}
+     + \frac{1}{n} \sum_{i} (\tilde{y}_i - \mathds{E}[\boldsymbol{\tilde{y}}])^{2}
+     + \sigma^{2}
+\end{equation}
+where $\boldsymbol{y}$ and $\boldsymbol{\tilde{y}}$ represents the actual target values and predicted values, according to our model. $\sigma^{2}$ is the irreducible error of the model. \\
+
+\noindent
+Here, the first term is the expected square difference between the observed data and the expected model $E(\boldsymbol{\tilde{y}})$. This can be interpreted as the bias in the model, as this is the error of the expected,  "perfect" model $E(\boldsymbol{\tilde{y}})$. The second term is the expected square difference between the actual model $\boldsymbol{\tilde{y}}$ and the expected model $E(\boldsymbol{\tilde{y}})$, which is the variance of the model. If the bias is high, it means the model is not complex enough to predict the target data, and this would likely be an underfit. If the variance of the model is high, we likely have an overfit, as small changes in  data should not lead to large changes in the model itself. Though it appears that you can always get rid of variance in the model by adding more data points, this will not necessarily be possible in real life scenarios, and this insures the importance of the bias-variance trade-off. \\
+
+\noindent
+To be able to get the estimates above, we need to use a resampling method. We have chosen to go for the bootstrap method for the resampling process.
+
+\subsection{Measure the quality of a model}
+\subsubsection{R2-score}
+The coefficient of determination, or R2 score, is a goodness-of-fit measure often used in regression problems. It is interpreted as the proportion of variance in the dependent variable that is explained by the model. The R2 score is generally a number between 0 and 1, with higher values indicating a better fit. However, it can also be negative if the model fits the data really poorly, e.g. worse than a straight line in two dimensional problem. The formula for the R2 score is 
+\begin{equation}
+    R^2 = 1 - \frac{SS_{res}}{SS_{tot}} = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \Bar{y}_i)^2}
+\end{equation}
+That is, $SS_{res}$ is the residual error as a sum of squares. $SS_{tot}$ is the total error, also as a sum of squares. $\hat{y}_i$ and $\bar{y}$ is the model prediction for the target value $y_i$ and the average of the $y_i$'s respectively. The R2-score will be most relevant when we look at the regression problem.
+
+\subsubsection{Accuracy score}
+We will look at the accuracy score to measure how well the adapted model is, when the target values are discrete (classification problems). The accuracy is the proportion of correct predictions made by the model.
+
+\begin{align}
+    \text{Accuracy} =  \frac{\sum_{i=1}^n \mathbbm{I}(\hat{y}_i)}{n}
+\end{align}
+
+where $\mathbbm{I}$ is the indicator function:
+
+\begin{align*}
+    \mathbbm{I}(\hat{y}_i) = 
+    \begin{cases}
+       \, 1 \quad \hat{y}_i = y_i \\
+       \, 0 \quad \hat{y}_i \neq y_i \\
+     \end{cases}
+\end{align*}
+
+$\hat{y}_i$ is the predicted target value of the model, $y_i$ is the actual value and $n$ is the number of data points.
+\subsubsection{Confusion matrix}
+\label{sec_confusion_matrix_method}
+The confusion matrix shows the ways in which your classification model is confused when it makes predictions \cite{confusion_matrix}. The confusion matrix presents the number of correct and incorrect predictions, within a matrix where the entries are different classes. This measuring tool is a great way to get to know your model prediction, and will provide more information than the accuracy score which will only tell you a true-false statement of the prediction. \\
+
+\noindent
+Figure \ref{fig: confusion_matrix_example} is an example of a confusion matrix, where the actual values are along the y-axis and the predictions along the x-axis. The diagonal refer to correct predictions, the other entries shows the predictions that were wrongly classified. The entries above the diagonal are falsely predicted not to belong to the class when they were in fact a member of the class (false negative), the entries below the diagonal are predicted to belong to a class in which they did not belong (false positive).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{confusion_matrix_example.png}
+    \captionof{figure}{confusion matrix example}
+    \label{fig: confusion_matrix_example}
+\end{figure}
+
+\noindent
+Analysis of the confusion matrix could be by looking at the predictions of the wrong predicted values, and see if the target values have highly correlated properties, shape etc. For instance, if the target values are of a ranking from $1-10$, then a smaller "predicting error" distance is better than a greater. In such cases, there will probably be some good models even though the accuracy score is low.
+
+\newpage
+\section{Results and discussion}
+%TODO: make sure no claims are made without referring to plot/test
+\subsection{Introduction to the results}
+In this section, we will refer to the tests we have made in the \textbf{test\_project\_3.py} file which will be found in the \textbf{project3} folder inside the github repository, attached in the appendix section (section \ref{sec_github_repository}). To have a pleasant experience with the testing file, we recommend you to read the \textbf{README.md} file inside the \textbf{project3} folder. We will provide the necessary parameters for reproducing the figures/ results, and what test to run, in the appendix (section \ref{sec_reproduce_figures} and section \ref{sec_reproduce_figures_regression}).
+
+\subsubsection{General comments on the results}
+Here is a list of things to be aware of according to the results we are presenting:
+\begin{enumerate}
+    \item When we are comparing two parameters, we will look at the R2-score and accuracy score for the regression- and classification problem (respectively). The tests inside the \textbf{test\_project\_3.py} file will often contain the result for both training and testing data, but we have provided the testing data results in this report (since this is the most important one).
+    \item In our analysis, we had to initialize some parameters to be able to start tuning the first parameters. Whenever we achieved some results from a previous testing, we added the best parameters to the new testing. 
+    \item The number of epochs we have chosen in the analysis isn't optimized for the best model. More iterations will, very often, achieve a better model. As a result we have chosen to go with some \textit{friendly} number of epochs to save computing expenses.
+    \item We need to make some initial guess of the parameters we want to tune with the SGD-algorithm. The initial guess for the logistic regression case is $\beta = [0.1, ..., 0.1]$.
+    \item While optimizing the batch size for the neural network, we have decided to set the number of epochs to a scalar times the batch size. This adjustment is to make the number of iterations in the SGD algorithm equal for each batch size. 
+    \item We will often provide only the result from the testing data when we are optimizing the parameters. The training data figures will be showed when running the different tests in the code, but will not be included in the report.
+\end{enumerate}
+
+
+\subsection{Exploring different methods (classification problem)}
+\label{exploring_machine_learning_methods_on_beans}
+
+In this section, we will study four different machine learning algorithms on the beans data set (\ref{sec_classification_data})). We will try to find the best model among neural networks, logistic regression, decision trees and random forests. \\
+
+\noindent
+In the appendix (\ref{appendix_result_1}) under \textbf{Result 1} we achieve information of the total explained variance ratio of the principal component analysis (section \ref{sec_pca_method}) on the beans data set, which is close to 100\% for only one feature. We will use 3 features utilized by the PCA. We have explored the usage of 1 feature, since it returned such a high total explained variance ratio, but that would require more iterations in the fitting process. We are scaling the data according to section \ref{sec_scaling_data_method}.
+ 
+\subsubsection{Neural network}
+\label{sec_neural_network_regression}
+Since the data set has seven classes, we need a multinomial classification neural network as described in the method section \ref{sec_neural_network_method}. We will start the analysis by studying the RELU function as an activation function. We will in the following test find parameters that give the best results (accuracy score) for the neural network. \\
+
+\noindent
+\textbf{First, we need to find the optimal architecture of the neural network}\\
+
+\noindent
+We will produce a heatmap with the number of layers and nodes at the x- and y-axis respectively. To be able to create such a plot, we need to initialize some parameters (as shown in \ref{appendix_figure_4}). The plot (fig. \ref{fig: classification_architecture_testing}) tells us how we should build up our neural network by picking some architecture, a combination of the amount of nodes and layers, that gives us the highest accuracy score. \\
+
+\noindent
+By looking at figure \ref{fig: classification_architecture_testing}, we can see a region with an accuracy of about $0.9$ and also some cells with a poor accuracy. The architecture that received such a poor accuracy was probably too simple to be accurate as a prediction model. We tried to find a region where the architecture gave stable results, and amoung the highest accuracy score. We picked 14 hidden nodes and 4 hidden layers for the further analysis. \\
+
+\noindent
+A too high complexity of the model will be more computationally expensive, and may also result in an overfit, while a too simple model seems to give an underfit. So, we are picking the architecture with that in mind. The tendencies of underfit can be understand in fig. \ref{fig: classification_architecture_testing} by looking at the results with 2 hidden nodes, which are poor accuracy. The overfitting can be seen in the right lower corner of the plot, where the score will be worse by adding more hidden layers/ nodes to the network. The last interpretation can may be wrong, as the model need more training when having a more complex network (this gridsearch was with the same amount of training iterations). 
+
+\captionsetup{justification=centering}
+\begin{figure}[H]
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[height=7.2cm, width=7cm]{test2_M_500_gamma_0.8_lmbda_0.0001_eta_0.01_epochs_80_test_8.png}
+      \captionof{figure}{Data: testing, accuracy of different architecture of the neural network}
+      \label{fig: classification_architecture_testing}
+    \end{minipage}%
+    \hspace{\fill}
+    \begin{minipage}{.5\textwidth}
+      \flushright
+      \centering
+      \includegraphics[height=7.2cm, width=7cm]{test3_lmbda_0.0001_eta_0.01_test_1.png}
+      \captionsetup{justification=centering}
+      \captionof{figure}{Data: testing, accuracy score of different batch size and gamma values}
+      \label{fig: classification_batch_Size_gamma_testing_NN}
+    \end{minipage}
+\end{figure}
+
+\noindent
+\textbf{Batch size and momentum parameter} \\
+\noindent
+Now we want to find some optimal parameters for the stochastic gradient descent algorithm inside the neural network, namely the optimal batch size and momentum (gamma) parameter. Since we have optimized the architecture of the neural network (by last interpretations), we will use those in the new grid search. The plot (fig. \ref{fig: classification_batch_Size_gamma_testing_NN}) shows us the accuracy score of different momentum- and batch size values. The model seems most accurate at a gamma value of 0.9. Such a large momentum parameter can indicate that the number of epochs (or iteration of training the algorithm) are too low, such that a greater momentum will converge faster to a better solution. The accuracy looks kind of independent of the batch size, so we will choose 100 to save compute expenses. \\
+
+\noindent
+\textbf{The hyperparameters learning rate and lambda} \\
+\noindent
+Now we want to find the optimal hyperparameter $\lambda$ and learning rate $\eta$ by making a grid search, and find the parameters such that the accuracy score is as large as possible. With the parameters we found for the batch size, momentum (for the SGD) and the architecture of the neural network, we will use these optimized values to find the optimal $\lambda$ and $\eta$ values. 
+
+\noindent
+The figure \ref{fig: classification_lmbda_eta_testing_NN} tells us that the best learning rate, $\eta$, is around $10^{-2}$ or $10^{-3}$ and the most stable lambdas are between $10^{-3}$ and $10^{-7}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test4_nepochs_80_M_100_gamma_0.9_test.png}
+    \captionof{figure}{data: testing, accuracy score of different lambda and eta values}
+    \label{fig: classification_lmbda_eta_testing_NN}
+\end{figure}
+
+\noindent
+We can see from fig. \ref{fig: classification_lmbda_eta_testing_NN} that the results are almost independent of the $\lambda$ value, so we will go for a $\lambda = 10^{-5}$. If the learning rate exceeds $10^{-2}$, we observe that the model is not as stable. With a too low learning rate, we observe that in some cases the training have gone too slow to reach well tuned parameters. This could be fixed by setting up the number of epochs, but this would require more computing power which is something we want to avoid if possible. \\
+
+\noindent
+We want to find the optimal activation function for the hidden layers. So far we have tested with the RELU function. In plot \ref{fig: activation_function_sigmoid} we have switched to the sigmoid activation function where all other parameters stay the same. We observe that it does not achieve a better result than the RELU function. Hence we will choose RELU as the optimized activation function for the hidden layers. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test4_nepochs_20_M_100_gamma_0.9_test2.png}
+    \captionof{figure}{data: testing, accuracy score of different lambda and eta values (activation function: sigmoid)}
+    \label{fig: activation_function_sigmoid}
+\end{figure}
+
+\noindent
+\textbf{Summary}\\
+
+\noindent
+We conclude from the optimization routine that the optimal parameters are: 
+
+\begin{center}
+\begin{tabular}{ |c|c| } 
+ \hline
+ parameter & value \\ 
+ \hline
+ learning rate, $\eta$  & $10^{-2}$ \\
+ regularization, $\lambda$ & $10^{-5}$ \\
+ momentum $\gamma$ & $0.9$ \\
+ batch size & 100 \\
+ hidden nodes & 14 \\
+ hidden layers & 4 \\
+ \hline
+\end{tabular}
+\end{center}
+
+\noindent
+We want to look at the accuracy by running the optimal parameters. How this is done, will be shown in the appendix section (\ref{appendix_result_2}, underneath \textbf{Result 2}). The accuracy of the training- and testing data are 0.911 and 0.917 (respectively). \\
+
+\noindent
+Our network is able to predict $91\%$ of the testing data, that is predicting the correct bean of data that were unknown for the model when it was trained. The confusion matrix for the prediction, with the neural network algorithm, on the testing data is shown in the figure below (figure \ref{fig: classification_confusion_matrix_NN}). \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test1_confusion_matrix_NN_optimal.png}
+    \captionof{figure}{data: testing, confusion matrix}
+    \label{fig: classification_confusion_matrix_NN}
+\end{figure}
+
+\noindent
+The confusion matrix shows what the model predicts on the testing data. The confusion matrix gives more information than just the accuracy score since the accuracy score provides just true or false on the prediction, while the confusion matrix tells us what the wrong predictions were. By fig. \ref{fig: classification_confusion_matrix_NN}, it looks like it predicts (more often) wrong between the classes 5 and 6, which are the beans \textit{Sira} and \textit{Dermason}. The reason of a bad prediction on these nuts, can be if they have many similarities, like shape. In addition, the neural network mixes some of the observations from classes 1 and 3. Class 2 is distinguishable from the rest, where no prediction including this class are wrong. So, when the model predicts the class 2 then it has correct every time (on the testing data set).
+
+\subsubsection{Logistic regression}
+The second method we have chosen to study for optimizing a model to predict beans is the logistic regression. We will, as in the neural network algorithm, optimize the parameters used in the SGD-algorithm. \\
+
+\noindent
+\textbf{Batch size and momentum parameter} \\
+
+\noindent
+Now, we need to initialize some parameters to start optimizing - the initialized parameters are shown in the appendix section.
+
+\captionsetup{justification=centering}
+\begin{figure}[H]
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[height=7.2cm, width=7cm]{test12_gamma_0.8_lmbda_0_test_.png}
+      \captionof{figure}{data: testing, accuracy score of different batch size and gamma values}
+      \label{fig: classification_batch_size_gamma_testing_logistic}
+    \end{minipage}%
+    \hspace{\fill}
+    \begin{minipage}{.5\textwidth}
+      \flushright
+      \centering
+      \includegraphics[height=7.2cm, width=7cm]{test13_nepochs_100_M_500_gamma_0.8_features_3_test_14.png}
+      \captionsetup{justification=centering}
+      \captionof{figure}{data: testing, accuracy score of different lambda and eta values}
+      \label{fig: classification_lmbda_eta_testing_logistic}
+    \end{minipage}
+\end{figure}
+
+\noindent
+The figure \ref{fig: classification_batch_size_gamma_testing_logistic}, shows us that the accuracy of the model is kind of indifferent regarding to both the gamma and batch size parameter. We are going to go further with gamma = $0.8$ and batch size of $500$. \\
+
+\noindent
+\textbf{The learning rate and lambda} \\
+
+\noindent
+We continue the optimization by looking over the learning rate and lambda. 
+
+\noindent
+In fig. \ref{fig: classification_lmbda_eta_testing_logistic}, we see that the accuracy does not depend that much on the regularization parameter lambda, but the learning rate get the best score with a value of $0.01$. \\
+
+\noindent
+\textbf{Summary} \\
+
+\noindent
+Now, we want to see the accuracy and the confusion matrix with the optimized logistic regression model. The accuracy of the training- and testing data are 0.907 and 0.906 (respectively). The results can be reproduced (see the appendix section \ref{appendix_figure_12}, underneath \textbf{Result 3}). \\
+
+\noindent
+The logistic regression achieves an accuracy score of around $91\%$. The confusion matrix below, figure \ref{fig: classification_confusion_matrix_logistic}, is generated from prediction of the testing data with the logistic regression model.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{tes11_confusion_matrix_logistic_optimal.png}
+    \captionof{figure}{data: testing, confusion matrix}
+    \label{fig: classification_confusion_matrix_logistic}
+\end{figure}
+
+\noindent
+The confusion matrix looks similar in this case, as for the neural network method. However, the logistic regression does even worse when it comes to the very similar beans in class 5 and 6. Although it does equally good when it comes to the true positive rate of class 5, it predicts many more 6's to be class 5. In general, we see a heavy overprediction to class 5. Regarding the mix up between class 1 and 3, the logistic regression does a little better than the neural network. We can also see the same results, as in neural network model, with respect to the second class.
+
+\subsubsection{Decision tree}
+There is just one parameter to optimize here, the depth of the decision tree. We increase the depth in the model until we reach an accuracy of 1 for the training data. The plot underneath, figure \ref{fig: classification_depth_testing_decision_tree}, will show the accuracy score of the training- and testing data on all trained models. \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test6_accuracy_vs_decision_tree_classification_2.png}
+    \captionof{figure}{data: testing, accuracy vs. depth (decision tree)}
+    \label{fig: classification_depth_testing_decision_tree}
+\end{figure}
+
+\noindent
+In fig. \ref{fig: classification_depth_testing_decision_tree} we see that the depth giving the highest accuracy is around 5. The accuracy for training data will converge towards $100\%$ as the complexity increases (as told in section \ref{sec_decision_tree_theory}). We observe that a larger depth will cause an overfit. \\
+
+\noindent
+\textbf{Summary} \\
+
+\noindent
+Now, we want to see the accuracy and the confusion matrix. From the appendix (\textbf{Result 4}), the accuracy of training- and testing data are 0.904 and 0.902 (respectively).
+
+\noindent
+The decision tree algorithm seems to also work well for this data set, we get an accuracy score of around $90\%$. We also get the following figure (\ref{fig: classification_confusion_matrix_decision_tree}) the confusion matrix for testing data with the decision tree algorithm. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test5_confusion_matrix_decision_tree_optimal.png}
+    \captionof{figure}{data: testing, confusion matrix}
+    \label{fig: classification_confusion_matrix_decision_tree}
+\end{figure}
+
+\noindent
+The confusion matrix for decision trees does, as expected with almost same accuracy, look similar to the two previous methods. However, while logistic regression did worse than the neural network when predicting classes 5 and 6, the decision tree makes as many mistakes as the neural network. The decision tree does in contrast to logistic regression predict fewer 5's to 6 and more 6's to 5. We also see a slightly worse prediction with respect to class 1 and 3 than the previous methods. 
+
+\subsubsection{Random forest}
+Lastly, we will apply a random forest algorithm to our data. There is just one parameter to optimize here, the depth of each decision tree. We increase the tree depth until we reach an accuracy of 1 for the training data, and then we compare with the accuracy for testing data to identify the optimal depth. \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test8_random_forest_accuracy_vs_complexity.png}
+    \captionof{figure}{data: testing, accuracy vs. depth (random forest)}
+    \label{fig: classification_depth_testing_random_forest}
+\end{figure}
+
+\noindent
+In fig. \ref{fig: classification_depth_testing_random_forest}, we see that the depth giving the highest accuracy is around 6, and larger depths will cause an overfit. This depth is slightly higher than for a normal decision tree, meaning the random forest can handle a slightly higher complexity before overfitting. The random forest also this a little better than the decision tree in terms of accuracy. This is very much as expected as the random forest aggregates over many trees, and a groups prediction is generally more accurate than a single persons prediction. \cite{wisdom_of_crowds} \cite{vox_populi}. \\
+
+\noindent
+\textbf{Summary} \\
+
+\noindent
+Now, we want to see the accuracy and the confusion matrix for the random forest algorithm. In the appendix, \textbf{Result 5}, will give us accuracy scores of 0.914 and 0.913 to the training- and testing data set (respectively).
+
+\noindent
+We get an accuracy score of over $91\%$, slightly higher than the other methods. And we also get the following figure (\ref{fig: classification_confusion_matrix_random_forest}), the confusion matrix for testing data with the random forest algorithm. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test7_confusion_matrix_random_forest_optimal.png}
+    \captionof{figure}{data: testing, confusion matrix}
+    \label{fig: classification_confusion_matrix_random_forest}
+\end{figure}
+
+\noindent
+The confusion matrix again looks similar to the other algorithms we have tested. Most of the errors comes from misclassifying class 6 to 5, class 5 to 6 or class 1 to 3. 
+
+\subsubsection{Comparison and discussion}
+In this part of the project we have used four different machine learning algorithms to classify bean types in the dry beans dataset. The methods all performed very similarly in terms of accuracy. The worst performer was the decision tree classifier with reported test accuracy of 90.6\% and the best was the neural network with test accuracy of 91.7\%. By comparing the confusion matrices we learned that the most indistinguishable beans seems to be Dermason (class 5) and Sira (class 6) as trying to classify these resulted in the most wrong predictions. However, as reflected by the high accuracy scores, a large majority of the predictions corresponding to these beans was also correct. \\
+
+\noindent
+Comparing at the training and test accuracies of the different algorithms we see that these are very similar for all the models. This can be due to the nature of the dataset. The highly distinguishable classes makes the predictions simpler even for less complex models and our final choice of models are therefore generally of low complexity. This leads to less variation in our models and less overfitting and therefore similar train and test errors. \\
+
+\noindent The random forest did a little better in terms of accuracy than the single decision tree. However, we did expect the random forest to do even better. We again assume that the similarities in results is due to the nature of the dataset.\\
+
+\noindent As our results over all methods are very similar in terms of accuracy and prediction errors are not very critical in this case, one could make an argument to recommend using the method with lowest computation time. In the appendix section \ref{appendix_resut_6}, underneath \textbf{Result 6} we have presented the training time for all the methods. The decision tree algorithm (0.03s) is significantly faster than the others, while the random forest (0.56s) is also quite fast compared to the neural network (1.9s) and logistic regression (3.6s). However, none of the algorithms has particularly slow training time in our problem. 
+
+\noindent A lot of publications has been made by various people analysing this dataset. Comparing our accuracy scores with a paper published by a student at the Univerity of Technologies and Economics in Warsaw, Grzegorz Słowiński \cite{db_analysis}, we find that our results are not as good as the one he presented. Perhaps some of our models have missing implementation. For instance, we did not implement a learning schedule for our neural network, something that might have help the model give higher accuracy. Also perhaps, we could have increased the model complexities even further, though this could have lead to overfitting. It is also possible that we did not pick the best models for the relevant data set. We could also have looked at algorithms such as boosting or support vector machine.
+
+\subsection{Bias-variance trade-off (regression case)}
+\label{bias_variance_analysis_regression}
+Now, we are going to look at the bias-variance trade-off for three different machine learning algorithms: a neural network, decision tree and random forest. The bias variance trade-off analysis can be understood in section \ref{sec_bias_variance_method}. We will look at some errors against the complexity of the models, where the complexity parameter is somewhat different from one method to another. We are studying the housing data set (\ref{sec_regression_data}). We will use all the features utilized by the PCA (\ref{sec_pca_method}), and scale the data as described in section \ref{sec_scaling_data_method}.
+
+\subsubsection{Neural network}
+\label{sec_neural_network_regression}
+We need to optimize the neural network  parameters before we perform the bias-variance trade-off analysis. \\
+
+\noindent
+\textbf{Batch size and momentum parameter} \\
+
+\noindent
+We have chosen to go for the hidden activation function RELU in our initial optimization. Now, we want to find the optimal batch size and momentum parameter by looking at a heatmap with the momentum parameter and batch size at the x- and y-axis (respectively). The plot below (figure \ref{fig: regression_batch_Size_gamma_testing}) shows us the R2-score for testing data by different batch sizes and momentum parameters. By looking at the plot, it seems like the optimal values are on the right hand side, so a greater momentum parameter and it is closer to indifferent to the batch\_size. We have chosen to continue with a batch size of 120, and a gamma value of 0.8 since those give one of the best R2-scores and a lower momentum are more safer/stable than a higher one.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test22_M_400_gamma_0.9_lmbda_1e-05_eta_0.0005_test_3.png}
+    \captionof{figure}{Data: testing, R2-score of different batch sizes and gamma values}
+    \label{fig: regression_batch_Size_gamma_testing}
+\end{figure}
+
+\noindent
+\textbf{Hyperparameters learning rate and lambda} \\
+
+\noindent
+Now we want to find the optimal hyperparameter learning rate and lambda by making a grid search. Now, by the parameters we tuned for the batch size, momentum (in the SGD) and initial values of the architecture of the neural network, we are able to use those values for finding the optimal lambda and eta values. We will try to find the parameters, $\eta$ and $\lambda$, with the highest R2-score. The figure, \ref{fig: regression_lmbda_eta_testing} tells us that the best learning rate, $\eta$, is around $10^{-2}$ and $10^{-3}$ and the most stable lambdas are between $10^{-4}$ and $10^{-5}$.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test23_nepochs_500_M_120_gamma_0.8_features_8_test_14.png}
+    \captionof{figure}{data: testing, R2-score of different lambda- and eta values}
+    \label{fig: regression_lmbda_eta_testing}
+\end{figure}
+
+\noindent 
+We can see at fig. \ref{fig: regression_lmbda_eta_testing} that for a higher $\lambda$ value, the model will not be as overfitted as it would be without such a parameter. Also if the learning rate exceeds $10^{-2}$, we observe occurrences of exploding- or vanishing gradients, which leads to a poor model. With a too low learning rate, we observe that in some cases the training has been too slow to reach well tuned parameters. This could be fixed by setting up the number of epochs, but this would require more computing power which is something we want to avoid if possible. \\
+
+\noindent
+We conclude from this optimizing that the optimal parameters are: $\eta = 10^{-2}$, $\lambda = 10^{-4}$, $\gamma = 0.8$, batch size = 120. \\
+
+\noindent
+\textbf{Now, we are ready for doing the bias-variance trade off with the optimal values for the neural network} \\
+
+\noindent
+The complexity of a neural network can be regarded as the number of hidden layers, since we introduce more parameters to tune with each new layer, yielding more degrees of freedom. Number of nodes per hidden layer could also represent the complexity, but we are content with studying number of layers. We get the following plot, when studying the error vs. complexity of the optimized neural network. \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test21_bias_variance_boots_NN.png}
+    \captionof{figure}{data: testing; bias-variance trade-off (neural network)}
+    \label{fig: bias_variance_neural_network_regression}
+\end{figure}
+
+\noindent
+Figure \ref{fig: bias_variance_neural_network_regression} shows us the bias, variance and total MSE for the model as a function of complexity where we use the bootstrap resampling method for the predicted values. In the plot, we recognize that the bias will decreases when the complexity increases. This makes sense, as the model will not always be able to fit a complicated data set using a neural network of few hidden layers, the variance for such models is always low in the results of low complex models. When the complexity increases, we usually see the variance increase as well. These two effects makes it such that the MSE will often have a minimum when the complexity is not too high or too low, and hence there is an optimal trade-off between bias and variance.
+
+
+\subsubsection{Decision tree}
+In the decision tree algorithm, the depth is the parameter that can represent the complexity of the model. A deep tree requires many branches which means many degrees of freedom. The depth is the most important when tuning this algorithm, and therefore we do not need any pre-tuning before we look at the bias-variance trade-off. \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test24_decision_tree_2.png}
+    \captionof{figure}{data: testing; bias-variance trade-off (decision tree)}
+    \label{fig: decision_tree_bias_variance_regression}
+\end{figure}
+
+\noindent
+Figure \ref{fig: decision_tree_bias_variance_regression} shows us the same tendencies as in section \ref{sec_neural_network_regression}. The more complex model will result in an increasing variance and decreasing bias, and the optimal mean squared error is clearer in this plot. We can see that around a tree depth of 5 gives the lowest MSE, meaning it is the best trade-off between bias and variance. 
+% TODO: above, more on bias-variance??
+
+\subsubsection{Random forest}
+In the random forest algorithm, we study both the tree depth and number of trees as complexity parameters. The tree depth represents the complexity of each tree, while an increase in number of trees will make the random forest's complexity increase since the total complexity is number of trees times complexity in each tree. We will first look at how the bias/variance trade-off behaves when increasing the depth of each tree with the number of trees in the model is set to Scikit's default value of 100 trees. Later, we fix the tree sizes and study the behaviour when changing the number of trees. \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test25_random_forest_1.png}
+    \captionof{figure}{data: testing; bias-variance trade-off (Random forest)}
+    \label{fig: random_forest_bias_variance_regression_depth}
+\end{figure}
+
+\noindent
+Figure \ref{fig: random_forest_bias_variance_regression_depth} shows us that the random forest algorithm does not suffer much in the variance for the increase of depth. The almost constant (low) variance is an expected result as the method of a random forest aims to decrease the variance of the dataset \ref{sec_random_forest_theory}. On the other hand, we see that the bias is larger in the beginning, decreasing with complexity before it converges. This behaviour is similar to that of a single tree indicating that if we increase the maximum tree depth, we end up with many trees that are similar to the single decision tree. The optimal tree depth is not that easy to state as we expect that even weak learners with high bias will produce good predictions. It is however important to choose a depth were there is not too much bias in each tree as the bias in the random forest will be the same as the bias in each tree. We conclude that in this case the optimal tree depth is somewhere around 6 or 7. \\
+
+\noindent
+Now, we let the maximum depth of each tree be constant at 7 while changing the number of trees in the model. The results is the following plot:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{test26_random_forest_n_trees.png}
+    \captionof{figure}{data: testing; bias-variance trade-off (Random forest)}
+    \label{fig: random_forest_bias_variance_regression_amount_trees}
+\end{figure}
+
+\noindent
+It is evident from this plot that too few trees in the model results in much more variance. However, the variance decreases really fast when adding more trees to the model, before converging at a value close to zero. On the other hand, the bias is almost constant at a value around that of single tree with max depth 7. In this case, the optimal number of trees is much lower than 100 that we used before. A number around 40 trees seems to be sufficient. 
+
+
+\subsubsection{Comments and discussion of the methods}
+In this part of the project we have looked at how the bias/variance trade-off is different for a neural network, a decision tree and a random forest in a regression problem. In general, the neural network had the lowest bias, the random forest the lowest variance. As for the decision tree, we observed that this algorithm is more unstable than the others with significantly more variance as the complexity increases. This is expected behavior as it is known that the decision trees have high variance in general. \\
+
+\noindent
+Looking at the variance of the random forest, we see that this is the lowest amongst the three methods, no matter level of complexity. This is however no big surprise as the random forest algorithm improves the single decision tree only in terms of variance reduction. In a random forest, the bias in the final model is the same as for any of the trees withing the model. Since these trees are weak learners and has a high bias by construction, we had expected the bias of the single decision tree model to be a little lower than that of the random forest. However, from the plots we showed earlier it seems that the bias of the decision tree and the random forest are very much the same. Due to the random forest's low variance, it performs clearly better than the decision tree. \\
+
+\noindent
+Comparing the random forest to the neural network it is evident that the neural network is able to give somewhat lower mean square error at optimal complexity. However, the lower variance of the random forest results in a more stable and easy to train model. In other words, the random forest does not really suffer from overfitting for high complexity models due to its low variance, while the neural network is more dependant on choosing just the right complexity as it is prone to both over- and underfitting. 
+
+\newpage
+\section{Conclusion}
+% What we learned:
+% Data sets: PCA do not need all components, 
+% Methods: NN requires more tuning of parameters, decision tree and random forest train faster, 
+% Improvements: try more methods, 
+
+\noindent
+First of all, we have gained some interesting insight about the beans in the dry beans data set when looking at the different confusion matrices (figure \ref{fig: classification_confusion_matrix_NN}, \ref{fig: classification_confusion_matrix_logistic}, \ref{fig: classification_confusion_matrix_decision_tree} and \ref{fig: classification_confusion_matrix_random_forest}). The Dermaeson and Sira beans showed to be the most correlated, as trying to classify these beans gave the most confusion. On the other hand, the Bombay bean did not contribute at all to the prediction error indicating that this bean is uncorrelated with the other beans in the data set, and has some feature(s) that separates it from the others. \\
+
+\noindent
+We learned that after we applied PCA to the data sets, we did not need to use every component in the input data for the machine learning methods to be accurate. As we got almost 100$\%$ explained variance ratio for only 3 components, we saved training time by only using these three and not the entire input data set. Although the PCA works great for prediction on the data, it will lead to some loss of interpretability of final models. Especially for the decision tree method, where the algorithm is often easy to understand by the splitting regarding the input features. \\
+
+\noindent
+In the first part of the project, we tried to find the optimal algorithm for the classification data set about dry beans \ref{sec_classification_data}. We did this by optimizing the different machine learning algorithms by minimizing a cost function. The algorithms in this case were neural network, logistic regression, random forest and decision trees. Neural network has the most parameters to be tuned with its unique architecture. Both the neural network and logistic regression need to optimize the parameters in the stochastic gradient descent (SGD) algorithm, where the learning rate has a huge impact on the result. A large learning rate will probably jump over a minimum of the cost-function, while a too small learning rate will have a hard time converging. The momentum parameter in the SGD will help a lower learning rate converge faster, and the batch size will help the computational expenses since the model do not need to take the whole data set in consideration of the training at all times. For the machine learning method decision tree, the depth of the tree is the only parameter of importance. For a random forest, one also has consider the number of trees. Since the two latter machine learning methods have a smaller number of parameters to consider, it will be easier to implement and tune these. \\
+
+
+\noindent
+For the bias-variance analysis, we applied three methods to a regression data set and studied the bias and variance of each method as a function of model complexity. Model complexity is subjective to the specific model in question, and one has to interpret what parameters are most essential to represent the complexity. For the neural network, we chose number of hidden layers as the complexity parameter, and we got expected results when studying this: for low complexity, the model was not able to fit the data well which was shown in the high bias, while the variance was low. Meanwhile, for high complexity, the bias decreased as the neural network got more parameters to fit the data, but the variance increased as the model started overfitting the data. We found that there exists a perfect complexity where the total mean square error is lowest, meaning it is the perfect trafe-off between bias and variance. \\
+
+\noindent
+In the case of the decision tree, the depth was the most natural parameter of complexity as this decides how many branches the tree will split into. The decision tree showed similar results as the neural network: the bias decreased with complexity while the variance increased, yielding a perfect tree depth which trades off bias and variance well. 
+
+\noindent
+In the final case of the random forest, the analysis was different. First, we looked at tree depth as model complexity. We then as unusual saw a decrease in bias against complexity, but the variance was always low due to the high number of trees. We then looked at the number of trees as complexity parameter, and this time the variance decreased instead of increased, while the bias was close to constant. This means no matter if we interpret tree depth or number of trees as complexity parameter, the total mean square error decreases, but in the first case it is because of decreasing bias while in the other it is due to decreasing variance. This analysis would in fact result in: The higher the complexity, the better the model. We can obviously not increase the complexity to infinity as this will take infinite computing power, but we know that we can always expect accurate results if we choose both tree depth and number of trees to be high. 
+
+
+\noindent
+Our time with this project was limited, so it was necessary to restrict the project in some way. Further analysis we could have done would be to look at more types of machine learning algorithms, both for finding the best model regarding the accuracy score and to get a deeper insight in several methods.
+
+\newpage
+\section{Appendix}
+\subsection{Github repository}
+\label{sec_github_repository}
+\href{https://github.com/oystehbr/FYS-STK4155/tree/main/project3}{Github REPO - project 3}
+
+\subsection{How to reproduce the results/ figures (classification problem)}
+\label{sec_reproduce_figures}
+In this section, we will provide enough information to reproduce the results/ figures we are using in this project. Under (Result, Figure) X, we will give the necessary parameters and which test to run to achieve the correct figure. The tests we will refer to, is the tests inside \textbf{test\_project\_3.py}, attached in the github repository (section \ref{sec_github_repository}). \\
+
+
+\\\noindent
+\large
+\textbf{Result 1} \\
+\normalsize
+\label{appendix_result_1}
+% TODO: maybe explain the different initial guesses
+
+\noindent
+Run \textbf{test 9}, and get the following results to the terminal:
+\begin{lstlisting}[language = Python]
+-------------------------------------------------------
+>> RUNNING TEST 9:
+>> The distribution of the targets 
+0:  0.149 (SEKER)
+1:  0.097 (BARBUNYA)
+2:  0.038 (BOMBAY)
+3:  0.120 (CALI)
+4:  0.142 (HOROZ)
+5:  0.194 (SIRA)
+6:  0.261 (DERMASON)
+Total explained variance ratio (of 1 component):  1.000
+Total explained variance ratio (of 2 component):  1.000
+Total explained variance ratio (of 3 component):  1.000
+-------------------------------------------------------
+\end{lstlisting} 
+
+
+\begin{lstlisting}[language = Python]
+-----------------------------------------------
+>> Time: 1.9454131126s (Neural network)
+>> Time: 3.6890549660s (Logistic regression)
+>> Time: 0.0280399323s (Decision tree)
+>> Time: 0.5625009537s (Random forest)
+-----------------------------------------------
+\end{lstlisting} 
+
+\\\noindent
+\large
+\textbf{Result 2} \\
+\normalsize
+\label{appendix_result_2}
+
+\noindent
+Run \textbf{test 1} with the following parameters:
+\begin{lstlisting} [language = Python]
+-----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 30
+batch_size = 100
+lmbda = 1e-5
+eta = 1e-2
+gamma = 0.9
+hidden_nodes = 14
+hidden_layers = 4
+confusion_result = True
+-----------------------
+\end{lstlisting}
+Terminal output:
+\begin{lstlisting} [language = Python]
+-----------------------------------------
+>> RUNNING TEST 1 <<
+Accuracy for training: 0.9114420062695925
+Accuracy for testing: 0.9174258007640317
+-----------------------------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Result 3} \\
+\normalsize
+\label{appendix_result_3}
+
+\noindent
+Run \textbf{test 11} with the following parameters:
+\begin{lstlisting} [language = Python]
+-----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 200
+batch_size = 500
+gamma = 0.8
+eta = 1e-2
+lmbda = 1e-5
+confusion_result = True
+-----------------------
+\end{lstlisting}
+Terminal output:
+\begin{lstlisting} [language = Python]
+---------------------------------------
+>> RUNNING TEST 11 <<
+Training accuracy: 0.9065438871473355
+Testing accuracy: 0.9062591830737584
+---------------------------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Result 4} \\
+\normalsize
+\label{appendix_result_4}
+
+\noindent
+Run \textbf{test 5} with the following parameters:
+\begin{lstlisting} [language = Python]
+-----------------------
+n_components = 3
+m_observations = 13611
+max_depth = 5
+confusion_result = True
+-----------------------
+\end{lstlisting}
+Terminal output:
+
+\begin{lstlisting} [language = Python]
+---------------------------------------
+>> RUNNING TEST 5:
+Accuracy_train = 0.9042907523510971
+Accuracy_test = 0.9021451660299735
+---------------------------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Result 5} \\
+\normalsize
+\label{appendix_result_5}
+
+\noindent
+Run \textbf{test 7} with the following parameters:
+\begin{lstlisting} [language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+max_depth = 6
+confusion_result = True
+----------------------
+\end{lstlisting}
+Terminal output:
+\begin{lstlisting} [language = Python]
+---------------------------------------
+>> RUNNING TEST 7:
+Accuracy_train = 0.9141849529780565
+Accuracy_test = 0.9133117837202468
+---------------------------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Result 6} \\
+\normalsize
+\label{appendix_result_6}
+
+\noindent
+Run \textbf{test 10} \\
+
+\noindent
+Terminal output:
+\begin{lstlisting} [language = Python]
+--------------------------------------------
+>> RUNNING TEST 10:
+>> Time: 1.9454131126s (Neural network)
+>> Time: 3.6890549660s (Logistic regression)
+>> Time: 0.0280399323s (Decision tree)
+>> Time: 0.5625009537s (Random forest)
+--------------------------------------------
+\end{lstlisting} 
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_architecture_testing}} \\
+\normalsize
+\label{appendix_figure_4}
+
+\noindent
+Run \textbf{test 2} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 80
+batch_size = 500
+gamma = 0.8
+eta = 1e-2
+lmbda = 1e-4
+act_func = 'relu'
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_batch_Size_gamma_testing_NN}} \\
+\normalsize
+\label{appendix_figure_5}
+
+\noindent
+Run \textbf{test 3} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+eta = 1e-2
+lmbda = 1e-4
+act_func = 'relu'
+hidden_nodes = 14
+hidden_layers = 4
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_lmbda_eta_testing_NN}} \\
+\normalsize
+\label{appendix_figure_6}
+
+\noindent
+Run \textbf{test 4} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 80
+gamma = 0.9
+batch_size = 100
+act_func = 'relu'
+hidden_nodes = 14
+hidden_layers = 4
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: activation_function_sigmoid}} \\
+\normalsize
+\label{appendix_figure_7}
+
+\noindent
+Run \textbf{test 4} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 80
+gamma = 0.9
+batch_size = 100
+act_func = 'sigmoid'
+hidden_nodes = 14
+hidden_layers = 4
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_confusion_matrix_NN}} \\
+\normalsize
+\label{appendix_figure_8}
+
+\noindent
+Run \textbf{test 1} with the following parameters:
+\begin{lstlisting} [language = Python]
+-----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 30
+batch_size = 100
+lmbda = 1e-5
+eta = 1e-2
+gamma = 0.9
+hidden_nodes = 14
+hidden_layers = 4
+confusion_result = True
+-----------------------
+\end{lstlisting}
+Terminal output:
+\begin{lstlisting} [language = Python]
+-----------------------------------------
+>> RUNNING TEST 1 <<
+Accuracy for training: 0.9114420062695925
+Accuracy for testing: 0.9174258007640317
+-----------------------------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_batch_size_gamma_testing_logistic}} \\
+\normalsize
+\label{appendix_result_2}
+
+\noindent
+Run \textbf{test 12} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+eta = 1e-3
+lmbda = 0
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_lmbda_eta_testing_logistic}} \\
+\normalsize
+\label{appendix_figure_12}
+
+\noindent
+Run \textbf{test 13} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 100
+batch_size = 500
+gamma = 0.8
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_confusion_matrix_logistic}} \\
+\normalsize
+\label{appendix_figure_13}
+
+\noindent
+Run \textbf{test 11} with the following parameters:
+\begin{lstlisting} [language = Python]
+-----------------------
+n_components = 3
+m_observations = 13611
+n_epochs = 200
+batch_size = 500
+gamma = 0.8
+eta = 1e-2
+lmbda = 1e-5
+confusion_result = True
+-----------------------
+\end{lstlisting}
+Terminal output:
+\begin{lstlisting} [language = Python]
+-----------------------------------------
+>> RUNNING TEST 11 <<
+Training accuracy: 0.9065438871473355
+Testing accuracy: 0.9062591830737584
+-----------------------------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_depth_testing_decision_tree}} \\
+\normalsize
+\label{appendix_figure_14}
+
+\noindent
+Run \textbf{test 6} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_confusion_matrix_decision_tree}} \\
+\normalsize
+\label{appendix_figure_15}
+
+\noindent
+Run \textbf{test 5} with the following parameters:
+\begin{lstlisting} [language = Python]
+-----------------------
+n_components = 3
+m_observations = 13611
+max_depth = 5
+confusion_result = True
+-----------------------
+\end{lstlisting}
+Terminal output:
+
+\begin{lstlisting} [language = Python]
+---------------------------------------
+>> RUNNING TEST 5:
+Accuracy_train = 0.9042907523510971
+Accuracy_test = 0.9021451660299735
+---------------------------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_depth_testing_random_forest}} \\
+\normalsize
+\label{appendix_figure_16}
+
+\noindent
+Run \textbf{test 8} with the following parameters:
+\begin{lstlisting}[language = Python]
+----------------------
+n_components = 3
+m_observations = 13611
+----------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: classification_confusion_matrix_random_forest}} \\
+\normalsize
+\label{appendix_result_17}
+
+\noindent
+Run \textbf{test 5} with the following parameters:
+\begin{lstlisting} [language = Python]
+-----------------------
+n_components = 3
+m_observations = 13611
+max_depth = 6
+confusion_result = True
+-----------------------
+\end{lstlisting}
+Terminal output:
+\begin{lstlisting} [language = Python]
+-------------------------------------
+>> RUNNING TEST 7:
+Accuracy_train = 0.9141849529780565
+Accuracy_test = 0.9133117837202468
+-------------------------------------
+\end{lstlisting}
+
+\subsection{How to reproduce the figures (regression problem)}
+\label{sec_reproduce_figures_regression}
+In this section, we will provide enough information to reproduce the figures we are using in this project. Under Figure X, we will give the necessary parameters and which test to run to achieve the correct figure. The tests i will refer to, is the test inside \textbf{test\_project\_3.py}, attached in the github repository (section \ref{sec_github_repository}) \\
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: regression_batch_Size_gamma_testing}} \\
+\normalsize
+\label{appendix_figure_18}
+% TODO: maybe explain the different initial guesses
+
+\noindent
+Run \textbf{test 22} with the following parameters:
+\begin{lstlisting}[language = Python]
+---------------------
+n_components = 8
+m_observations = 2000
+eta = 5e-4
+lmbda = 1e-5
+hidden_nodes = 20
+hidden_layers = 3
+act_func = 'relu'
+---------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: regression_lmbda_eta_testing}} \\
+\normalsize
+\label{appendix_figure_19}
+
+\noindent
+Run \textbf{test 23} with the following parameters:
+\begin{lstlisting}[language = Python]
+---------------------
+n_components = 8
+m_observations = 2000
+gamma = 0.8
+batch_size = 120
+hidden_nodes = 60
+hidden_layers = 7
+act_func = 'relu'
+epochs = 500
+---------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: bias_variance_neural_network_regression}} \\
+\normalsize
+\label{appendix_figure_20}
+
+\noindent
+Run \textbf{test 21} with the following parameters:
+\begin{lstlisting}[language = Python]
+---------------------
+n_components = 8
+m_observations = 2000
+gamma = 0.8
+batch_size = 120
+eta = 1e-2
+lmbda = 1e-4
+hidden_nodes = 60
+epochs = 500
+act_func = 'relu'
+---------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: decision_tree_bias_variance_regression}} \\
+\normalsize
+\label{appendix_figure_21}
+
+\noindent
+Run \textbf{test 24} with the following parameters:
+\begin{lstlisting}[language = Python]
+---------------------
+n_components = 8
+m_observations = 2000
+max_degree = 20
+n_bootstrap = 1000
+---------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: random_forest_bias_variance_regression_depth}} \\
+\normalsize
+\label{appendix_figure_22}
+
+\noindent
+Run \textbf{test 25} with the following parameters:
+\begin{lstlisting}[language = Python]
+---------------------
+n_components = 8
+m_observations = 2000
+max_degree = 20
+n_bootstrap = 100
+---------------------
+\end{lstlisting}
+
+\\\noindent
+\large
+\textbf{Figure \ref{fig: random_forest_bias_variance_regression_amount_trees}} \\
+\normalsize
+\label{appendix_figure_22}
+
+\noindent
+Run \textbf{test 26} with the following parameters:
+\begin{lstlisting}[language = Python]
+---------------------
+n_components = 8
+m_observations = 2000
+max_degree = 100
+n_bootstraps = 10
+---------------------
+\end{lstlisting}
+
+\newpage
+\section{Bibliography}
+\printbibliography[heading=none] 
+
+\end{document}
