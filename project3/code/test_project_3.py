@@ -1125,7 +1125,7 @@ if test19:
     X_train, X_test, y_train, y_test = helper.load_housing_california_data(
         n_components, 1000)
 
-    max_depths = np.arange(4, 100, 2)
+    max_depths = np.arange(4, 10, 2)
 
     train_accuracy_score = []
     test_accuracy_score = []
@@ -1134,7 +1134,7 @@ if test19:
     last_train_accuracy = 0
     for i, max_depth in enumerate(max_depths):
         clf = RandomForestRegressor(
-            max_depth=max_depth, random_state=50)
+            max_depth=max_depth, random_state=50, n_estimators=25)
 
         # Fit the data to the model we have created
         clf.fit(X_train, y_train)
@@ -1683,7 +1683,7 @@ if test26:
             _X, _y, = helper.resample(X_train, y_train)
 
             # Create randomforest instance, with amount of max_depth
-            clf = RandomForestRegressor(max_depth=10, n_estimators=degree)
+            clf = RandomForestRegressor(max_depth=7, n_estimators=degree)
 
             # Fit the data to the model we have created
             clf.fit(_X, _y)
