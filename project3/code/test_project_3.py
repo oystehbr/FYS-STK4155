@@ -15,6 +15,7 @@ VSCODE: CTRL K -> CTRL 0 (close all if-statements, functions etc.)
 then this file will be very easy to read/ use
 """
 
+from inspect import FullArgSpec
 import time
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
@@ -552,7 +553,7 @@ if test8:
     last_train_accuracy = 0
     for i, max_depth in enumerate(max_depths):
         clf = RandomForestClassifier(
-            max_depth=max_depth)
+            max_depth=max_depth, n_estimators=10)
 
         # Fit the data to the model we have created
         clf.fit(X_train, y_train)
@@ -649,9 +650,9 @@ if test10:
         # Fitting the model
         model.fit(X_train, y_train_NN,
                   epochs=n_epochs,
-                  batch_size=batch_size)
+                  batch_size=batch_size, verbose=0)
     time_neural = time.time() - time_neural_start
-    print('>> Time: {time_neural} s (Neural network)')
+    print(f'>> Time: {time_neural:.10f}s (Neural network)')
 
     logistic_regression = True
     time_logistic_start = time.time()
@@ -679,7 +680,7 @@ if test10:
             lmbda=lmbda
         )
     time_logistic = time.time() - time_logistic_start
-    print('>> Time: {time_logistic} s (Logistic regression)')
+    print(f'>> Time: {time_logistic:.10f}s (Logistic regression)')
 
     decision_tree = True
     time_tree_start = time.time()
@@ -694,7 +695,7 @@ if test10:
         # Fit the data to the model we have created
         clf.fit(X_train, y_train_decision_tree)
     time_tree = time.time() - time_tree_start
-    print('>> Time: {time_tree} s (Decision tree)')
+    print(f'>> Time: {time_tree:.10f}s (Decision tree)')
 
     random_forest = True
     time_forest_start = time.time()
@@ -709,7 +710,7 @@ if test10:
         # Fit the data to the model we have created
         clf.fit(X_train, y_train_random_forest)
     time_forest = time.time() - time_forest_start
-    print('>> Time: {time_forest} s (Random forest)')
+    print(f'>> Time: {time_forest:.10f}s (Random forest)')
 
 
 """
@@ -1613,7 +1614,7 @@ if test25:
         iter += 1
         print(f"---------------- {iter}/{max_degree} RUNS ----------------")
 
-        # Finding MSE, bias and variance from the bootstra
+        # Finding MSE, bias and variance from the bootstrap
         MSE_test = np.mean(np.mean(
             (y_pred_test_matrix - np.transpose(np.array([y_test])))**2))
 
@@ -1641,5 +1642,85 @@ if test25:
         Data points: {len(X_train[:,0]) + len(X_test[:,0])}; Method: Random forest"
     )
     plt.savefig('plots/test25/test25_random_forest_1')
+    plt.show()
+    plt.close()
+
+"""
+TEST 26:
+DATASET: Housing data (regression case)
+METHOD: Random forest
+
+Bias-variance tradeoff. The error vs. the complexity of the method,
+where the complexity in random forest is the number of trees. The amount of
+trees in the random forest is set by default to 10. 
+"""
+
+test26 = True
+if test26:
+    print('>> RUNNING TEST 26:')
+    n_components = 8
+    m_observations = 2000
+    X_train, X_test, y_train, y_test = helper.load_housing_california_data(
+        n_components, m_observations)
+
+    # Store the MSE, bias and variance values for test data
+    list_of_MSE_testing = []
+    list_of_bias_testing = []
+    list_of_variance_testing = []
+
+    iter = 0
+    max_degree = 100
+    n_bootstraps = 10
+    # Finding MSE, bias and variance of test data for different degrees
+    for degree in range(1, max_degree + 1, 10):
+
+        # Create matrix for storing the bootstrap results
+        y_pred_test_matrix = np.empty((y_test.shape[0], n_bootstraps))
+
+        # Running bootstrap-method
+        for i in range(n_bootstraps):
+
+            _X, _y, = helper.resample(X_train, y_train)
+
+            # Create randomforest instance, with amount of max_depth
+            clf = RandomForestRegressor(max_depth=10, n_estimators=degree)
+
+            # Fit the data to the model we have created
+            clf.fit(_X, _y)
+
+            # Make predictions
+            y_pred_test_matrix[:, i] = clf.predict(X_test).reshape(1, -1)
+
+        iter += 1
+        print(f"---------------- {iter}/{max_degree/10} RUNS ----------------")
+
+        # Finding MSE, bias and variance from the bootstrap
+        MSE_test = np.mean(np.mean(
+            (y_pred_test_matrix - np.transpose(np.array([y_test])))**2))
+
+        bias_test = np.mean(
+            (y_test - np.mean(y_pred_test_matrix, axis=1, keepdims=False))**2)
+
+        variance_test = np.mean(
+            np.var(y_pred_test_matrix, axis=1, keepdims=False))
+
+        list_of_MSE_testing.append(MSE_test)
+        list_of_bias_testing.append(bias_test)
+        list_of_variance_testing.append(variance_test)
+
+    plt.plot(range(1, max_degree + 1, 10),
+             list_of_MSE_testing, label="Test sample - error")
+    plt.plot(range(1, max_degree + 1, 10),
+             list_of_bias_testing, label="Test sample - bias")
+    plt.plot(range(1, max_degree + 1, 10),
+             list_of_variance_testing, label="Test sample - variance")
+    plt.xlabel("Model Complexity")
+    plt.ylabel("Prediction Error")
+    plt.legend()
+    plt.title(
+        f"bias-variance trade-off vs model complexity\n\
+        Data points: {len(X_train[:,0]) + len(X_test[:,0])}; Method: Random forest"
+    )
+    plt.savefig('plots/test26/test26_random_forest_n_trees')
     plt.show()
     plt.close()
