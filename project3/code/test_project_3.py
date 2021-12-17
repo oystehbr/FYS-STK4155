@@ -512,7 +512,7 @@ if test7:
         sns.set(font_scale=1.4)  # for label size
         sns.heatmap(df_cm, annot=True, annot_kws={
                     "size": 12}, fmt='d', cmap='Blues')  # font size
-        plt.title(f'Confusion matrix for beans data (Decision tree)')
+        plt.title(f'Confusion matrix for beans data (Random forest)')
         plt.xlabel("classes")
         plt.ylabel("classes")
 
@@ -585,7 +585,7 @@ if test8:
     plt.ylabel("Accuracy score")
     plt.legend()
     plt.title(
-        f"Accuracy vs max depth used in the decision tree algorithm")
+        f"Accuracy vs max depth used in the random forest algorithm")
     plt.savefig('plots/test8/test8_random_forest_accuracy_vs_complexity.png')
 
     plt.show()
